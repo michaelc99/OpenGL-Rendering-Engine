@@ -25,7 +25,7 @@
         	
     </configuration>
     	
-    <configuration id="cdt.managedbuild.toolchain.gnu.mingw.base.1238016036.361044282" name="Debug">
+    <configuration id="cdt.managedbuild.toolchain.gnu.mingw.base.1238016036.361044282" name="GDB">
         		
         <extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
             			
