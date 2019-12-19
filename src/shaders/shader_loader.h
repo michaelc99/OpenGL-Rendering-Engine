@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cassert>
+#include <memory>
 #include <exceptions/render_exception.h>
 
 #include <glad/glad.h>
@@ -14,34 +16,38 @@ class ShaderObject {
         ShaderObject(GLenum type) : type(type), shader(0), filename("") {}
         ShaderObject(GLenum type, std::string filename);
         ~ShaderObject();
-        void Load(std::string filename);
-        void Compile();
-        void Release();
+        void load(std::string filename);
+        void compile();
+        void release();
         GLenum getType() { return type; }
         GLuint getShader() { return shader; }
         std::string getFileName() { return filename; }
     private:
+        std::string readShader(std::string filename);
+        
         GLenum type;
         GLuint shader;
         std::string filename;
-        std::string ReadShader(std::string filename);
 };
 
 class ShaderProgram {
     public:
-        ShaderProgram(GLenum type);
-        ShaderProgram(GLenum type, std::string filename);
+        ShaderProgram();
+        ShaderProgram(std::vector<GLenum> types, std::vector<std::string> filenames);
         ~ShaderProgram();
-        void AddShaderObject(ShaderObject& shaderObject);
-        //ShaderObject RemoveShaderObject(GLuint shader);
-        void Link();
-        void Release();
-        GLenum getType() { return type; }
+        void addShaderObject(std::shared_ptr<ShaderObject> shaderObject);
+        void link();
+        void release();
+        void use();
+        /*void setUniform();
+        void setUniform();
+        void setUniform();
+        void setUniform();
+        void setUniform();*/
+        
         GLuint getProgram() { return program; }
     private:
-        GLenum type;
         GLuint program;
-        //std::vector<ShaderObject> shaderObjects;
         std::vector<std::string> shaderFileNames;
 };
 

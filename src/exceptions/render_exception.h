@@ -1,17 +1,12 @@
 #ifndef RENDER_EXCEPTION_H
 #define RENDER_EXCEPTION_H
 
-#include <exception>
-#include <iostream>
-#include <string>
+#include <exceptions/general_exception.h>
 
-class RenderException : std::exception {
+class RenderException : public GeneralException {
     public:
-        RenderException(std::string message) : message(message) {}
-        const std::string getMessage() const { return message; }
-        const char* what() const noexcept { return message.c_str(); }
+        RenderException(std::string message) : GeneralException(std::string("RenderException:") + message) {}
     private:
-       const std::string message;
 };
 
 #endif //RENDER_EXCEPTION_H

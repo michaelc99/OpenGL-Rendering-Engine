@@ -4,6 +4,7 @@
 
 #include <exceptions/render_exception.h>
 #include <shaders/shader_loader.h>
+#include <math/linear_math.h>
 
 #include <glad/glad.h> // Must include before GLFW
 #include <GLFW/glfw3.h>
@@ -51,7 +52,7 @@ int main(void) {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         GLFWwindow* window = glfwCreateWindow(500, 500, "My Window", NULL, NULL);
         if(!window) {
-            throw RenderException("ERROR: GLFW window creation failed, aborting.");
+            throw RenderException(ERROR_INFO + ":ERROR: GLFW window creation failed, aborting.");
         }
         glfwMakeContextCurrent(window);
         
@@ -62,7 +63,7 @@ int main(void) {
         
         // GLAD can load OpenGL functions after setting up context
         if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-            throw RenderException("ERROR: GLAD unable to load GL.");
+            throw RenderException(ERROR_INFO + ":ERROR: GLAD unable to load GL.");
         }
         cout << "OpenGL " << GLVersion.major << "." << GLVersion.minor << endl;
         
@@ -72,26 +73,68 @@ int main(void) {
         cout << "Frame buffer size = (" << frameWidth << ", " << frameHeight << ")" << endl;
         
         // Random info ////
-        int focused = glfwGetWindowAttrib(window, GLFW_FOCUSED);
+        /*int focused = glfwGetWindowAttrib(window, GLFW_FOCUSED);
         int windowWidth, windowHeight;
         glfwGetWindowSize(window, &windowWidth, &windowHeight);
         cout << "Focused = " << focused << ", Window size = (" << windowWidth << ", " << windowHeight << ")" << endl;
         int majorVer = glfwGetWindowAttrib(window, GLFW_CONTEXT_VERSION_MAJOR);
         int minorVer = glfwGetWindowAttrib(window, GLFW_CONTEXT_VERSION_MINOR);
-        cout << "Context OpenGL version " << majorVer << "." << minorVer << endl;
+        cout << "Context OpenGL version " << majorVer << "." << minorVer << endl;*/
         ////////////////////
         
         // Shader loading
-        ShaderObject vertexShader = ShaderObject(GL_VERTEX_SHADER, "basic_triangle.vs.glsl");
-        vertexShader.Compile();
-        ShaderObject fragShader = ShaderObject(GL_FRAGMENT_SHADER, "basic_triangle.fs.glsl");
-        fragShader.Compile();
-        ShaderProgram shaderProgram = ShaderProgram(GL_VERTEX_SHADER);
-        shaderProgram.AddShaderObject(vertexShader);
-        shaderProgram.AddShaderObject(fragShader);
-        shaderProgram.Link();
-        vertexShader.Release();
-        fragShader.Release();
+        ShaderProgram shaderProgram = ShaderProgram({GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, {"basic_triangle.vs.glsl", "basic_triangle.fs.glsl"});
+        ShaderProgram shaderProgram2 = ShaderProgram({GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, {"basic_triangle.vs.glsl", "alt_triangle.fs.glsl"});
+        
+        //////////////////////// Create VAOs /////
+        testfunc();
+        
+        // Vertices of triangle
+        float vertices[] = {
+            -0.5f, -0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+            0.0f, 0.5f, 0.0f
+        };
+        float colors[] = {
+            1.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 1.0f
+        };
+        float modelData[9 * 2];
+        for(int i = 0; i < 9; i++) {
+            modelData[i] = vertices[i];
+        }
+        for(int i = 0; i < 9; i++) {
+            modelData[i + 9] = colors[i];
+        }
+        unsigned int indices[] = {
+            0, 1, 2
+        };
+        
+        unsigned int VAO;
+        glGenVertexArrays(1, &VAO);
+        
+        unsigned int VBO;
+        glGenBuffers(1, &VBO);
+        
+        unsigned int EBO;
+        glGenBuffers(1, &EBO);
+        
+        // FIRST VAO
+        glBindVertexArray(VAO);
+        // VBO Load vertices of shape into GPU memory
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(modelData), modelData, GL_STATIC_DRAW);
+        // EBO Load indices of shape into GPU memory
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        // VertexAttribPointers Setup shader plumbing for vertices
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        // For colors
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(3 * 3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        /////////////////////////////////////////
         
         // Set minimum of 1 frame time between swapping buffer
         glfwSwapInterval(1);
@@ -100,57 +143,42 @@ int main(void) {
             glfwPollEvents();
             
             // Render to back buffer
-            glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             
-            // Vertices of triangle
-            float vertices[][9] = {
-                {
-                    0.0f, 0.0f, 0.0f,
-                    1.0f, 0.5f, 0.0f,
-                    1.0f, -0.5f, 0.0f
-                },
-                {
-                    0.0f, 0.0f, 0.0f,
-                    -1.0f, 0.5f, 0.0f,
-                    -1.0f, -0.5f, 0.0f
-                }
-            };
-            
-            // ID for VBO
-            unsigned int VBO[2];
-            glGenBuffers(2, VBO);
-            
-            // Load first triangle into GPU memory
-            glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]), vertices[0], GL_STATIC_DRAW);
-            
-            // Load second triangle into GPU memory
-            glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[1]), vertices[1], GL_STATIC_DRAW);
-            
-            // Use shader program
+            // DRAWING
             glUseProgram(shaderProgram.getProgram());
+            GLint colorUniform = glGetUniformLocation(shaderProgram.getProgram(), "colorFromApplication");
+            float time = ((int)(100.0f * glfwGetTime()) % 200) / 200.0f -0.5f;
+            float colorToSend[] = {time, time, time, 1.0f};
+            glUniform4fv(colorUniform, 1, colorToSend);
             
-            // ????????????????
-            
-            glDeleteBuffers(2, VBO);
+            glBindVertexArray(VAO);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
             
             glfwSwapBuffers(window);
         }
+        
+        glDeleteBuffers(1, &VBO);
         
         glfwDestroyWindow(window);
         
         // Terminate to free memory and resources
         glfwTerminate();
     }
-    catch(RenderException& e) {
+    catch(GeneralException& e) {
         cerr << e.getMessage() << endl;
         glfwTerminate();
         return -1;
     }
     catch(exception& e) {
         cerr << e.what() << endl;
+        glfwTerminate();
+        return -1;
+    }
+    catch(...) {
+        cerr << "ERROR: Unknown exception occurred." << endl;
         glfwTerminate();
         return -1;
     }
