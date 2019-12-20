@@ -87,7 +87,7 @@
         		
         <cconfiguration id="cdt.managedbuild.toolchain.gnu.mingw.base.436079197.1372617240">
             			
-            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.mingw.base.436079197.1372617240" moduleId="org.eclipse.cdt.core.settings" name="GDB Debug">
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.mingw.base.436079197.1372617240" moduleId="org.eclipse.cdt.core.settings" name="Full">
                 				
                 <externalSettings/>
                 				
@@ -111,7 +111,7 @@
             			
             <storageModule moduleId="cdtBuildSystem" version="4.0.0">
                 				
-                <configuration buildProperties="" description="Compile debug with gdb support.  Builds everything." id="cdt.managedbuild.toolchain.gnu.mingw.base.436079197.1372617240" name="GDB Debug" optionalBuildProperties="" parent="org.eclipse.cdt.build.core.emptycfg">
+                <configuration buildProperties="" description="Build debug version of everything. GDB support" id="cdt.managedbuild.toolchain.gnu.mingw.base.436079197.1372617240" name="Full" optionalBuildProperties="" parent="org.eclipse.cdt.build.core.emptycfg">
                     					
                     <folderInfo id="cdt.managedbuild.toolchain.gnu.mingw.base.436079197.1372617240." name="/" resourcePath="">
                         						

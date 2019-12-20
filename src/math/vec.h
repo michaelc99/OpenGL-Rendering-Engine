@@ -405,6 +405,17 @@ Vec<T, 3> cross(const Vec<T, 3>& vec1, const Vec<T, 3>& vec2) {
     return crossProduct;
 }
 
+// Cross product for Vec<T, 4>
+template<typename T>
+Vec<T, 4> cross(const Vec<T, 4>& vec1, const Vec<T, 4>& vec2) {
+    Vec<T, 4> crossProduct;
+    crossProduct[0] = (vec1[1] * vec2[2]) - (vec2[1] * vec1[2]);
+    crossProduct[1] = (vec1[0] * vec2[2]) - (vec2[0] * vec1[2]);
+    crossProduct[2] = (vec1[0] * vec2[1]) - (vec2[0] * vec1[1]);
+    crossProduct[3] = 1.0f;
+    return crossProduct;
+}
+
 // Specifically sized vectors
 template<typename T>
 class Vec2 : public Vec<T, 2> {

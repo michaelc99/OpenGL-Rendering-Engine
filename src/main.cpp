@@ -3,7 +3,7 @@
 #include <chrono>
 
 #include <exceptions/render_exception.h>
-#include <shaders/shader_loader.h>
+#include <shaders/shaders.h>
 #include <math/linear_math.h>
 
 #include <glad/glad.h> // Must include before GLFW
@@ -150,10 +150,12 @@ int main(void) {
             
             // DRAWING
             ADD_ERROR_INFO(shaderProgram->use());
-            GLint colorUniform = glGetUniformLocation(shaderProgram->getProgram(), "colorFromApplication");
             float time = ((int)(100.0f * glfwGetTime()) % 200) / 200.0f -0.5f;
+            Vec4f timeVec(time, time, time, 1.0f);
+            ADD_ERROR_INFO(shaderProgram->setUniformVariable("colorFromApplication", timeVec));
+            /*GLint colorUniform = glGetUniformLocation(shaderProgram->getProgram(), "colorFromApplication");
             float colorToSend[] = {time, time, time, 1.0f};
-            glUniform4fv(colorUniform, 1, colorToSend);
+            glUniform4fv(colorUniform, 1, colorToSend);*/
             
             glBindVertexArray(VAO);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

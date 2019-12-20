@@ -296,6 +296,14 @@ namespace VecTests {
         
         result = stringstream();
         expected = stringstream();
+        Vec4f vec4_1 = Vec4f(1.0f, 0.0f, 0.0f, 1.0f);
+        Vec4f vec4_2 = Vec4f(0.0f, 1.0f, 0.0f, 1.0f);
+        result << cross(vec4_1, vec4_2);
+        expected << "[0, 0, 1, 1]";
+        CompareResult(ERROR_INFO, expected, result);
+        
+        result = stringstream();
+        expected = stringstream();
         vec = Vec3f(1.0f, 2.0f, -3.0f);
         vec2 = Vec3f(1.0f, 2.0000003f, -3.0f);
         result << equalsTol(vec, vec2, 0.0001f);

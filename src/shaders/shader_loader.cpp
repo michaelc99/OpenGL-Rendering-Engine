@@ -67,7 +67,7 @@ ShaderProgram::ShaderProgram(vector<GLenum>types, vector<string> filenames) : Sh
     assert(types.size() == filenames.size());
 #endif
     create();
-    std::vector<shared_ptr<ShaderObject>> shaderObjects;
+    vector<shared_ptr<ShaderObject>> shaderObjects;
     for(size_t i = 0; i < filenames.size(); i++) {
         shared_ptr<ShaderObject> shaderObject(new ShaderObject(types[i], filenames[i]));
         shaderObject->compile();
@@ -110,7 +110,7 @@ void ShaderProgram::addShaderObject(shared_ptr<ShaderObject> shaderObject) {
     linked = false;
 }
 
-void ShaderProgram::detachShaderObject(std::shared_ptr<ShaderObject> shaderObject) {
+void ShaderProgram::detachShaderObject(shared_ptr<ShaderObject> shaderObject) {
     if(!program) {
         throw RenderException("ERROR: Attempted to add shader object to shader program before it was created.");
     }
@@ -150,7 +150,7 @@ void ShaderProgram::release() {
     }
 }
 
-void ShaderProgram::use() {
+void ShaderProgram::use() const {
     if(!program) {
         throw RenderException("ERROR: Attempted to use shader program that wasn't created.");
     }

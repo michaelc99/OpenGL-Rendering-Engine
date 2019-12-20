@@ -1,3 +1,8 @@
+/*
+ * DO NOT INCLUDE THIS FILE, IT HAS TEMPLATES SPLIT UP
+ * 
+ * INCLUDE SHADERS.H
+ */
 #ifndef SHADER_LOADER_H
 #define SHADER_LOADER_H
 
@@ -44,21 +49,43 @@ class ShaderProgram {
         void link();
         void detachShaderObject(std::shared_ptr<ShaderObject> shaderObject);
         void release();
-        void use();
+        void use() const;
         
-        /*void setUniformVariable(std::string variableName, float val);
-        void setUniformVariable(std::string variableName, double val);
-        void setUniformVariable(std::string variableName, int val);
-        void setUniformVariable(std::string variableName, unsigned int val);
-        void setUniformVariable(std::string variableName, bool val);
-        template<typename T, size_t COLS>
-        // NEED TO ASSERT COLS ARE IN ALLOWABLE GLSL RANGE AND T IS A VALID TYPE
-        void setUniformVariable(std::string variableName, Vec<T, COLS> val);
-        template<typename T, size_t ROWS, size_t COLS>
-        // NEED TO ASSERT ROWS AND COLS ARE IN ALLOWABLE GLSL RANGE AND T IS A VALID TYPE
-        void setUniformVariable(std::string variableName, Mat<T, ROWS, COLS> val);
+        GLint getUniformLocation(const std::string variableName) const;
+        void setUniformVariable(const std::string variableName, float val) const;
+        void setUniformVariable(const std::string variableName, double val) const;
+        void setUniformVariable(const std::string variableName, int val) const;
+        void setUniformVariable(const std::string variableName, unsigned int val) const;
         
-        void setUniformBlock(std::string blockName, std::shared_ptr<void> buf, size_t size);*/
+        template<size_t COLS>
+        void setUniformVariable(const std::string variableName, const std::vector<Vec<float, COLS>>& values) const;
+        template<size_t COLS>
+        void setUniformVariable(const std::string variableName, const std::vector<Vec<double, COLS>>& values) const;
+        template<size_t COLS>
+        void setUniformVariable(const std::string variableName, const std::vector<Vec<int, COLS>>& values) const;
+        template<size_t COLS>
+        void setUniformVariable(const std::string variableName, const std::vector<Vec<unsigned int, COLS>>& values) const;
+        
+        template<size_t COLS>
+        void setUniformVariable(const std::string variableName, const Vec<float, COLS>& value) const;
+        template<size_t COLS>
+        void setUniformVariable(const std::string variableName, const Vec<double, COLS>& value) const;
+        template<size_t COLS>
+        void setUniformVariable(const std::string variableName, const Vec<int, COLS>& value) const;
+        template<size_t COLS>
+        void setUniformVariable(const std::string variableName, const Vec<unsigned int, COLS>& value) const;
+        
+        template<size_t ROWS, size_t COLS>
+        void setUniformVariable(const std::string variableName, const std::vector<Mat<float, ROWS, COLS>>& values) const;
+        template<size_t ROWS, size_t COLS>
+        void setUniformVariable(const std::string variableName, const std::vector<Mat<double, ROWS, COLS>>& values) const;
+        
+        template<size_t ROWS, size_t COLS>
+        void setUniformVariable(const std::string variableName, const Mat<float, ROWS, COLS>& value) const;
+        template<size_t ROWS, size_t COLS>
+        void setUniformVariable(const std::string variableName, const Mat<double, ROWS, COLS>& value) const;
+        
+        //void setUniformBlock(std::string blockName, std::shared_ptr<void> buf, size_t size) const;
         
         GLuint getProgram() { return program; }
     private:
