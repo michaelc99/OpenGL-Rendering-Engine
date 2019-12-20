@@ -89,25 +89,35 @@ class Mat {
         }
         
         inline T at(const size_t row, const size_t col) const {
+#ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
             assert(col >= 0 && col < COLS);
+#endif
             return dataVecs[row][col];
         }
         inline void set(const size_t row, const size_t col, const T val) {
+#ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
             assert(col >= 0 && col < COLS);
+#endif
             dataVecs[row][col] = val;
         }
         Vec<T, COLS> getRow(const size_t row) const {
+#ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
+#endif
             return dataVecs[row];
         }
         void setRow(const size_t row, const Vec<T, COLS> rowVec) {
+#ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
+#endif
             dataVecs[row] = rowVec;
         }
         Vec<T, ROWS> getCol(const size_t col) const {
+#ifdef _DEBUG
             assert(col >= 0 && col < COLS);
+#endif
             Vec<T, ROWS> colVec;
             for(size_t r = 0; r < ROWS; r++) {
                 colVec[r] = dataVecs[r][col];
@@ -115,18 +125,24 @@ class Mat {
             return colVec;
         }
         void setCol(const size_t col, const Vec<T, ROWS> colVec) {
+#ifdef _DEBUG
             assert(col >= 0 && col < COLS);
+#endif
             for(size_t r = 0; r < ROWS; r++) {
                 dataVecs[r][col] = colVec[r];
             }
         }
         
         Vec<T, COLS> operator[](const size_t row) const { // Row major so [] operator returns a row
+#ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
+#endif
             return dataVecs[row];
         }
         Vec<T, COLS>& operator[](const size_t row) { // Row major so [] operator returns a row
+#ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
+#endif
             return dataVecs[row];
         }
         Mat<T, ROWS, COLS>& operator=(const Mat<T, ROWS, COLS>& mat) {

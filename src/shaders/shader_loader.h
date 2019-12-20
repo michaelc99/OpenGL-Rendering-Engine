@@ -34,15 +34,19 @@ class ShaderObject {
 
 class ShaderProgram {
     public:
-        ShaderProgram();
+        ShaderProgram() : program(0), linked(false) {}
         ShaderProgram(std::vector<GLenum> types, std::vector<std::string> filenames);
         ~ShaderProgram();
+        ShaderProgram& operator=(const ShaderProgram& shaderProgram);
+        
+        void create();
         void addShaderObject(std::shared_ptr<ShaderObject> shaderObject);
         void link();
+        void detachShaderObject(std::shared_ptr<ShaderObject> shaderObject);
         void release();
         void use();
         
-        void setUniformVariable(std::string variableName, float val);
+        /*void setUniformVariable(std::string variableName, float val);
         void setUniformVariable(std::string variableName, double val);
         void setUniformVariable(std::string variableName, int val);
         void setUniformVariable(std::string variableName, unsigned int val);
@@ -54,9 +58,12 @@ class ShaderProgram {
         // NEED TO ASSERT ROWS AND COLS ARE IN ALLOWABLE GLSL RANGE AND T IS A VALID TYPE
         void setUniformVariable(std::string variableName, Mat<T, ROWS, COLS> val);
         
+        void setUniformBlock(std::string blockName, std::shared_ptr<void> buf, size_t size);*/
+        
         GLuint getProgram() { return program; }
     private:
         GLuint program;
+        bool linked;
         std::vector<std::string> shaderFileNames;
 };
 

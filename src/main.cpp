@@ -36,12 +36,14 @@ void myKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mo
 }
 
 int main(void) {
+    int errorNum = 0;
     
     glfwSetErrorCallback(myErrorCallback);
     
     if(!glfwInit()) {
         cout << "ERROR: GLFW initialization failed, aborting." << endl;
-        return -1;
+        errorNum = -1;
+        return errorNum;
     }
     cout << "Success! GLFW initialized." << endl;
     
@@ -83,8 +85,10 @@ int main(void) {
         ////////////////////
         
         // Shader loading
-        ShaderProgram shaderProgram = ShaderProgram({GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, {"basic_triangle.vs.glsl", "basic_triangle.fs.glsl"});
-        ShaderProgram shaderProgram2 = ShaderProgram({GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, {"basic_triangle.vs.glsl", "alt_triangle.fs.glsl"});
+        shared_ptr<ShaderProgram> shaderProgram;
+        ADD_ERROR_INFO(
+                shaderProgram = shared_ptr<ShaderProgram>(new ShaderProgram({GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, {"basic_triangle.vs.glsl", "basic_triangle.fs.glsl"}))
+        );
         
         //////////////////////// Create VAOs /////
         // Vertices of triangle
@@ -145,8 +149,8 @@ int main(void) {
             glClear(GL_COLOR_BUFFER_BIT);
             
             // DRAWING
-            glUseProgram(shaderProgram.getProgram());
-            GLint colorUniform = glGetUniformLocation(shaderProgram.getProgram(), "colorFromApplication");
+            ADD_ERROR_INFO(shaderProgram->use());
+            GLint colorUniform = glGetUniformLocation(shaderProgram->getProgram(), "colorFromApplication");
             float time = ((int)(100.0f * glfwGetTime()) % 200) / 200.0f -0.5f;
             float colorToSend[] = {time, time, time, 1.0f};
             glUniform4fv(colorUniform, 1, colorToSend);
@@ -168,18 +172,18 @@ int main(void) {
     catch(GeneralException& e) {
         cerr << e.getMessage() << endl;
         glfwTerminate();
-        return -1;
+        errorNum = -1;
     }
     catch(exception& e) {
         cerr << e.what() << endl;
         glfwTerminate();
-        return -1;
+        errorNum = -1;
     }
     catch(...) {
         cerr << "ERROR: Unknown exception occurred." << endl;
         glfwTerminate();
-        return -1;
+        errorNum = -1;
     }
     
-    return 0;
+    return errorNum;
 }

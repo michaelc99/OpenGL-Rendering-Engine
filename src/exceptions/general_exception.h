@@ -5,7 +5,14 @@
 #include <iostream>
 #include <string>
 
-#define ERROR_INFO std::string(__FILE__) + " at line: " + std::to_string(__LINE__)
+class GeneralException;
+
+#define ERROR_INFO std::string(__FILE__) + " at line " + std::to_string(__LINE__)
+#ifdef _DEBUG
+    #define ADD_ERROR_INFO(statement) try { statement; } catch(GeneralException& e) { throw GeneralException(ERROR_INFO + ":" + e.getMessage()); }
+#else
+    #define ADD_ERROR_INFO(statement) statement;
+#endif
 
 class GeneralException : std::exception {
     public:

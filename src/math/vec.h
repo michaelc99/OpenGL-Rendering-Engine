@@ -78,11 +78,15 @@ class Vec {
         }
         
         inline T at(const size_t col) const {
+#ifdef _DEBUG
             assert(col >= 0 && col < COLS);
+#endif
             return data[col];
         }
         inline void set(const size_t col, const T val) {
+#ifdef _DEBUG
             assert(col >= 0 && col < COLS);
+#endif
             data[col] = val;
         }
         T norm() const {
@@ -114,11 +118,15 @@ class Vec {
         }
         
         T operator[](const size_t col) const {
+#ifdef _DEBUG
             assert(col >= 0 && col < COLS);
+#endif
             return data[col];
         }
         T& operator[](const size_t col) {
+#ifdef _DEBUG
             assert(col >= 0 && col < COLS);
+#endif
             return data[col];
         }
         Vec<T, COLS>& operator=(const Vec<T, COLS>& vec) {

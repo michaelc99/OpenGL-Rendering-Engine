@@ -11,24 +11,19 @@ ShaderObject::~ShaderObject() {
 }
 
 void ShaderObject::load(string filename) {
-    try {
-        this->filename = filename;
-        string source = readShader(filename);
-        const char* sourceCString = source.c_str();
-        shader = glCreateShader(type);
-        if(!glIsShader(shader)) {
-            throw RenderException(ERROR_INFO + ":ERROR: Failed to create shader object.");
-        }
-        glShaderSource(shader, 1, &sourceCString, NULL);
+    this->filename = filename;
+    string source = readShader(filename);
+    const char* sourceCString = source.c_str();
+    shader = glCreateShader(type);
+    if(!glIsShader(shader)) {
+        throw RenderException("ERROR: Failed to create shader object.");
     }
-    catch(GeneralException& e) {
-        cerr << e.getMessage() << endl;
-    }
+    glShaderSource(shader, 1, &sourceCString, NULL);
 }
 
 void ShaderObject::compile() {
     if(!shader) {
-        throw RenderException(ERROR_INFO + ":ERROR: Attempted to compile shader that wasn't loaded.");
+        throw RenderException("ERROR: Attempted to compile shader file \"" + filename + "\"that wasn't loaded.");
     }
     glCompileShader(shader);
     int compleStatus = 0;
@@ -37,7 +32,7 @@ void ShaderObject::compile() {
         char infoLog[1000] = {0};
         int infoLogLength = 0;
         glGetShaderInfoLog(shader, 1000, &infoLogLength, infoLog);
-        throw RenderException(ERROR_INFO + ":ERROR: Failed to compile shader file \"" + filename + "\". InfoLog:\n" + string(infoLog, infoLogLength));
+        throw RenderException("ERROR: Failed to compile shader file \"" + filename + "\". InfoLog:\n" + string(infoLog, infoLogLength));
     }
 }
 
@@ -54,7 +49,7 @@ string ShaderObject::readShader(string filename) {
     string source = "";
     inFile = ifstream(filename, ios_base::in);
     if(inFile.fail()) {
-        throw RenderException(ERROR_INFO + ":ERROR: Failed to open shader source file: \"" + filename + "\"");
+        throw RenderException("ERROR: Failed to open shader source file: \"" + filename + "\"");
     }
     char line[1000];
     while(!inFile.eof()) {
@@ -67,23 +62,19 @@ string ShaderObject::readShader(string filename) {
     return source;
 }
 
-ShaderProgram::ShaderProgram() : program(0) {
-    program = glCreateProgram();
-    if(!glIsProgram(program)) {
-        throw RenderException(ERROR_INFO + ":ERROR: Failed to create shader program.");
-    }
-}
-
 ShaderProgram::ShaderProgram(vector<GLenum>types, vector<string> filenames) : ShaderProgram() {
 #ifdef _DEBUG
     assert(types.size() == filenames.size());
 #endif
+    create();
     std::vector<shared_ptr<ShaderObject>> shaderObjects;
     for(size_t i = 0; i < filenames.size(); i++) {
         shared_ptr<ShaderObject> shaderObject(new ShaderObject(types[i], filenames[i]));
         shaderObject->compile();
         shaderObjects.push_back(shaderObject);
-        addShaderObject(shaderObject);
+    }
+    for(size_t i = 0; i < filenames.size(); i++) {
+        addShaderObject(shaderObjects[i]);
     }
     link();
 }
@@ -92,17 +83,43 @@ ShaderProgram::~ShaderProgram() {
     release();
 }
 
+ShaderProgram& ShaderProgram::operator=(const ShaderProgram& shaderProgram) {
+    release();
+    program = shaderProgram.program;
+    linked = shaderProgram.linked;
+    shaderFileNames = shaderProgram.shaderFileNames;
+    return (*this);
+}
+
+void ShaderProgram::create() {
+    program = glCreateProgram();
+    if(!glIsProgram(program)) {
+        throw RenderException("ERROR: Failed to create shader program.");
+    }
+}
+
 /*
  * Assumes shaderObject has already been compiled successfully.
  */
 void ShaderProgram::addShaderObject(shared_ptr<ShaderObject> shaderObject) {
+    if(!program) {
+        throw RenderException("ERROR: Attempted to add shader object to shader program before it was created.");
+    }
     glAttachShader(program, shaderObject->getShader());
     shaderFileNames.push_back(shaderObject->getFileName());
+    linked = false;
+}
+
+void ShaderProgram::detachShaderObject(std::shared_ptr<ShaderObject> shaderObject) {
+    if(!program) {
+        throw RenderException("ERROR: Attempted to add shader object to shader program before it was created.");
+    }
+    glDetachShader(program, shaderObject->getShader());
 }
 
 void ShaderProgram::link() {
     if(!program) {
-        throw RenderException(ERROR_INFO + ":ERROR: Attempted to link shader program that wasn't created.");
+        throw RenderException("ERROR: Attempted to link shader program that wasn't created.");
     }
     glLinkProgram(program);
     int linkStatus = 0;
@@ -116,16 +133,29 @@ void ShaderProgram::link() {
             errMessage = errMessage + "\"" + (*shaderFileName) + "\" ";
         }
         errMessage = errMessage + "\nInfoLog:\n" + string(infoLog, infoLogLength);
-        throw RenderException(ERROR_INFO + errMessage);
+        throw RenderException(errMessage);
     }
+    linked = true;
 }
 
 void ShaderProgram::release() {
+    cout << "shader program released" << endl;
     if(program != 0) {
         glDeleteProgram(program);
     }
     program = 0;
+    linked = false;
     while(shaderFileNames.size() > 0) {
         shaderFileNames.pop_back();
     }
+}
+
+void ShaderProgram::use() {
+    if(!program) {
+        throw RenderException("ERROR: Attempted to use shader program that wasn't created.");
+    }
+    if(!linked) {
+        throw RenderException("ERROR: Attempted to use shader program that linked.");
+    }
+    glUseProgram(program);
 }
