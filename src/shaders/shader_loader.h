@@ -8,6 +8,8 @@
 #include <cassert>
 #include <memory>
 #include <exceptions/render_exception.h>
+#include <math/vec.h>
+#include <math/mat.h>
 
 #include <glad/glad.h>
 
@@ -39,11 +41,18 @@ class ShaderProgram {
         void link();
         void release();
         void use();
-        /*void setUniform();
-        void setUniform();
-        void setUniform();
-        void setUniform();
-        void setUniform();*/
+        
+        void setUniformVariable(std::string variableName, float val);
+        void setUniformVariable(std::string variableName, double val);
+        void setUniformVariable(std::string variableName, int val);
+        void setUniformVariable(std::string variableName, unsigned int val);
+        void setUniformVariable(std::string variableName, bool val);
+        template<typename T, size_t COLS>
+        // NEED TO ASSERT COLS ARE IN ALLOWABLE GLSL RANGE AND T IS A VALID TYPE
+        void setUniformVariable(std::string variableName, Vec<T, COLS> val);
+        template<typename T, size_t ROWS, size_t COLS>
+        // NEED TO ASSERT ROWS AND COLS ARE IN ALLOWABLE GLSL RANGE AND T IS A VALID TYPE
+        void setUniformVariable(std::string variableName, Mat<T, ROWS, COLS> val);
         
         GLuint getProgram() { return program; }
     private:

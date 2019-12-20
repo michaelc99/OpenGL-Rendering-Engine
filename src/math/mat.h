@@ -46,9 +46,9 @@ Mat<T, ROWS, COLS> operator*(const T val, const Mat<T, ROWS, COLS>& mat);
 template<typename T, size_t ROWS, size_t COLS>
 Mat<T, ROWS, COLS> operator/(const Mat<T, ROWS, COLS>& mat, const T val);
 template<typename T, size_t ROWS, size_t COLS>
-Vec<T, COLS> operator*(const Vec<T, COLS> vec, const Mat<T, ROWS, COLS>& mat);
+Vec<T, COLS> operator*(const Vec<T, ROWS>& vec, const Mat<T, ROWS, COLS>& mat);
 template<typename T, size_t ROWS, size_t COLS>
-Vec<T, ROWS> operator*(const Mat<T, ROWS, COLS>& mat, const Vec<T, ROWS> vec);
+Vec<T, ROWS> operator*(const Mat<T, ROWS, COLS>& mat, const Vec<T, COLS>& vec);
 
 /*
  * Matrix
@@ -65,24 +65,20 @@ Vec<T, ROWS> operator*(const Mat<T, ROWS, COLS>& mat, const Vec<T, ROWS> vec);
 template<typename T, size_t ROWS, size_t COLS>
 class Mat {
     public:
-        Mat() {}
+        Mat() {
+            for(size_t r = 0; r < ROWS; r++) {
+                dataVecs[r] = Vec<T, COLS>();
+            }
+        }
         /*
          * Constructor for diagonal matrix with diagonal elements of diagVal.
          */
-        Mat(const T diagVal) {
+        Mat(const T diagVal) : Mat() {
             size_t rank = std::min(ROWS, COLS);
             for(size_t r = 0; r < rank; r++) {
                 dataVecs[r][r] = diagVal;
             }
         }
-        /*
-         * Construct a matrix from a list of row vectors.
-         */
-        /*Mat(const Vec<Vec<T, COLS>, ROWS>& vecOfVecs) {
-            for(size_t r = 0; r < ROWS; r++) {
-                dataVecs[r] = vecOfVecs[r];
-            }
-        }*/
         /*
          * Copy constructor.
          */
@@ -137,6 +133,7 @@ class Mat {
             for(size_t r = 0; r < ROWS; r++) {
                 dataVecs[r] = mat[r];
             }
+            return (*this);
         }
         Mat<T, ROWS, COLS>& operator+=(const Mat<T, ROWS, COLS>& mat) {
             for(size_t r = 0; r < ROWS; r++) {
@@ -154,6 +151,12 @@ class Mat {
             Mat<T, ROWS, COLS> oldMat = (*this);
             for(size_t r = 0; r < ROWS; r++) {
                 dataVecs[r] = oldMat[r] * mat;
+            }
+            return (*this);
+        }
+        Mat<T, ROWS, COLS>& operator=(const T val) {
+            for(size_t r = 0; r < ROWS; r++) {
+                dataVecs[r] = val;
             }
             return (*this);
         }
@@ -176,18 +179,20 @@ class Mat {
             return (*this);
         }
         Mat<T, ROWS, COLS>& operator/=(const T val) {
+            Mat<T, ROWS, COLS> newMat;
             if(val == (T)0.0) {
                 throw DivideByZeroException(ERROR_INFO);
             }
             for(size_t r = 0; r < ROWS; r++) {
-                dataVecs[r] /= val;
+                newMat[r] = dataVecs[r] / val;
             }
+            (*this) = newMat;
             return (*this);
         }
         Mat<T, ROWS, COLS> operator-() const {
             Mat<T, ROWS, COLS> newMat;
             for(size_t r = 0; r < ROWS; r++) {
-                newMat[r] = -dataVecs[r];
+                newMat[r] = -(dataVecs[r]);
             }
             return newMat;
         }
@@ -210,8 +215,8 @@ class Mat {
         friend Mat<T, ROWS, COLS> operator* <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat, const T val);
         friend Mat<T, ROWS, COLS> operator* <T, ROWS, COLS>(const T val, const Mat<T, ROWS, COLS>& mat);
         friend Mat<T, ROWS, COLS> operator/ <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat, const T val);
-        friend Vec<T, COLS> operator* <T, ROWS, COLS>(const Vec<T, COLS> vec, const Mat<T, ROWS, COLS>& mat);
-        friend Vec<T, ROWS> operator* <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat, const Vec<T, ROWS> vec);
+        friend Vec<T, COLS> operator* <T, ROWS, COLS>(const Vec<T, COLS>& vec, const Mat<T, ROWS, COLS>& mat);
+        friend Vec<T, ROWS> operator* <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat, const Vec<T, ROWS>& vec);
     private:
         Vec<T, COLS> dataVecs[ROWS];
 };
@@ -222,8 +227,10 @@ bool equalsTol(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2, c
         return (mat1 == mat2);
     }
     for(size_t r = 0; r < ROWS; r++) {
-        if((mat1[r] < mat2[r] - tolerance) || (mat1[r] > mat2[r] + tolerance)) {
-            return false;
+        for(size_t c = 0; c < COLS; c++) {
+            if((mat1[r][c] < mat2[r][c] - tolerance) || (mat1[r][c] > mat2[r][c] + tolerance)) {
+                return false;
+            }
         }
     }
     return true;
@@ -381,7 +388,7 @@ Mat<T, ROWS, COLS> operator/(const Mat<T, ROWS, COLS>& mat, const T val) {
 }
 
 template<typename T, size_t ROWS, size_t COLS>
-Vec<T, COLS> operator*(const Vec<T, ROWS> vec, const Mat<T, ROWS, COLS>& mat) {
+Vec<T, COLS> operator*(const Vec<T, ROWS>& vec, const Mat<T, ROWS, COLS>& mat) {
     Vec<T, COLS> newVec;
     for(size_t r = 0; r < ROWS; r++) {
         newVec += mat[r] * vec[r];
@@ -390,7 +397,7 @@ Vec<T, COLS> operator*(const Vec<T, ROWS> vec, const Mat<T, ROWS, COLS>& mat) {
 }
 
 template<typename T, size_t ROWS, size_t COLS>
-Vec<T, ROWS> operator*(const Mat<T, ROWS, COLS>& mat, const Vec<T, COLS> vec) {
+Vec<T, ROWS> operator*(const Mat<T, ROWS, COLS>& mat, const Vec<T, COLS>& vec) {
     Vec<T, ROWS> newVec;
     for(size_t c = 0; c < COLS; c++) {
         for(size_t r = 0; r < ROWS; r++) {
@@ -402,7 +409,7 @@ Vec<T, ROWS> operator*(const Mat<T, ROWS, COLS>& mat, const Vec<T, COLS> vec) {
 
 // Specifically sized matrices
 template<typename T>
-class Mat2 : Mat<T, 2, 2> {
+class Mat2 : public Mat<T, 2, 2> {
     public:
         Mat2() {}
         Mat2(const T diagVal) : Mat<T, 2, 2>::Mat(diagVal) {}
@@ -545,8 +552,8 @@ typedef Mat3<float> Mat3f;
 typedef Mat3x2<float> Mat3x2f;
 typedef Mat2x3<float> Mat2x3f;
 typedef Mat3<double> Mat3d;
-typedef Mat3x2<float> Mat3x2d;
-typedef Mat2x3<float> Mat2x3d;
+typedef Mat3x2<double> Mat3x2d;
+typedef Mat2x3<double> Mat2x3d;
 typedef Mat3<int> Mat3i;
 typedef Mat3x2<float> Mat3x2i;
 typedef Mat2x3<float> Mat2x3i;
@@ -557,10 +564,10 @@ typedef Mat4x2<float> Mat4x2f;
 typedef Mat3x4<float> Mat3x4f;
 typedef Mat2x4<float> Mat2x4f;
 typedef Mat4<double> Mat4d;
-typedef Mat4x3<float> Mat4x3d;
-typedef Mat4x2<float> Mat4x2d;
-typedef Mat3x4<float> Mat3x4d;
-typedef Mat2x4<float> Mat2x4d;
+typedef Mat4x3<double> Mat4x3d;
+typedef Mat4x2<double> Mat4x2d;
+typedef Mat3x4<double> Mat3x4d;
+typedef Mat2x4<double> Mat2x4d;
 typedef Mat4<int> Mat4i;
 typedef Mat4x3<float> Mat4x3i;
 typedef Mat4x2<float> Mat4x2i;

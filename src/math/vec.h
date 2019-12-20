@@ -55,12 +55,28 @@ Vec<T, COLS> operator/(const Vec<T, COLS>& vec, const T val);
 template<typename T, size_t COLS> 
 class Vec {
     public:
-        Vec() {}
+        Vec() {
+            for(size_t c = 0; c < COLS; c++) {
+                data[c] = T();
+            }
+        }
+        /*
+         * Constructor to set all components to value.
+         */
+        Vec(const T val) : Vec() {
+            for(size_t c = 0; c < COLS; c++) {
+                data[c] = val;
+            }
+        }
+        /*
+         * Copy constructor.
+         */
         Vec(const Vec<T, COLS>& vec) {
             for(size_t c = 0; c < COLS; c++) {
                 data[c] = vec.data[c];
             }
         }
+        
         inline T at(const size_t col) const {
             assert(col >= 0 && col < COLS);
             return data[col];
@@ -76,6 +92,9 @@ class Vec {
             }
             return std::sqrt(magnitude2);
         }
+        /*
+         * Norm of vector squared (saves doing a std::sqrt() call).
+         */
         T norm2() const {
             T magnitude2;
             for(size_t c = 0; c < COLS; c++) {
@@ -83,12 +102,15 @@ class Vec {
             }
             return magnitude2;
         }
+        /*
+         * Returns a normalized (norm of 1) version of this vector.
+         */
         Vec<T, COLS> normalize() const {
-            T norm = norm();
-            if(norm == (T)0.0) {
+            T normVal = norm();
+            if(normVal == (T)0.0) {
                 throw DivideByZeroException(ERROR_INFO);
             }
-            return ((*this) / norm);
+            return ((*this) / normVal);
         }
         
         T operator[](const size_t col) const {
@@ -148,20 +170,25 @@ class Vec {
             return (*this);
         }
         Vec<T, COLS>& operator/=(const T val) {
+            Vec<T, COLS> newVec;
             if(val == (T)0.0) {
                 throw DivideByZeroException(ERROR_INFO);
             }
             for(size_t c = 0; c < COLS; c++) {
-                data[c] /= val;
+                newVec[c] = data[c] / val;
+                if(std::isinf(newVec[c])) {
+                    throw DivideByZeroException(ERROR_INFO);
+                }
             }
+            (*this) = newVec;
             return (*this);
         }
-        Vec<T, COLS> operator-() {
+        Vec<T, COLS> operator-() const {
             Vec<T, COLS> newVec;
             for(size_t c = 0; c < COLS; c++) {
                 newVec[c] = -data[c];
             }
-            //return newVec;
+            return newVec;
         }
         
         friend bool equalsTol <T, COLS>(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2, const T tolerance);
@@ -182,7 +209,6 @@ class Vec {
         friend Vec<T, COLS> operator* <T, COLS>(const Vec<T, COLS>& vec, const T val);
         friend Vec<T, COLS> operator* <T, COLS>(const T val, const Vec<T, COLS>& vec);
         friend Vec<T, COLS> operator/ <T, COLS>(const Vec<T, COLS>& vec, const T val);
-        T dot(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2) const;
     private:
         T data[COLS];
 };
@@ -345,22 +371,35 @@ Vec<T, COLS> operator/(const Vec<T, COLS>& vec, const T val) {
     Vec<T, COLS> newVec;
     for(size_t c = 0; c < COLS; c++) {
         newVec.data[c] = vec.data[c] / val;
+        if(std::isinf(newVec.data[c])) {
+            throw DivideByZeroException(ERROR_INFO);
+        }
     }
     return newVec;
 }
 
 template<typename T, size_t COLS>
-T Vec<T, COLS>::dot(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2) const {
+T dot(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2) {
     T dotProduct;
     for(size_t c = 0; c < COLS; c++) {
-        dotProduct = vec1.data[c] * vec2.data[c];
+        dotProduct += vec1[c] * vec2[c];
     }
     return dotProduct;
 }
 
+// Cross product for Vec<T, 3>
+template<typename T>
+Vec<T, 3> cross(const Vec<T, 3>& vec1, const Vec<T, 3>& vec2) {
+    Vec<T, 3> crossProduct;
+    crossProduct[0] = (vec1[1] * vec2[2]) - (vec2[1] * vec1[2]);
+    crossProduct[1] = (vec1[0] * vec2[2]) - (vec2[0] * vec1[2]);
+    crossProduct[2] = (vec1[0] * vec2[1]) - (vec2[0] * vec1[1]);
+    return crossProduct;
+}
+
 // Specifically sized vectors
 template<typename T>
-class Vec2 : Vec<T, 2> {
+class Vec2 : public Vec<T, 2> {
     public:
         Vec2() {}
         Vec2(const Vec<T, 2>& vec) : Vec<T, 2>::Vec(vec) {}
@@ -385,15 +424,6 @@ class Vec3 : public Vec<T, 3> {
         T x() { return this->at(0); }
         T y() { return this->at(1); }
         T z() { return this->at(2); }
-        
-        // Cross product for Vec3
-        Vec3<T> cross(const Vec3<T>& vec1, const Vec3<T>& vec2) const {
-            Vec3<T> crossProduct;
-            crossProduct[0] = (vec1[1] * vec2[2]) - (vec2[1] * vec1[2]);
-            crossProduct[1] = (vec1[0] * vec2[2]) - (vec2[0] * vec1[2]);
-            crossProduct[2] = (vec1[0] * vec2[1]) - (vec2[0] * vec1[1]);
-            return crossProduct;
-        }
 };
 
 template<typename T>

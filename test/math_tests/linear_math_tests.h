@@ -1,0 +1,6 @@
+#ifndef LINEAR_MATH_TESTS_H
+#define LINEAR_MATH_TESTS_H
+
+
+
+#endif //LINEAR_MATH_TESTS_H

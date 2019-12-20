@@ -1,7 +1,7 @@
 #ifndef MATH_EXCEPTION_H
 #define MATH_EXCEPTION_H
 
-#include <exceptions/general_exception.h>
+#include "general_exception.h"
 
 class MathException : public GeneralException {
     public:

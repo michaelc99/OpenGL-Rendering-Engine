@@ -87,8 +87,6 @@ int main(void) {
         ShaderProgram shaderProgram2 = ShaderProgram({GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, {"basic_triangle.vs.glsl", "alt_triangle.fs.glsl"});
         
         //////////////////////// Create VAOs /////
-        testfunc();
-        
         // Vertices of triangle
         float vertices[] = {
             -0.5f, -0.5f, 0.0f,
