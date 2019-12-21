@@ -3,9 +3,10 @@
 using namespace std;
 
 namespace MatTests {
-    void TestConstructors() {
+    int TestConstructors() {
         stringstream result;
         stringstream expected;
+        int failedCount = 0;
         
         result = stringstream();
         expected = stringstream();
@@ -16,7 +17,7 @@ namespace MatTests {
                     " 0, 0, 0, 0, 0,"
                     " 0, 0, 0, 0, 0,"
                     " 0, 0, 0, 0, 0]";
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -27,14 +28,14 @@ namespace MatTests {
                     " 0, 0, 1, 0, 0,"
                     " 0, 0, 0, 1, 0,"
                     " 0, 0, 0, 0, 1]";
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
         Mat<float, 5, 5> mat5f_3 = Mat<float, 5, 5>(mat5f_2);
         result << mat5f_3;
         expected << mat5f_2;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -42,7 +43,7 @@ namespace MatTests {
                             2.0f, 2.0f);
         result << mat2f;
         expected << "[1.3456, 4, 2, 2]";
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -51,12 +52,33 @@ namespace MatTests {
                             3.0f, 3.0f, 3.0f);
         result << mat3f;
         expected << "[1.3456, 4, -123, 2, 2, 2, 3, 3, 3]";
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
+        
+        result = stringstream();
+        expected = stringstream();
+        Mat4f mat4f_1 = Mat4f(Mat3f(1.3456f, 4.0f, -123.0f,
+                            2.0f, 2.0f, 2.0f,
+                            3.0f, 3.0f, 3.0f));
+        result << mat4f_1;
+        expected << "[1.3456, 4, -123, 0, 2, 2, 2, 0, 3, 3, 3, 0, 0, 0, 0, 1]";
+        CompareResult(ERROR_INFO, expected, result, failedCount);
+        
+        result = stringstream();
+        expected = stringstream();
+        Mat2f mat2f_1 = Mat2f(Mat3f(1.3456f, 4.0f, -123.0f,
+                            2.0f, 2.0f, 2.0f,
+                            3.0f, 3.0f, 3.0f));
+        result << mat2f_1;
+        expected << "[1.3456, 4, 2, 2]";
+        CompareResult(ERROR_INFO, expected, result, failedCount);
+        
+        return failedCount;
     }
     
-    void TestAccessorsMutators() {
+    int TestAccessorsMutators() {
         stringstream result;
         stringstream expected;
+        int failedCount = 0;
         
         result = stringstream();
         expected = stringstream();
@@ -71,7 +93,7 @@ namespace MatTests {
                     " 0, 0, 2, 0, 0,"
                     " 0, 0, 0, 2, 0,"
                     " 0, 0, 3, 0, 2]";
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -86,12 +108,15 @@ namespace MatTests {
                     " 0, 0, 2, 0, 0,"
                     " 0, 0, 0, 2, 0,"
                     " 0, 0, 3, 0, 2]";
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
+        
+        return failedCount;
     }
     
-    void TestAssignmentOperators() {
+    int TestAssignmentOperators() {
         stringstream result;
         stringstream expected;
+        int failedCount = 0;
         
         const char* identity2 =
                "[2, 0, 0, 0, 0,"
@@ -114,7 +139,7 @@ namespace MatTests {
         mat5f_1_1 = Mat<float, 5, 5>();
         result << mat5f;
         expected << identity2;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -124,7 +149,7 @@ namespace MatTests {
         mat5f_2_1 = Mat<float, 5, 5>();
         result << mat5f;
         expected << identity2;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -134,7 +159,7 @@ namespace MatTests {
         mat5f_3_1 = Mat<float, 5, 5>();
         result << mat5f;
         expected << identity2;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -144,7 +169,7 @@ namespace MatTests {
         mat5f_4_1 = Mat<float, 5, 5>();
         result << mat5f / 2.0f;
         expected << identity2;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -152,7 +177,7 @@ namespace MatTests {
         mat5f = 2.0f;
         result << mat5f;
         expected << all2s;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -161,7 +186,7 @@ namespace MatTests {
         mat5f += 1.0f;
         result << mat5f;
         expected << all2s;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -170,7 +195,7 @@ namespace MatTests {
         mat5f -= 2.0f;
         result << mat5f;
         expected << all2s;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -178,7 +203,7 @@ namespace MatTests {
         mat5f *= 2.0f;
         result << mat5f;
         expected << identity2;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -186,12 +211,15 @@ namespace MatTests {
         mat5f /= 2.0f;
         result << mat5f;
         expected << identity2;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
+        
+        return failedCount;
     }
     
-    void TestUnaryOperators() {
+    int TestUnaryOperators() {
         stringstream result;
         stringstream expected;
+        int failedCount = 0;
         
         const char* identity2 =
                 "[2, -0, -0, -0, -0,"
@@ -207,12 +235,15 @@ namespace MatTests {
         mat5f = -mat5f_1;
         result << mat5f;
         expected << identity2;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
+        
+        return failedCount;
     }
     
-    void TestBinaryOperators() {
+    int TestBinaryOperators() {
         stringstream result;
         stringstream expected;
+        int failedCount = 0;
         
         const char* all2s =
                 "[2, 2, 2, 2, 2,"
@@ -237,7 +268,7 @@ namespace MatTests {
         mat5f = mat5f - 1.0f;
         result << mat5f;
         expected << all2s;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -246,7 +277,7 @@ namespace MatTests {
         mat5f = -mat5f / 2.0f;
         result << mat5f;
         expected << all2s;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -255,7 +286,7 @@ namespace MatTests {
         mat5f = 4.0f + (-mat5f);
         result << mat5f;
         expected << all2s;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -264,26 +295,26 @@ namespace MatTests {
         Mat<float, 5, 5> mat5f_5 = mat5f + 1.0f;
         result << (mat5f <= mat5f_5);
         expected << true;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
         result << (mat5f >= mat5f_5);
         expected << false;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
         result << (mat5f == mat5f_5);
         expected << false;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
         mat5f += 1.0f;
         result << (mat5f != mat5f_5);
         expected << false;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -301,12 +332,15 @@ namespace MatTests {
         expected << "[21, 27, 33,"
                     " 57, 72, 87,"
                     " 93, 117, 141]";
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
+        
+        return failedCount;
     }
     
-    void TestOther() {
+    int TestOther() {
         stringstream result;
         stringstream expected;
+        int failedCount = 0;
         
         result = stringstream();
         expected = stringstream();
@@ -314,7 +348,7 @@ namespace MatTests {
         Mat2f mat2 = Mat2f(1.0f, 2.0000003f, -3.0f, 1.0f);
         result << equalsTol(mat, mat2, 0.0001f);
         expected << true;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
         
         result = stringstream();
         expected = stringstream();
@@ -322,6 +356,8 @@ namespace MatTests {
         mat2 = Mat2f(1.0f, 2.03f, -3.0f, 1.0f);
         result << equalsTol(mat, mat2, 0.0001f);
         expected << false;
-        CompareResult(ERROR_INFO, expected, result);
+        CompareResult(ERROR_INFO, expected, result, failedCount);
+        
+        return failedCount;
     }
 };

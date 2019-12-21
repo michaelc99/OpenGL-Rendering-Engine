@@ -3,6 +3,7 @@
 
 #include "vec_tests.h"
 #include "mat_tests.h"
+#include "linear_math_tests.h"
 #include "test_exception.h"
 
 using namespace std;
@@ -13,12 +14,12 @@ int main() {
     
     // Vector tests
     try {
-        VecTests::TestConstructors();
-        VecTests::TestAccessorsMutators();
-        VecTests::TestAssignmentOperators();
-        VecTests::TestUnaryOperators();
-        VecTests::TestBinaryOperators();
-        VecTests::TestOther();
+        failedCount += VecTests::TestConstructors();
+        failedCount += VecTests::TestAccessorsMutators();
+        failedCount += VecTests::TestAssignmentOperators();
+        failedCount += VecTests::TestUnaryOperators();
+        failedCount += VecTests::TestBinaryOperators();
+        failedCount += VecTests::TestOther();
     }
     catch(GeneralException& e) {
         cout << e.getMessage() << endl;
@@ -31,12 +32,25 @@ int main() {
     
     // Matrix tests
     try {
-        MatTests::TestConstructors();
-        MatTests::TestAccessorsMutators();
-        MatTests::TestAssignmentOperators();
-        MatTests::TestUnaryOperators();
-        MatTests::TestBinaryOperators();
-        MatTests::TestOther();
+        failedCount += MatTests::TestConstructors();
+        failedCount += MatTests::TestAccessorsMutators();
+        failedCount += MatTests::TestAssignmentOperators();
+        failedCount += MatTests::TestUnaryOperators();
+        failedCount += MatTests::TestBinaryOperators();
+        failedCount += MatTests::TestOther();
+    }
+    catch(GeneralException& e) {
+        cout << e.getMessage() << endl;
+        failedCount++;
+    }
+    catch(exception& e) {
+        cout << e.what() << endl;
+        failedCount++;
+    }
+    
+    // Linear Math tests
+    try {
+        failedCount += LinearMathTests::TestTransforms();
     }
     catch(GeneralException& e) {
         cout << e.getMessage() << endl;

@@ -14,5 +14,5 @@ out vec4 FragColor;
 
 void main()
 {
-    FragColor = (myColor + colorFromApplication) / 2;
+    FragColor = myColor;//(myColor + colorFromApplication) / 2;
 }

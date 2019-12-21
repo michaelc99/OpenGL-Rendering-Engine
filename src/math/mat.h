@@ -95,12 +95,13 @@ class Mat {
 #endif
             return dataVecs[row][col];
         }
-        inline void set(const size_t row, const size_t col, const T val) {
+        inline Mat<T, ROWS, COLS>& set(const size_t row, const size_t col, const T val) {
 #ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
             assert(col >= 0 && col < COLS);
 #endif
             dataVecs[row][col] = val;
+            return (*this);
         }
         Vec<T, COLS> getRow(const size_t row) const {
 #ifdef _DEBUG
@@ -108,11 +109,12 @@ class Mat {
 #endif
             return dataVecs[row];
         }
-        void setRow(const size_t row, const Vec<T, COLS> rowVec) {
+        Mat<T, ROWS, COLS>& setRow(const size_t row, const Vec<T, COLS> rowVec) {
 #ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
 #endif
             dataVecs[row] = rowVec;
+            return (*this);
         }
         Vec<T, ROWS> getCol(const size_t col) const {
 #ifdef _DEBUG
@@ -124,13 +126,14 @@ class Mat {
             }
             return colVec;
         }
-        void setCol(const size_t col, const Vec<T, ROWS> colVec) {
+        Mat<T, ROWS, COLS>& setCol(const size_t col, const Vec<T, ROWS> colVec) {
 #ifdef _DEBUG
             assert(col >= 0 && col < COLS);
 #endif
             for(size_t r = 0; r < ROWS; r++) {
                 dataVecs[r][col] = colVec[r];
             }
+            return (*this);
         }
         
         Vec<T, COLS> operator[](const size_t row) const { // Row major so [] operator returns a row
@@ -429,11 +432,23 @@ class Mat2 : public Mat<T, 2, 2> {
     public:
         Mat2() {}
         Mat2(const T diagVal) : Mat<T, 2, 2>::Mat(diagVal) {}
-        Mat2(const Mat<T, 2, 2>& mat) : Mat<T, 2, 2>::Mat(mat) {}
         Mat2(T x1, T y1,
              T x2, T y2) {
             (*this)[0] = Vec2<T>(x1, y1);
             (*this)[1] = Vec2<T>(x2, y2);
+        }
+        template<size_t OTHER_ROWS, size_t OTHER_COLS>
+        explicit Mat2(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+            for(size_t r = 0; r < 2; r++) {
+                for(size_t c = 0; c < 2; c++) {
+                    if(r < OTHER_ROWS && c < OTHER_COLS) {
+                        (*this)[r][c] = mat[r][c];
+                    }
+                    else {
+                        (*this)[r][c] = (T)(r == c);
+                    }
+                }
+            }
         }
 };
 
@@ -442,13 +457,25 @@ class Mat3 : public Mat<T, 3, 3> {
     public:
         Mat3() {}
         Mat3(const T diagVal) : Mat<T, 3, 3>::Mat(diagVal) {}
-        Mat3(const Mat<T, 3, 3>& mat) : Mat<T, 3, 3>::Mat(mat) {}
         Mat3(T x1, T y1, T z1,
              T x2, T y2, T z2,
              T x3, T y3, T z3) {
             (*this)[0] = Vec3<T>(x1, y1, z1);
             (*this)[1] = Vec3<T>(x2, y2, z2);
             (*this)[2] = Vec3<T>(x3, y3, z3);
+        }
+        template<size_t OTHER_ROWS, size_t OTHER_COLS>
+        explicit Mat3(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+            for(size_t r = 0; r < 3; r++) {
+                for(size_t c = 0; c < 3; c++) {
+                    if(r < OTHER_ROWS && c < OTHER_COLS) {
+                        (*this)[r][c] = mat[r][c];
+                    }
+                    else {
+                        (*this)[r][c] = (T)(r == c);
+                    }
+                }
+            }
         }
 };
 
@@ -457,13 +484,25 @@ class Mat3x2 : public Mat<T, 3, 2> {
     public:
         Mat3x2() {}
         Mat3x2(const T diagVal) : Mat<T, 3, 2>::Mat(diagVal) {}
-        Mat3x2(const Mat<T, 3, 2>& mat) : Mat<T, 3, 2>::Mat(mat) {}
         Mat3x2(T x1, T y1,
                T x2, T y2,
                T x3, T y3) {
             (*this)[0] = Vec2<T>(x1, y1);
             (*this)[1] = Vec2<T>(x2, y2);
             (*this)[2] = Vec2<T>(x3, y3);
+        }
+        template<size_t OTHER_ROWS, size_t OTHER_COLS>
+        explicit Mat3x2(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+            for(size_t r = 0; r < 3; r++) {
+                for(size_t c = 0; c < 2; c++) {
+                    if(r < OTHER_ROWS && c < OTHER_COLS) {
+                        (*this)[r][c] = mat[r][c];
+                    }
+                    else {
+                        (*this)[r][c] = (T)(r == c);
+                    }
+                }
+            }
         }
 };
 
@@ -472,11 +511,23 @@ class Mat2x3 : public Mat<T, 2, 3> {
     public:
         Mat2x3() {}
         Mat2x3(const T diagVal) : Mat<T, 2, 3>::Mat(diagVal) {}
-        Mat2x3(const Mat<T, 2, 3>& mat) : Mat<T, 2, 3>::Mat(mat) {}
         Mat2x3(T x1, T y1, T z1,
                T x2, T y2, T z2) {
             (*this)[0] = Vec3<T>(x1, y1, z1);
             (*this)[1] = Vec3<T>(x2, y2, z2);
+        }
+        template<size_t OTHER_ROWS, size_t OTHER_COLS>
+        explicit Mat2x3(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+            for(size_t r = 0; r < 2; r++) {
+                for(size_t c = 0; c < 3; c++) {
+                    if(r < OTHER_ROWS && c < OTHER_COLS) {
+                        (*this)[r][c] = mat[r][c];
+                    }
+                    else {
+                        (*this)[r][c] = (T)(r == c);
+                    }
+                }
+            }
         }
 };
 
@@ -485,7 +536,6 @@ class Mat4 : public Mat<T, 4, 4> {
     public:
         Mat4() {}
         Mat4(const T diagVal) : Mat<T, 4, 4>::Mat(diagVal) {}
-        Mat4(const Mat<T, 4, 4>& mat) : Mat<T, 4, 4>::Mat(mat) {}
         Mat4(T x1, T y1, T z1, T w1,
              T x2, T y2, T z2, T w2,
              T x3, T y3, T z3, T w3,
@@ -495,6 +545,19 @@ class Mat4 : public Mat<T, 4, 4> {
             (*this)[2] = Vec4<T>(x3, y3, z3, w3);
             (*this)[3] = Vec4<T>(x4, y4, z4, w4);
         }
+        template<size_t OTHER_ROWS, size_t OTHER_COLS>
+        explicit Mat4(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+            for(size_t r = 0; r < 4; r++) {
+                for(size_t c = 0; c < 4; c++) {
+                    if(r < OTHER_ROWS && c < OTHER_COLS) {
+                        (*this)[r][c] = mat[r][c];
+                    }
+                    else {
+                        (*this)[r][c] = (T)(r == c);
+                    }
+                }
+            }
+        }
 };
 
 template<typename T>
@@ -502,7 +565,6 @@ class Mat4x3 : public Mat<T, 4, 3> {
     public:
         Mat4x3() {}
         Mat4x3(const T diagVal) : Mat<T, 4, 3>::Mat(diagVal) {}
-        Mat4x3(const Mat<T, 4, 3>& mat) : Mat<T, 4, 3>::Mat(mat) {}
         Mat4x3(T x1, T y1, T z1,
                T x2, T y2, T z2,
                T x3, T y3, T z3,
@@ -512,6 +574,19 @@ class Mat4x3 : public Mat<T, 4, 3> {
             (*this)[2] = Vec3<T>(x3, y3, z3);
             (*this)[3] = Vec3<T>(x4, y4, z4);
         }
+        template<size_t OTHER_ROWS, size_t OTHER_COLS>
+        explicit Mat4x3(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+            for(size_t r = 0; r < 4; r++) {
+                for(size_t c = 0; c < 3; c++) {
+                    if(r < OTHER_ROWS && c < OTHER_COLS) {
+                        (*this)[r][c] = mat[r][c];
+                    }
+                    else {
+                        (*this)[r][c] = (T)(r == c);
+                    }
+                }
+            }
+        }
 };
 
 template<typename T>
@@ -519,7 +594,6 @@ class Mat4x2 : public Mat<T, 4, 2> {
     public:
         Mat4x2() {}
         Mat4x2(const T diagVal) : Mat<T, 4, 2>::Mat(diagVal) {}
-        Mat4x2(const Mat<T, 4, 2>& mat) : Mat<T, 4, 2>::Mat(mat) {}
         Mat4x2(T x1, T y1,
                T x2, T y2,
                T x3, T y3,
@@ -529,6 +603,19 @@ class Mat4x2 : public Mat<T, 4, 2> {
             (*this)[2] = Vec2<T>(x3, y3);
             (*this)[3] = Vec2<T>(x4, y4);
         }
+        template<size_t OTHER_ROWS, size_t OTHER_COLS>
+        explicit Mat4x2(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+            for(size_t r = 0; r < 4; r++) {
+                for(size_t c = 0; c < 2; c++) {
+                    if(r < OTHER_ROWS && c < OTHER_COLS) {
+                        (*this)[r][c] = mat[r][c];
+                    }
+                    else {
+                        (*this)[r][c] = (T)(r == c);
+                    }
+                }
+            }
+        }
 };
 
 template<typename T>
@@ -536,13 +623,25 @@ class Mat3x4 : public Mat<T, 3, 4> {
     public:
         Mat3x4() {}
         Mat3x4(const T diagVal) : Mat<T, 3, 4>::Mat(diagVal) {}
-        Mat3x4(const Mat<T, 3, 4>& mat) : Mat<T, 3, 4>::Mat(mat) {}
         Mat3x4(T x1, T y1, T z1, T w1,
                T x2, T y2, T z2, T w2,
                T x3, T y3, T z3, T w3) {
             (*this)[0] = Vec4<T>(x1, y1, z1, w1);
             (*this)[1] = Vec4<T>(x2, y2, z2, w2);
             (*this)[2] = Vec4<T>(x3, y3, z3, w3);
+        }
+        template<size_t OTHER_ROWS, size_t OTHER_COLS>
+        explicit Mat3x4(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+            for(size_t r = 0; r < 3; r++) {
+                for(size_t c = 0; c < 4; c++) {
+                    if(r < OTHER_ROWS && c < OTHER_COLS) {
+                        (*this)[r][c] = mat[r][c];
+                    }
+                    else {
+                        (*this)[r][c] = (T)(r == c);
+                    }
+                }
+            }
         }
 };
 
@@ -551,11 +650,23 @@ class Mat2x4 : public Mat<T, 2, 4> {
     public:
         Mat2x4() {}
         Mat2x4(const T diagVal) : Mat<T, 2, 4>::Mat(diagVal) {}
-        Mat2x4(const Mat<T, 2, 4>& mat) : Mat<T, 2, 4>::Mat(mat) {}
         Mat2x4(T x1, T y1, T z1, T w1,
                T x2, T y2, T z2, T w2) {
             (*this)[0] = Vec4<T>(x1, y1, z1, w1);
             (*this)[1] = Vec4<T>(x2, y2, z2, w2);
+        }
+        template<size_t OTHER_ROWS, size_t OTHER_COLS>
+        explicit Mat2x4(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+            for(size_t r = 0; r < 2; r++) {
+                for(size_t c = 0; c < 4; c++) {
+                    if(r < OTHER_ROWS && c < OTHER_COLS) {
+                        (*this)[r][c] = mat[r][c];
+                    }
+                    else {
+                        (*this)[r][c] = (T)(r == c);
+                    }
+                }
+            }
         }
 };
 

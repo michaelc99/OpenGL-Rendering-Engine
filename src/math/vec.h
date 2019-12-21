@@ -83,11 +83,12 @@ class Vec {
 #endif
             return data[col];
         }
-        inline void set(const size_t col, const T val) {
+        inline Vec<T, COLS>& set(const size_t col, const T val) {
 #ifdef _DEBUG
             assert(col >= 0 && col < COLS);
 #endif
             data[col] = val;
+            return (*this);
         }
         T norm() const {
             T magnitude2;
@@ -421,11 +422,22 @@ template<typename T>
 class Vec2 : public Vec<T, 2> {
     public:
         Vec2() {}
-        Vec2(const Vec<T, 2>& vec) : Vec<T, 2>::Vec(vec) {}
+        Vec2(const T val) : Vec<T, 2>::Vec(val) {}
         Vec2(T x, T y) {
             (*this)[0] = x;
             (*this)[1] = y;
-        }    
+        }
+        template<size_t N>
+        explicit Vec2(const Vec<T, N>& vecN) {
+            for(size_t c = 0; c < 2; c++) {
+                if(c < N) {
+                    (*this)[c] = vecN[c];
+                }
+                else {
+                    (*this)[c] = (T)1.0;
+                }
+            }
+        }
         T x() { return this->at(0); }
         T y() { return this->at(1); }
 };
@@ -434,11 +446,22 @@ template<typename T>
 class Vec3 : public Vec<T, 3> {
     public:
         Vec3() {}
-        Vec3(const Vec<T, 3>& vec) : Vec<T, 3>::Vec(vec) {}
+        Vec3(const T val) : Vec<T, 3>::Vec(val) {}
         Vec3(T x, T y, T z) {
             (*this)[0] = x;
             (*this)[1] = y;
             (*this)[2] = z;
+        }
+        template<size_t N>
+        explicit Vec3(const Vec<T, N>& vecN) {
+            for(size_t c = 0; c < 3; c++) {
+                if(c < N) {
+                    (*this)[c] = vecN[c];
+                }
+                else {
+                    (*this)[c] = (T)1.0;
+                }
+            }
         }
         T x() { return this->at(0); }
         T y() { return this->at(1); }
@@ -449,13 +472,24 @@ template<typename T>
 class Vec4 : public Vec<T, 4> {
     public:
         Vec4() {}
-        Vec4(const Vec<T, 4>& vec) : Vec<T, 4>::Vec(vec) {}
+        Vec4(const T val) : Vec<T, 4>::Vec(val) {}
         Vec4(T x, T y, T z, T w) {
             (*this)[0] = x;
             (*this)[1] = y;
             (*this)[2] = z;
             (*this)[3] = w;
-        }    
+        }
+        template<size_t N>
+        explicit Vec4(const Vec<T, N>& vecN) {
+            for(size_t c = 0; c < 4; c++) {
+                if(c < N) {
+                    (*this)[c] = vecN[c];
+                }
+                else {
+                    (*this)[c] = (T)1.0;
+                }
+            }
+        }
         T x() { return this->at(0); }
         T y() { return this->at(1); }
         T z() { return this->at(2); }
@@ -465,48 +499,14 @@ class Vec4 : public Vec<T, 4> {
 // Typedefs
 typedef Vec2<float> Vec2f;
 typedef Vec2<double> Vec2d;
-typedef Vec2<int> Vec2i;
+typedef Vec2<size_t> Vec2i;
 
 typedef Vec3<float> Vec3f;
 typedef Vec3<double> Vec3d;
-typedef Vec3<int> Vec3i;
+typedef Vec3<size_t> Vec3i;
 
 typedef Vec4<float> Vec4f;
 typedef Vec4<double> Vec4d;
-typedef Vec4<int> Vec4i;
-
-// Factory constructors method
-/*typedef Vec<float, 2> Vec2f;
-typedef Vec<float, 3> Vec3f;
-typedef Vec<float, 4> Vec4f;
-
-typedef Vec<double, 2> Vec2d;
-typedef Vec<double, 3> Vec3d;
-typedef Vec<double, 4> Vec4d;
-
-typedef Vec<int, 2> Vec2i;
-typedef Vec<int, 3> Vec3i;
-typedef Vec<int, 4> Vec4i;
-
-Vec3f MakeVec2f(float x, float y);
-#define Vec2f(x, y) MakeVec2f(x, y)
-Vec3f MakeVec3f(float x, float y, float z);
-#define mVec3f(x, y, z) MakeVec3f(x, y, z)
-Vec3f MakeVec4f(float x, float y, float z, float w);
-#define Vec4f(x, y, z, w) MakeVec4f(x, y, z, w)
-
-Vec3f MakeVec2d(double x, double y);
-#define Vec2d(x, y) MakeVec2d(x, y)
-Vec3f MakeVec3d(double x, double y, double z);
-#define Vec3d(x, y, z) MakeVec3d(x, y, z)
-Vec3f MakeVec4d(double x, double y, double z, double w);
-#define Vec4d(x, y, z, w) MakeVec4d(x, y, z, w)
-
-Vec3f MakeVec2i(int x, int y);
-#define Vec2i(x, y) MakeVec2i(x, y)
-Vec3f MakeVec3i(int x, int y, int z);
-#define Vec3i(x, y, z) MakeVec3i(x, y, z)
-Vec3f MakeVec4i(int x, int y, int z, int w);
-#define Vec4i(x, y, z, w) MakeVec4i(x, y, z, w)*/
+typedef Vec4<size_t> Vec4i;
 
 #endif //VEC_H

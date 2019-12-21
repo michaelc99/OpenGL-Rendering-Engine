@@ -152,7 +152,7 @@ int main(void) {
             ADD_ERROR_INFO(shaderProgram->use());
             float time = ((int)(100.0f * glfwGetTime()) % 200) / 200.0f -0.5f;
             Vec4f timeVec(time, time, time, 1.0f);
-            ADD_ERROR_INFO(shaderProgram->setUniformVariable("colorFromApplication", timeVec));
+            //ADD_ERROR_INFO(shaderProgram->setUniformVariable("colorFromApplication", timeVec));
             /*GLint colorUniform = glGetUniformLocation(shaderProgram->getProgram(), "colorFromApplication");
             float colorToSend[] = {time, time, time, 1.0f};
             glUniform4fv(colorUniform, 1, colorToSend);*/
