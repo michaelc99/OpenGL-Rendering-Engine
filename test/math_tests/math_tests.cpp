@@ -38,6 +38,7 @@ int main() {
         failedCount += MatTests::TestUnaryOperators();
         failedCount += MatTests::TestBinaryOperators();
         failedCount += MatTests::TestOther();
+        failedCount += MatTests::TestPerformance();
     }
     catch(GeneralException& e) {
         cout << e.getMessage() << endl;

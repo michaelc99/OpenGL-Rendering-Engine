@@ -1,10 +1,10 @@
 # RELEASE MAKEFILE -D _DEBUG -U _DEBUG
 CXXFLAGS := -std=c++17 -Wall -D _DEBUG
 ifdef GDB
-	CXXFLAGS += -g
+	CXXFLAGS += -Og
 endif
 ifdef RELEASE
-	CXXFLAGS += -U _DEBUG
+	CXXFLAGS += -O3 -U _DEBUG
 endif
 
 # EXECUTABLES AND MAIN FILES SPECIFICATION
@@ -109,7 +109,7 @@ $(TEST_EXECUTABLE_FILES) : $(OBJ_FILES) $(LIB_OBJ_FILES) $(TEST_OBJ_FILES)
 	@if NOT exist $(EXECUTABLE_DIR_WITHOUT_FILENAME) mkdir $(EXECUTABLE_DIR_WITHOUT_FILENAME)
 	g++ $(CXXFLAGS) $(IFLAGS) $(OBJ_FILES_WITHOUT_OTHER_MAINS) -o $(TEST_OUTPUT_DIR)/$@ $(LFLAGS)
 
-$(OBJ_FILES) : $(SRC_FILES) $(HEADER_FILES)
+$(OBJ_FILES) : $(BUILD_DIR)/%.o : %.cpp $(HEADER_FILES)
 #	$(info recipe for $@ with prerequisite $(filter $(patsubst $(OBJ_DIR)/%.o,$(SRC_DIR)/%,$@).%,$^))
 #	$(info directory without filename: $(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@)))
 	$(eval PRE_REQ_SRC := $(filter-out %.h,$(filter $(patsubst $(OBJ_DIR)/%.o,$(SRC_DIR)/%,$@).%,$^)))
@@ -125,7 +125,7 @@ $(LIB_OBJ_FILES) : $(LIB_SRC_FILES)
 	@if NOT exist $(OBJ_DIR_WITHOUT_FILENAME) mkdir $(OBJ_DIR_WITHOUT_FILENAME)
 	g++ -c $(CXXFLAGS) $(IFLAGS) $(PRE_REQ_SRC) -o $@ $(LFLAGS)
 
-$(TEST_OBJ_FILES) : $(TEST_SRC_FILES) $(TEST_HEADER_FILES)
+$(TEST_OBJ_FILES) : $(BUILD_DIR)/%.o : %.cpp $(TEST_HEADER_FILES)
 #	$(info recipe for $@ with prerequisite $(filter $(patsubst $(TEST_OBJ_DIR)/%.o,$(TEST_SRC_DIR)/%,$@).%,$^))
 #	$(info directory without filename: $(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@)))
 	$(eval PRE_REQ_SRC := $(filter-out %.h,$(filter $(patsubst $(TEST_OBJ_DIR)/%.o,$(TEST_SRC_DIR)/%,$@).%,$^)))

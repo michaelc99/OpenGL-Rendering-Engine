@@ -360,4 +360,21 @@ namespace MatTests {
         
         return failedCount;
     }
+    
+    int TestPerformance() {
+        stringstream result;
+        stringstream expected;
+        int failedCount = 0;
+        
+        result = stringstream();
+        expected = stringstream();
+        Mat2f mat = Mat2f(1.0f, 2.0f, -3.0f, 1.0f);
+        Mat2f mat2 = Mat2f(1.0f, 2.03f, -3.0f, 1.0f);
+        mat * mat * mat * mat2;
+        /*result << (Mat2f)(mat * mat2);
+        expected << true;
+        CompareResult(ERROR_INFO, expected, result, failedCount);*/
+        
+        return failedCount;
+    }
 };

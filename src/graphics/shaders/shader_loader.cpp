@@ -1,4 +1,4 @@
-#include <shaders/shader_loader.h>
+#include <graphics/shaders/shader_loader.h>
 
 using namespace std;
 
@@ -129,7 +129,7 @@ void ShaderProgram::link() {
         int infoLogLength = 0;
         glGetProgramInfoLog(program, 1000, &infoLogLength, infoLog);
         string errMessage = string("ERROR: Failed to link shader program with shader objects ");
-        for(auto shaderFileName = shaderFileNames.begin(); shaderFileName != shaderFileNames.end(); shaderFileName++) {
+        for(vector<string>::iterator shaderFileName = shaderFileNames.begin(); shaderFileName != shaderFileNames.end(); shaderFileName++) {
             errMessage = errMessage + "\"" + (*shaderFileName) + "\" ";
         }
         errMessage = errMessage + "\nInfoLog:\n" + string(infoLog, infoLogLength);

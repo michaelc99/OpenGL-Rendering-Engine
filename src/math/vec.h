@@ -91,7 +91,7 @@ class Vec {
             return (*this);
         }
         T norm() const {
-            T magnitude2;
+            T magnitude2 = (T)0.0;
             for(size_t c = 0; c < COLS; c++) {
                 magnitude2 += data[c] * data[c];
             }
@@ -101,7 +101,7 @@ class Vec {
          * Norm of vector squared (saves doing a std::sqrt() call).
          */
         T norm2() const {
-            T magnitude2;
+            T magnitude2 = (T)0.0;
             for(size_t c = 0; c < COLS; c++) {
                 magnitude2 += data[c] * data[c];
             }
@@ -118,13 +118,13 @@ class Vec {
             return ((*this) / normVal);
         }
         
-        T operator[](const size_t col) const {
+        inline T operator[](const size_t col) const {
 #ifdef _DEBUG
             assert(col >= 0 && col < COLS);
 #endif
             return data[col];
         }
-        T& operator[](const size_t col) {
+        inline T& operator[](const size_t col) {
 #ifdef _DEBUG
             assert(col >= 0 && col < COLS);
 #endif
@@ -389,7 +389,7 @@ Vec<T, COLS> operator/(const Vec<T, COLS>& vec, const T val) {
 
 template<typename T, size_t COLS>
 T dot(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2) {
-    T dotProduct;
+    T dotProduct = (T)0.0;
     for(size_t c = 0; c < COLS; c++) {
         dotProduct += vec1[c] * vec2[c];
     }
@@ -499,14 +499,14 @@ class Vec4 : public Vec<T, 4> {
 // Typedefs
 typedef Vec2<float> Vec2f;
 typedef Vec2<double> Vec2d;
-typedef Vec2<size_t> Vec2i;
+typedef Vec2<int> Vec2i;
 
 typedef Vec3<float> Vec3f;
 typedef Vec3<double> Vec3d;
-typedef Vec3<size_t> Vec3i;
+typedef Vec3<int> Vec3i;
 
 typedef Vec4<float> Vec4f;
 typedef Vec4<double> Vec4d;
-typedef Vec4<size_t> Vec4i;
+typedef Vec4<int> Vec4i;
 
 #endif //VEC_H

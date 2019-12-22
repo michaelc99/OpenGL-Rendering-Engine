@@ -15,6 +15,7 @@ namespace MatTests {
     int TestUnaryOperators();
     int TestBinaryOperators();
     int TestOther();
+    int TestPerformance();
 };
 
 #endif //MAT_TESTS_H

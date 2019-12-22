@@ -1,4 +1,4 @@
-#include <shaders/shader_uniform.h>
+#include <graphics/shaders/shader_uniform.h>
 
 using namespace std;
 
@@ -10,22 +10,22 @@ GLint ShaderProgram::getUniformLocation(const string variableName) const {
     return uniformLocation;
 }
 
-void ShaderProgram::setUniformVariable(const string variableName, float val) const {
+void ShaderProgram::setUniformFloat(const string variableName, float val) const {
     GLint uniformLocation = getUniformLocation(variableName);
     glUniform1f(uniformLocation, val);
 }
 
-void ShaderProgram::setUniformVariable(const string variableName, double val) const {
+void ShaderProgram::setUniformDouble(const string variableName, double val) const {
     GLint uniformLocation = getUniformLocation(variableName);
     glUniform1d(uniformLocation, val);
 }
 
-void ShaderProgram::setUniformVariable(const string variableName, int val) const {
+void ShaderProgram::setUniformInt(const string variableName, int val) const {
     GLint uniformLocation = getUniformLocation(variableName);
     glUniform1i(uniformLocation, val);
 }
 
-void ShaderProgram::setUniformVariable(const string variableName, unsigned int val) const {
+void ShaderProgram::setUniformUInt(const string variableName, unsigned int val) const {
     GLint uniformLocation = getUniformLocation(variableName);
     glUniform1ui(uniformLocation, val);
 }

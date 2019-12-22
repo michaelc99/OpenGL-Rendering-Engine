@@ -21,9 +21,21 @@ namespace LinearMathTests {
         vec3f = Vec3f(1.0f, 0.0f, 0.0f);
         Vec3f offsetVec = Vec3f(0.0f, 0.0f, 0.0f);
         Vec3f axis = Vec3f(0.0f, 0.0f, 1.0f);
-        Vec3f rotatedVec3f = rotate(vec3f, offsetVec, axis, 3.141592653589793238463f / 2.0f);
+        Vec3f rotatedVec3f = rotateUnitAxis(vec3f, offsetVec, axis, 3.141592653589793238463f / 2.0f);
         result << equalsTol(rotatedVec3f[0], 0.0f, 0.000001f) << ", "
                 << equalsTol(rotatedVec3f[1], 1.0f, 0.000001f) << ", "
+                << equalsTol(rotatedVec3f[2], 0.0f, 0.000001f);
+        expected << "1, 1, 1";
+        CompareResult(ERROR_INFO, expected, result, failedCount);
+        
+        result = stringstream();
+        expected = stringstream();
+        vec3f = Vec3f(1.0f, 0.0f, 0.0f);
+        Vec3f axisVec1 = Vec3f(-1.0f, 0.0f, 0.0f);
+        Vec3f axisVec2 = Vec3f(-1.0f, 0.0f, 1.0f);
+        rotatedVec3f = rotate(vec3f, axisVec1, axisVec2, 3.141592653589793238463f);
+        result << equalsTol(rotatedVec3f[0], -3.0f, 0.000001f) << ", "
+                << equalsTol(rotatedVec3f[1], 0.0f, 0.000001f) << ", "
                 << equalsTol(rotatedVec3f[2], 0.0f, 0.000001f);
         expected << "1, 1, 1";
         CompareResult(ERROR_INFO, expected, result, failedCount);

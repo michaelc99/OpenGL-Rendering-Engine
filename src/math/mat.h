@@ -103,13 +103,13 @@ class Mat {
             dataVecs[row][col] = val;
             return (*this);
         }
-        Vec<T, COLS> getRow(const size_t row) const {
+        inline Vec<T, COLS> getRow(const size_t row) const {
 #ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
 #endif
             return dataVecs[row];
         }
-        Mat<T, ROWS, COLS>& setRow(const size_t row, const Vec<T, COLS> rowVec) {
+        inline Mat<T, ROWS, COLS>& setRow(const size_t row, const Vec<T, COLS> rowVec) {
 #ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
 #endif
@@ -136,13 +136,13 @@ class Mat {
             return (*this);
         }
         
-        Vec<T, COLS> operator[](const size_t row) const { // Row major so [] operator returns a row
+        inline Vec<T, COLS> operator[](const size_t row) const { // Row major so [] operator returns a row
 #ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
 #endif
             return dataVecs[row];
         }
-        Vec<T, COLS>& operator[](const size_t row) { // Row major so [] operator returns a row
+        inline Vec<T, COLS>& operator[](const size_t row) { // Row major so [] operator returns a row
 #ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
 #endif
