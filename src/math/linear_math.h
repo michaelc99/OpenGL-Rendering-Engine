@@ -1,8 +1,8 @@
 #ifndef LINEAR_MATH_H
 #define LINEAR_MATH_H
 
-#include "vec.h"
-#include "mat.h"
+#include "vector.h"
+#include "matrix.h"
 
 template<typename T>
 bool equalsTol(const T val1, const T val2, const T tolerance) {

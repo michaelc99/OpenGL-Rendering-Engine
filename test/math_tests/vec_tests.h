@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <string>
-#include <math/vec.h>
-#include <math/mat.h>
+#include <math/vector.h>
+#include <math/matrix.h>
 #include <test_exception.h>
 #include <test_comparison.h>
 

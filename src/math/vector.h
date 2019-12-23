@@ -60,6 +60,7 @@ class Vec {
                 data[c] = T();
             }
         }
+        
         /*
          * Constructor to set all components to value.
          */
@@ -68,6 +69,7 @@ class Vec {
                 data[c] = val;
             }
         }
+        
         /*
          * Copy constructor.
          */
@@ -83,6 +85,7 @@ class Vec {
 #endif
             return data[col];
         }
+        
         inline Vec<T, COLS>& set(const size_t col, const T val) {
 #ifdef _DEBUG
             assert(col >= 0 && col < COLS);
@@ -90,6 +93,7 @@ class Vec {
             data[col] = val;
             return (*this);
         }
+        
         T norm() const {
             T magnitude2 = (T)0.0;
             for(size_t c = 0; c < COLS; c++) {
@@ -97,6 +101,7 @@ class Vec {
             }
             return std::sqrt(magnitude2);
         }
+        
         /*
          * Norm of vector squared (saves doing a std::sqrt() call).
          */
@@ -107,15 +112,12 @@ class Vec {
             }
             return magnitude2;
         }
+        
         /*
          * Returns a normalized (norm of 1) version of this vector.
          */
         Vec<T, COLS> normalize() const {
-            T normVal = norm();
-            if(normVal == (T)0.0) {
-                throw DivideByZeroException(ERROR_INFO);
-            }
-            return ((*this) / normVal);
+            return (*this) / norm();
         }
         
         inline T operator[](const size_t col) const {
@@ -124,60 +126,70 @@ class Vec {
 #endif
             return data[col];
         }
+        
         inline T& operator[](const size_t col) {
 #ifdef _DEBUG
             assert(col >= 0 && col < COLS);
 #endif
             return data[col];
         }
+        
         Vec<T, COLS>& operator=(const Vec<T, COLS>& vec) {
             for(size_t c = 0; c < COLS; c++) {
                 data[c] = vec.data[c];
             }
             return (*this);
         }
+        
         Vec<T, COLS>& operator+=(const Vec<T, COLS>& vec) {
             for(size_t c = 0; c < COLS; c++) {
                 data[c] += vec.data[c];
             }
             return (*this);
         }
+        
         Vec<T, COLS>& operator-=(const Vec<T, COLS>& vec) {
             for(size_t c = 0; c < COLS; c++) {
                 data[c] -= vec.data[c];
             }
             return (*this);
         }
+        
         Vec<T, COLS>& operator*=(const Vec<T, COLS>& vec) {
             for(size_t c = 0; c < COLS; c++) {
                 data[c] *= vec.data[c];
             }
             return (*this);
         }
+        
         Vec<T, COLS>& operator=(const T val) {
             for(size_t c = 0; c < COLS; c++) {
                 data[c] = val;
             }
             return (*this);
         }
+        
         Vec<T, COLS>& operator+=(const T val) {
             for(size_t c = 0; c < COLS; c++) {
                 data[c] += val;
             }
             return (*this);
         }
+        
         Vec<T, COLS>& operator-=(const T val) {
             for(size_t c = 0; c < COLS; c++) {
                 data[c] -= val;
             }
             return (*this);
         }
+        
         Vec<T, COLS>& operator*=(const T val) {
             for(size_t c = 0; c < COLS; c++) {
                 data[c] *= val;
             }
             return (*this);
         }
+        
         Vec<T, COLS>& operator/=(const T val) {
             Vec<T, COLS> newVec;
             if(val == (T)0.0) {
@@ -192,6 +204,7 @@ class Vec {
             (*this) = newVec;
             return (*this);
         }
+        
         Vec<T, COLS> operator-() const {
             Vec<T, COLS> newVec;
             for(size_t c = 0; c < COLS; c++) {
@@ -424,8 +437,8 @@ class Vec2 : public Vec<T, 2> {
         Vec2() {}
         Vec2(const T val) : Vec<T, 2>::Vec(val) {}
         Vec2(T x, T y) {
-            (*this)[0] = x;
-            (*this)[1] = y;
+                (*this)[0] = x;
+                (*this)[1] = y;
         }
         template<size_t N>
         explicit Vec2(const Vec<T, N>& vecN) {
@@ -448,9 +461,9 @@ class Vec3 : public Vec<T, 3> {
         Vec3() {}
         Vec3(const T val) : Vec<T, 3>::Vec(val) {}
         Vec3(T x, T y, T z) {
-            (*this)[0] = x;
-            (*this)[1] = y;
-            (*this)[2] = z;
+                (*this)[0] = x;
+                (*this)[1] = y;
+                (*this)[2] = z;
         }
         template<size_t N>
         explicit Vec3(const Vec<T, N>& vecN) {
@@ -474,10 +487,10 @@ class Vec4 : public Vec<T, 4> {
         Vec4() {}
         Vec4(const T val) : Vec<T, 4>::Vec(val) {}
         Vec4(T x, T y, T z, T w) {
-            (*this)[0] = x;
-            (*this)[1] = y;
-            (*this)[2] = z;
-            (*this)[3] = w;
+                (*this)[0] = x;
+                (*this)[1] = y;
+                (*this)[2] = z;
+                (*this)[3] = w;
         }
         template<size_t N>
         explicit Vec4(const Vec<T, N>& vecN) {
