@@ -3,71 +3,74 @@
 
 #include "vec_tests.h"
 #include "mat_tests.h"
+#include "quat_tests.h"
 #include "linear_math_tests.h"
 #include "test_exception.h"
 
-using namespace std;
+using namespace Engine;
 
 int main() {
-    cout << "STARTING MATH TESTS." << endl;
+    std::cout << "STARTING MATH TESTS." << std::endl;
     int failedCount = 0;
     
     // Vector tests
     try {
-        failedCount += VecTests::TestConstructors();
-        failedCount += VecTests::TestAccessorsMutators();
-        failedCount += VecTests::TestAssignmentOperators();
-        failedCount += VecTests::TestUnaryOperators();
-        failedCount += VecTests::TestBinaryOperators();
-        failedCount += VecTests::TestOther();
+        failedCount += VecTests::DoTests();
     }
     catch(GeneralException& e) {
-        cout << e.getMessage() << endl;
+        std::cout << e.getMessage() << std::endl;
         failedCount++;
     }
-    catch(exception& e) {
-        cout << e.what() << endl;
+    catch(std::exception& e) {
+        std::cout << e.what() << std::endl;
         failedCount++;
     }
     
     // Matrix tests
     try {
-        failedCount += MatTests::TestConstructors();
-        failedCount += MatTests::TestAccessorsMutators();
-        failedCount += MatTests::TestAssignmentOperators();
-        failedCount += MatTests::TestUnaryOperators();
-        failedCount += MatTests::TestBinaryOperators();
-        failedCount += MatTests::TestOther();
-        failedCount += MatTests::TestPerformance();
+        failedCount += MatTests::DoTests();
     }
     catch(GeneralException& e) {
-        cout << e.getMessage() << endl;
+        std::cout << e.getMessage() << std::endl;
         failedCount++;
     }
-    catch(exception& e) {
-        cout << e.what() << endl;
+    catch(std::exception& e) {
+        std::cout << e.what() << std::endl;
+        failedCount++;
+    }
+    
+    // Matrix tests
+    try {
+        failedCount += QuatTests::DoTests();
+    }
+    catch(GeneralException& e) {
+        std::cout << e.getMessage() << std::endl;
+        failedCount++;
+    }
+    catch(std::exception& e) {
+        std::cout << e.what() << std::endl;
         failedCount++;
     }
     
     // Linear Math tests
     try {
-        failedCount += LinearMathTests::TestTransforms();
+        failedCount += LinearMathTests::DoTests();
     }
     catch(GeneralException& e) {
-        cout << e.getMessage() << endl;
+        std::cout << e.getMessage() << std::endl;
         failedCount++;
     }
-    catch(exception& e) {
-        cout << e.what() << endl;
+    catch(std::exception& e) {
+        std::cout << e.what() << std::endl;
         failedCount++;
     }
     
     if(failedCount > 0) {
-        cout << "MATH TESTS FAILED:" << endl;
-        cout << "\tFinished math tests with " << failedCount << " failed tests." << endl;
+        std::cout << "MATH TESTS FAILED:" << std::endl;
+        std::cout << "\tFinished math tests with " << failedCount << " failed tests." << std::endl;
     }
     else {
-        cout << "MATH TESTS PASSED." << endl;
+        std::cout << "MATH TESTS PASSED." << std::endl;
     }
     return 0;
 }

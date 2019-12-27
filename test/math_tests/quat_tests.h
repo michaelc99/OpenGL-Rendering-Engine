@@ -1,14 +1,13 @@
-#ifndef VEC_TESTS_H
-#define VEC_TESTS_H
+#ifndef QUAT_TESTS_H
+#define QUAT_TESTS_H
 
 #include <iostream>
 #include <string>
-#include <math/vector.h>
-#include <math/matrix.h>
+#include <math/quaternion.h>
 #include <test_exception.h>
 #include <test_comparison.h>
 
-namespace VecTests {
+namespace QuatTests {
 
 int DoTests();
 int TestConstructors();
@@ -17,7 +16,8 @@ int TestAssignmentOperators();
 int TestUnaryOperators();
 int TestBinaryOperators();
 int TestOther();
+int TestPerformance();
 
 };
 
-#endif //VEC_TESTS_H
+#endif //QUAT_TESTS_H

@@ -13,10 +13,12 @@
 #include <cassert>
 #include <memory>
 #include <exceptions/render_exception.h>
-#include <math/vec.h>
-#include <math/mat.h>
+#include <math/vector.h>
+#include <math/matrix.h>
 
 #include <glad/glad.h>
+
+namespace Engine {
 
 class ShaderObject {
     public:
@@ -58,32 +60,32 @@ class ShaderProgram {
         void setUniformUInt(const std::string variableName, unsigned int val) const;
         
         template<size_t COLS>
-        void setUniformFloatVecs(const std::string variableName, const std::vector<Vec<float, COLS>>& values) const;
+        void setUniformFloatVecs(const std::string variableName, const std::vector<Math::Vec<float, COLS>>& values) const;
         template<size_t COLS>
-        void setUniformDoubleVecs(const std::string variableName, const std::vector<Vec<double, COLS>>& values) const;
+        void setUniformDoubleVecs(const std::string variableName, const std::vector<Math::Vec<double, COLS>>& values) const;
         template<size_t COLS>
-        void setUniformIntVecs(const std::string variableName, const std::vector<Vec<int, COLS>>& values) const;
+        void setUniformIntVecs(const std::string variableName, const std::vector<Math::Vec<int, COLS>>& values) const;
         template<size_t COLS>
-        void setUniformUIntVecs(const std::string variableName, const std::vector<Vec<unsigned int, COLS>>& values) const;
+        void setUniformUIntVecs(const std::string variableName, const std::vector<Math::Vec<unsigned int, COLS>>& values) const;
         
         template<size_t COLS>
-        void setUniformFloatVec(const std::string variableName, const Vec<float, COLS>& value) const;
+        void setUniformFloatVec(const std::string variableName, const Math::Vec<float, COLS>& value) const;
         template<size_t COLS>
-        void setUniformDoubleVec(const std::string variableName, const Vec<double, COLS>& value) const;
+        void setUniformDoubleVec(const std::string variableName, const Math::Vec<double, COLS>& value) const;
         template<size_t COLS>
-        void setUniformIntVec(const std::string variableName, const Vec<int, COLS>& value) const;
+        void setUniformIntVec(const std::string variableName, const Math::Vec<int, COLS>& value) const;
         template<size_t COLS>
-        void setUniformUIntVec(const std::string variableName, const Vec<unsigned int, COLS>& value) const;
+        void setUniformUIntVec(const std::string variableName, const Math::Vec<unsigned int, COLS>& value) const;
         
         template<size_t ROWS, size_t COLS>
-        void setUniformFloatMats(const std::string variableName, const std::vector<Mat<float, ROWS, COLS>>& values) const;
+        void setUniformFloatMats(const std::string variableName, const std::vector<Math::Mat<float, ROWS, COLS>>& values) const;
         template<size_t ROWS, size_t COLS>
-        void setUniformDoubleMats(const std::string variableName, const std::vector<Mat<double, ROWS, COLS>>& values) const;
+        void setUniformDoubleMats(const std::string variableName, const std::vector<Math::Mat<double, ROWS, COLS>>& values) const;
         
         template<size_t ROWS, size_t COLS>
-        void setUniformFloatMat(const std::string variableName, const Mat<float, ROWS, COLS>& value) const;
+        void setUniformFloatMat(const std::string variableName, const Math::Mat<float, ROWS, COLS>& value) const;
         template<size_t ROWS, size_t COLS>
-        void setUniformDoubleMat(const std::string variableName, const Mat<double, ROWS, COLS>& value) const;
+        void setUniformDoubleMat(const std::string variableName, const Math::Mat<double, ROWS, COLS>& value) const;
         
         //void setUniformBlock(std::string blockName, std::shared_ptr<void> buf, size_t size) const;
         
@@ -92,6 +94,8 @@ class ShaderProgram {
         GLuint program;
         bool linked;
         std::vector<std::string> shaderFileNames;
+};
+
 };
 
 #endif //SHADER_LOADER_H

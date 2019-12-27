@@ -3,35 +3,38 @@
 #include <chrono>
 
 #include <exceptions/render_exception.h>
-#include <shaders/shaders.h>
+#include <graphics/shaders/shaders.h>
 #include <math/linear_math.h>
-#include <images/image_loader.h>
+#include <graphics/images/image_loader.h>
 
 #include <glad/glad.h> // Must include before GLFW
 #include <GLFW/glfw3.h>
 
-using namespace std;
-
 void myErrorCallback(int error, const char* description) {
-    cout << "GLFW_ERROR: " << description << endl;
+    std::cout << "GLFW_ERROR: " << description << std::endl;
 }
 
 void myWindowCloseCallback(GLFWwindow* window) {
-    cout << "Window close button pressed/requested." << endl;
+    std::cout << "Window close button pressed/requested." << std::endl;
 }
 
+int myFrameWidth = 0;
+int myFrameHeight = 0;
 void myFrameBufferResizeCallback(GLFWwindow* window, int frameWidth, int frameHeight) {
-    cout << "New framebuffer size = (" << frameWidth << ", " << frameHeight << ")" << endl;
+    std::cout << "New framebuffer size = (" << frameWidth << ", " << frameHeight << ")" << std::endl;
     glViewport(0, 0, frameWidth, frameHeight);
+    myFrameWidth = frameWidth;
+    myFrameHeight = frameHeight;
 }
 
 void myMousePosCallback(GLFWwindow* window, double x, double y) {
-    cout << "Mouse pos = (" << x << ", " << y << ")" << endl;
+    std::cout << "Mouse pos = (" << x << ", " << y << ")" << std::endl;
 }
 
 float mixVal = 0;
+float zVal = 1.0f;
 void myKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
-    cout << key << " key was " << ((action == GLFW_PRESS) ? "pressed" : ((action == GLFW_RELEASE) ? "released" : "repeated")) << endl;
+    std::cout << key << " key was " << ((action == GLFW_PRESS) ? "pressed" : ((action == GLFW_RELEASE) ? "released" : "repeated")) << std::endl;
     if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
@@ -41,6 +44,13 @@ void myKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mo
     if(key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
         mixVal -= 0.1;
     }
+    
+    if(key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        zVal *= 1.1f;
+    }
+    if(key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        zVal /= 1.1f;
+    }
 }
 
 int main(void) {
@@ -49,20 +59,20 @@ int main(void) {
     glfwSetErrorCallback(myErrorCallback);
     
     if(!glfwInit()) {
-        cout << "ERROR: GLFW initialization failed, aborting." << endl;
+        std::cout << "ERROR: GLFW initialization failed, aborting." << std::endl;
         errorNum = -1;
         return errorNum;
     }
-    cout << "Success! GLFW initialized." << endl;
+    std::cout << "Success! GLFW initialized." << std::endl;
     
     try {
         // Set window hints
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        GLFWwindow* window = glfwCreateWindow(500, 500, "My Window", NULL, NULL);
+        GLFWwindow* window = glfwCreateWindow(900, 700, "My Window", NULL, NULL);
         if(!window) {
-            throw RenderException(ERROR_INFO + ":ERROR: GLFW window creation failed, aborting.");
+            throw Engine::RenderException(ERROR_INFO + ":ERROR: GLFW window creation failed, aborting.");
         }
         glfwMakeContextCurrent(window);
         
@@ -73,29 +83,28 @@ int main(void) {
         
         // GLAD can load OpenGL functions after setting up context
         if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-            throw RenderException(ERROR_INFO + ":ERROR: GLAD unable to load GL.");
+            throw Engine::RenderException(ERROR_INFO + ":ERROR: GLAD unable to load GL.");
         }
-        cout << "OpenGL " << GLVersion.major << "." << GLVersion.minor << endl;
+        std::cout << "OpenGL " << GLVersion.major << "." << GLVersion.minor << std::endl;
         
-        int myFrameWidth, myFrameHeight = 0;
         glfwGetFramebufferSize(window, &myFrameWidth, &myFrameHeight);
         glViewport(0, 0, myFrameWidth, myFrameHeight);
-        cout << "Frame buffer size = (" << myFrameWidth << ", " << myFrameHeight << ")" << endl;
+        std::cout << "Frame buffer size = (" << myFrameWidth << ", " << myFrameHeight << ")" << std::endl;
         
         // Random info ////
         /*int focused = glfwGetWindowAttrib(window, GLFW_FOCUSED);
         int windowWidth, windowHeight;
         glfwGetWindowSize(window, &windowWidth, &windowHeight);
-        cout << "Focused = " << focused << ", Window size = (" << windowWidth << ", " << windowHeight << ")" << endl;
+        std::cout << "Focused = " << focused << ", Window size = (" << windowWidth << ", " << windowHeight << ")" << std::endl;
         int majorVer = glfwGetWindowAttrib(window, GLFW_CONTEXT_VERSION_MAJOR);
         int minorVer = glfwGetWindowAttrib(window, GLFW_CONTEXT_VERSION_MINOR);
-        cout << "Context OpenGL version " << majorVer << "." << minorVer << endl;*/
+        std::cout << "Context OpenGL version " << majorVer << "." << minorVer << std::endl;*/
         ////////////////////
         
         // Shader loading
-        shared_ptr<ShaderProgram> shaderProgram;
+        std::shared_ptr<Engine::ShaderProgram> shaderProgram;
         ADD_ERROR_INFO(
-                shaderProgram = shared_ptr<ShaderProgram>(new ShaderProgram({GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, {"basic_triangle.vs.glsl", "basic_triangle.fs.glsl"}))
+                shaderProgram = std::shared_ptr<Engine::ShaderProgram>(new Engine::ShaderProgram({GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, {"basic_vertex_shader.vs.glsl", "basic_fragment_shader.fs.glsl"}))
         );
         
         unsigned int VAO;
@@ -116,7 +125,7 @@ int main(void) {
         data = stbi_load("container.jpg", &imgWidth, &imgHeight, &imgNumChannels, 0);
         if(!data) {
             stbi_image_free(data);
-            throw RenderException("bad image");
+            throw Engine::RenderException("bad image");
         }
         unsigned int texture0;
         glGenTextures(1, &texture0);
@@ -133,7 +142,7 @@ int main(void) {
         data = stbi_load("awesomeface.png", &imgWidth, &imgHeight, &imgNumChannels, 0);
         if(!data) {
             stbi_image_free(data);
-            throw RenderException("bad image");
+            throw Engine::RenderException("bad image");
         }
         unsigned int texture1;
         glGenTextures(1, &texture1);
@@ -150,10 +159,10 @@ int main(void) {
         //////////////////////// Create VAOs /////
         // Vertices of triangle
         float vertices[] = {
-            -0.5, -0.5, 0.0f,
-            -0.5f, 0.5f, 0.0f,
-            0.5f, 0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f
+            -0.5, -0.5, -9.0f,
+            -0.5f, 0.5f, -10.0f,
+            0.5f, 0.5f, -10.0f,
+            0.5f, -0.5f, -9.0f
         };
         float colors[] = {
             1.0f, 0.0f, 0.0f,
@@ -212,11 +221,28 @@ int main(void) {
             
             // DRAWING
             ADD_ERROR_INFO(shaderProgram->use());
-            float time = ((int)(100.0f * glfwGetTime()) % 200) / 200.0f;
-            Vec4f timeVec(time, time, time, 1.0f);
+            float time = ((int)(100.0f * glfwGetTime()) % 100) / 100.0f;
+            
+            ///////////////////////////
             ADD_ERROR_INFO(shaderProgram->setUniformFloat("mixVal", mixVal));
             ADD_ERROR_INFO(shaderProgram->setUniformInt("texture0", 0));
             ADD_ERROR_INFO(shaderProgram->setUniformInt("texture1", 1));
+            
+            Engine::Math::Mat4f myMatrix0(Engine::Math::createTranslationMat(
+                    Engine::Math::createVec3<float>(0.0f, 0.0f, 9.5f)
+            ));
+            Engine::Math::Mat4f myMatrix1(Engine::Math::createRotationMat(
+                    Engine::Math::createVec3<float>(0.0f, 1.0f, 1.0f), Engine::Math::toRadians(360.0f * time)
+            ));
+            Engine::Math::Mat4f myMatrix2(Engine::Math::createTranslationMat(
+                    Engine::Math::createVec3<float>(0.0f, 0.0f, -9.5f)
+            ));
+            Engine::Math::Mat4f myMatrix3(Engine::Math::createTranslationMat(
+                    Engine::Math::createVec3<float>(-0.5f, 0.0f, 0.0f)
+            ));
+            ADD_ERROR_INFO(shaderProgram->setUniformFloatMat("transform", myMatrix3 * myMatrix2 * myMatrix1 * myMatrix0));
+            Engine::Math::Mat4f perspectiveMat = Engine::Math::createPerspectiveProjectionMat(Engine::Math::toRadians(45.0f), (float)myFrameWidth / (float)myFrameHeight, 1.0f, 100.0f);
+            ADD_ERROR_INFO(shaderProgram->setUniformFloatMat("projectionMatrix", perspectiveMat));
             
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture0);
@@ -226,7 +252,34 @@ int main(void) {
             glBindVertexArray(VAO);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            ////////////////////////////
+            /*ADD_ERROR_INFO(shaderProgram->setUniformFloat("mixVal", mixVal));
+            ADD_ERROR_INFO(shaderProgram->setUniformInt("texture0", 0));
+            ADD_ERROR_INFO(shaderProgram->setUniformInt("texture1", 1));
             
+            myMatrix0 = (Engine::Math::createTranslationMat(
+                    Engine::Math::createVec3<float>(0.0f, 0.0f, 9.5f)
+            ));
+            myMatrix1 = (Engine::Math::createRotationMat(
+                    Engine::Math::createVec3<float>(1.0f, 1.0f, 0.0f), Engine::Math::toRadians(-360.0f * time)
+            ));
+            myMatrix2 = (Engine::Math::createTranslationMat(
+                    Engine::Math::createVec3<float>(0.0f, 0.0f, -9.5f)
+            ));
+            myMatrix3 = (Engine::Math::createTranslationMat(
+                    Engine::Math::createVec3<float>(0.5f, 0.0f, 0.0f)
+            ));
+            ADD_ERROR_INFO(shaderProgram->setUniformFloatMat("transform", myMatrix3 * myMatrix2 * myMatrix1 * myMatrix0));
+            
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture0);
+            glActiveTexture(GL_TEXTURE0 + 1);
+            glBindTexture(GL_TEXTURE_2D, texture1);
+            
+            glBindVertexArray(VAO);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            */
             glfwSwapBuffers(window);
         }
         
@@ -239,18 +292,18 @@ int main(void) {
         // Terminate to free memory and resources
         glfwTerminate();
     }
-    catch(GeneralException& e) {
-        cerr << e.getMessage() << endl;
+    catch(Engine::GeneralException& e) {
+        std::cerr << e.getMessage() << std::endl;
         glfwTerminate();
         errorNum = -1;
     }
-    catch(exception& e) {
-        cerr << e.what() << endl;
+    catch(std::exception& e) {
+        std::cerr << e.what() << std::endl;
         glfwTerminate();
         errorNum = -1;
     }
     catch(...) {
-        cerr << "ERROR: Unknown exception occurred." << endl;
+        std::cerr << "ERROR: Unknown std::exception occurred." << std::endl;
         glfwTerminate();
         errorNum = -1;
     }

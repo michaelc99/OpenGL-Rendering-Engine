@@ -5,11 +5,13 @@
 #include <iostream>
 #include <string>
 
+namespace Engine {
+
 class GeneralException;
 
 #define ERROR_INFO std::string(__FILE__) + " at line " + std::to_string(__LINE__)
 #ifdef _DEBUG
-    #define ADD_ERROR_INFO(statement) try { statement; } catch(GeneralException& e) { throw GeneralException(ERROR_INFO + ":" + e.getMessage()); }
+    #define ADD_ERROR_INFO(statement) try { statement; } catch(Engine::GeneralException& e) { throw Engine::GeneralException(ERROR_INFO + ":" + e.getMessage()); }
 #else
     #define ADD_ERROR_INFO(statement) statement;
 #endif
@@ -22,6 +24,8 @@ class GeneralException : std::exception {
         const char* what() const noexcept { return message.c_str(); }
     private:
        const std::string message;
+};
+
 };
 
 #endif //GENERAL_EXCEPTION_H

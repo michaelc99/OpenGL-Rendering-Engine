@@ -6,6 +6,8 @@
 #include <cassert>
 #include <iostream>
 
+namespace Engine::Math {
+
 template<typename T, size_t COLS>
 class Vec;
 template<typename T, size_t COLS>
@@ -14,14 +16,6 @@ template<typename T, size_t COLS>
 bool operator==(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
 template<typename T, size_t COLS>
 bool operator!=(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
-template<typename T, size_t COLS>
-bool operator>(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
-template<typename T, size_t COLS>
-bool operator<(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
-template<typename T, size_t COLS>
-bool operator>=(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
-template<typename T, size_t COLS>
-bool operator<=(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
 template<typename T, size_t COLS>
 std::ostream& operator<<(std::ostream& out, const Vec<T, COLS>& vec);
 template<typename T, size_t COLS>
@@ -70,9 +64,6 @@ class Vec {
             }
         }
         
-        /*
-         * Copy constructor.
-         */
         Vec(const Vec<T, COLS>& vec) {
             for(size_t c = 0; c < COLS; c++) {
                 data[c] = vec.data[c];
@@ -103,7 +94,7 @@ class Vec {
         }
         
         /*
-         * Norm of vector squared (saves doing a std::sqrt() call).
+         * Norm of vector squared.
          */
         T norm2() const {
             T magnitude2 = (T)0.0;
@@ -114,7 +105,7 @@ class Vec {
         }
         
         /*
-         * Returns a normalized (norm of 1) version of this vector.
+         * Returns this vector normalized (norm of 1).
          */
         Vec<T, COLS> normalize() const {
             return (*this) / norm();
@@ -216,18 +207,14 @@ class Vec {
         friend bool equalsTol <T, COLS>(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2, const T tolerance);
         friend bool operator== <T, COLS>(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
         friend bool operator!= <T, COLS>(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
-        friend bool operator> <T, COLS>(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
-        friend bool operator< <T, COLS>(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
-        friend bool operator>= <T, COLS>(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
-        friend bool operator<= <T, COLS>(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
         friend std::ostream& operator<< <T, COLS>(std::ostream& out, const Vec<T, COLS>& vec);
         friend Vec<T, COLS> operator+ <T, COLS>(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
-        friend Vec<T, COLS> (::operator- <T, COLS>)(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
+        friend Vec<T, COLS> (Engine::Math::operator- <T, COLS>)(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
         friend Vec<T, COLS> operator* <T, COLS>(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2);
         friend Vec<T, COLS> operator+ <T, COLS>(const Vec<T, COLS>& vec, const T val);
         friend Vec<T, COLS> operator+ <T, COLS>(const T val, const Vec<T, COLS>& vec);
-        friend Vec<T, COLS> (::operator- <T, COLS>)(const Vec<T, COLS>& vec, const T val);
-        friend Vec<T, COLS> (::operator- <T, COLS>)(const T val, const Vec<T, COLS>& vec);
+        friend Vec<T, COLS> (Engine::Math::operator- <T, COLS>)(const Vec<T, COLS>& vec, const T val);
+        friend Vec<T, COLS> (Engine::Math::operator- <T, COLS>)(const T val, const Vec<T, COLS>& vec);
         friend Vec<T, COLS> operator* <T, COLS>(const Vec<T, COLS>& vec, const T val);
         friend Vec<T, COLS> operator* <T, COLS>(const T val, const Vec<T, COLS>& vec);
         friend Vec<T, COLS> operator/ <T, COLS>(const Vec<T, COLS>& vec, const T val);
@@ -235,6 +222,9 @@ class Vec {
         T data[COLS];
 };
 
+/*
+ * 
+ */
 template<typename T, size_t COLS>
 bool equalsTol(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2, const T tolerance) {
     if(tolerance == (T)0.0) {
@@ -261,46 +251,6 @@ bool operator==(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2) {
 template<typename T, size_t COLS>
 bool operator!=(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2) {
     return !(vec1 == vec2);
-}
-
-template<typename T, size_t COLS>
-bool operator>(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2) {
-    for(size_t c = 0; c < COLS; c++) {
-        if(!(vec1[c] > vec2[c])) {
-            return false;
-        }
-    }
-    return true;
-}
-
-template<typename T, size_t COLS>
-bool operator<(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2) {
-    for(size_t c = 0; c < COLS; c++) {
-        if(!(vec1[c] < vec2[c])) {
-            return false;
-        }
-    }
-    return true;
-}
-
-template<typename T, size_t COLS>
-bool operator>=(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2) {
-    for(size_t c = 0; c < COLS; c++) {
-        if(!(vec1[c] > vec2[c] || vec1[c] == vec2[c])) {
-            return false;
-        }
-    }
-    return true;
-}
-
-template<typename T, size_t COLS>
-bool operator<=(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2) {
-    for(size_t c = 0; c < COLS; c++) {
-        if(!(vec1[c] < vec2[c] || vec1[c] == vec2[c])) {
-            return false;
-        }
-    }
-    return true;
 }
 
 template<typename T, size_t COLS>
@@ -400,6 +350,9 @@ Vec<T, COLS> operator/(const Vec<T, COLS>& vec, const T val) {
     return newVec;
 }
 
+/*
+ * 
+ */
 template<typename T, size_t COLS>
 T dot(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2) {
     T dotProduct = (T)0.0;
@@ -409,7 +362,9 @@ T dot(const Vec<T, COLS>& vec1, const Vec<T, COLS>& vec2) {
     return dotProduct;
 }
 
-// Cross product for Vec<T, 3>
+/*
+ * Cross product for vector of length 3.
+ */
 template<typename T>
 Vec<T, 3> cross(const Vec<T, 3>& vec1, const Vec<T, 3>& vec2) {
     Vec<T, 3> crossProduct;
@@ -419,7 +374,9 @@ Vec<T, 3> cross(const Vec<T, 3>& vec1, const Vec<T, 3>& vec2) {
     return crossProduct;
 }
 
-// Cross product for Vec<T, 4>
+/*
+ * Cross product for vector of length 4.
+ */
 template<typename T>
 Vec<T, 4> cross(const Vec<T, 4>& vec1, const Vec<T, 4>& vec2) {
     Vec<T, 4> crossProduct;
@@ -430,86 +387,87 @@ Vec<T, 4> cross(const Vec<T, 4>& vec1, const Vec<T, 4>& vec2) {
     return crossProduct;
 }
 
-// Specifically sized vectors
+// Explicitly sized typedefs
 template<typename T>
-class Vec2 : public Vec<T, 2> {
-    public:
-        Vec2() {}
-        Vec2(const T val) : Vec<T, 2>::Vec(val) {}
-        Vec2(T x, T y) {
-                (*this)[0] = x;
-                (*this)[1] = y;
-        }
-        template<size_t N>
-        explicit Vec2(const Vec<T, N>& vecN) {
-            for(size_t c = 0; c < 2; c++) {
-                if(c < N) {
-                    (*this)[c] = vecN[c];
-                }
-                else {
-                    (*this)[c] = (T)1.0;
-                }
-            }
-        }
-        T x() { return this->at(0); }
-        T y() { return this->at(1); }
-};
+using Vec2 = Vec<T, 2>;
 
 template<typename T>
-class Vec3 : public Vec<T, 3> {
-    public:
-        Vec3() {}
-        Vec3(const T val) : Vec<T, 3>::Vec(val) {}
-        Vec3(T x, T y, T z) {
-                (*this)[0] = x;
-                (*this)[1] = y;
-                (*this)[2] = z;
-        }
-        template<size_t N>
-        explicit Vec3(const Vec<T, N>& vecN) {
-            for(size_t c = 0; c < 3; c++) {
-                if(c < N) {
-                    (*this)[c] = vecN[c];
-                }
-                else {
-                    (*this)[c] = (T)1.0;
-                }
-            }
-        }
-        T x() { return this->at(0); }
-        T y() { return this->at(1); }
-        T z() { return this->at(2); }
-};
+using Vec3 = Vec<T, 3>;
 
 template<typename T>
-class Vec4 : public Vec<T, 4> {
-    public:
-        Vec4() {}
-        Vec4(const T val) : Vec<T, 4>::Vec(val) {}
-        Vec4(T x, T y, T z, T w) {
-                (*this)[0] = x;
-                (*this)[1] = y;
-                (*this)[2] = z;
-                (*this)[3] = w;
-        }
-        template<size_t N>
-        explicit Vec4(const Vec<T, N>& vecN) {
-            for(size_t c = 0; c < 4; c++) {
-                if(c < N) {
-                    (*this)[c] = vecN[c];
-                }
-                else {
-                    (*this)[c] = (T)1.0;
-                }
-            }
-        }
-        T x() { return this->at(0); }
-        T y() { return this->at(1); }
-        T z() { return this->at(2); }
-        T w() { return this->at(3); }
-};
+using Vec4 = Vec<T, 4>;
 
-// Typedefs
+// Factory constructors
+template<typename T>
+Vec2<T> createVec2(T x, T y) {
+    Vec2<T> vec;
+    vec[0] = x;
+    vec[1] = y;
+    return vec;
+}
+
+template<typename T, size_t N>
+Vec2<T> createVec2(const Vec<T, N>& newVecN) {
+    Vec2<T> newVec;
+    for(size_t c = 0; c < 2; c++) {
+        if(c < N) {
+            newVec[c] = newVecN[c];
+        }
+        else {
+            newVec[c] = (T)1.0;
+        }
+    }
+    return newVec;
+}
+
+template<typename T>
+Vec3<T> createVec3(T x, T y, T z) {
+    Vec3<T> newVec;
+    newVec[0] = x;
+    newVec[1] = y;
+    newVec[2] = z;
+    return newVec;
+}
+
+template<typename T, size_t N>
+Vec3<T> createVec3(const Vec<T, N>& newVecN) {
+    Vec3<T> newVec;
+    for(size_t c = 0; c < 3; c++) {
+        if(c < N) {
+            newVec[c] = newVecN[c];
+        }
+        else {
+            newVec[c] = (T)1.0;
+        }
+    }
+    return newVec;
+}
+
+template<typename T>
+Vec4<T> createVec4(T x, T y, T z, T w) {
+    Vec4<T> newVec;
+    newVec[0] = x;
+    newVec[1] = y;
+    newVec[2] = z;
+    newVec[3] = w;
+    return newVec;
+}
+
+template<typename T, size_t N>
+Vec4<T> createVec4(const Vec<T, N>& newVecN) {
+    Vec4<T> newVec;
+    for(size_t c = 0; c < 4; c++) {
+        if(c < N) {
+            newVec[c] = newVecN[c];
+        }
+        else {
+            newVec[c] = (T)1.0;
+        }
+    }
+    return newVec;
+}
+
+// Explicitly typed typedefs
 typedef Vec2<float> Vec2f;
 typedef Vec2<double> Vec2d;
 typedef Vec2<int> Vec2i;
@@ -521,5 +479,7 @@ typedef Vec3<int> Vec3i;
 typedef Vec4<float> Vec4f;
 typedef Vec4<double> Vec4d;
 typedef Vec4<int> Vec4i;
+
+};
 
 #endif //VEC_H

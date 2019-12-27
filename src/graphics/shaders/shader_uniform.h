@@ -8,8 +8,10 @@
 
 #include <graphics/shaders/shader_loader.h>
 
+namespace Engine {
+
 template<size_t COLS>
-void ShaderProgram::setUniformFloatVecs(const std::string variableName, const std::vector<Vec<float, COLS>>& values) const {
+void ShaderProgram::setUniformFloatVecs(const std::string variableName, const std::vector<Math::Vec<float, COLS>>& values) const {
 #ifdef _DEBUG
     assert(COLS > 1 && COLS <= 4);
 #endif
@@ -34,7 +36,7 @@ void ShaderProgram::setUniformFloatVecs(const std::string variableName, const st
 }
 
 template<size_t COLS>
-void ShaderProgram::setUniformDoubleVecs(const std::string variableName, const std::vector<Vec<double, COLS>>& values) const {
+void ShaderProgram::setUniformDoubleVecs(const std::string variableName, const std::vector<Math::Vec<double, COLS>>& values) const {
 #ifdef _DEBUG
     assert(COLS > 1 && COLS <= 4);
 #endif
@@ -59,7 +61,7 @@ void ShaderProgram::setUniformDoubleVecs(const std::string variableName, const s
 }
 
 template<size_t COLS>
-void ShaderProgram::setUniformIntVecs(const std::string variableName, const std::vector<Vec<int, COLS>>& values) const {
+void ShaderProgram::setUniformIntVecs(const std::string variableName, const std::vector<Math::Vec<int, COLS>>& values) const {
 #ifdef _DEBUG
     assert(COLS > 1 && COLS <= 4);
 #endif
@@ -84,7 +86,7 @@ void ShaderProgram::setUniformIntVecs(const std::string variableName, const std:
 }
 
 template<size_t COLS>
-void ShaderProgram::setUniformUIntVecs(const std::string variableName, const std::vector<Vec<unsigned int, COLS>>& values) const {
+void ShaderProgram::setUniformUIntVecs(const std::string variableName, const std::vector<Math::Vec<unsigned int, COLS>>& values) const {
 #ifdef _DEBUG
     assert(COLS > 1 && COLS <= 4);
 #endif
@@ -109,35 +111,35 @@ void ShaderProgram::setUniformUIntVecs(const std::string variableName, const std
 }
 
 template<size_t COLS>
-void ShaderProgram::setUniformFloatVec(const std::string variableName, const Vec<float, COLS>& value) const {
-    std::vector<Vec<float, COLS>> values;
+void ShaderProgram::setUniformFloatVec(const std::string variableName, const Math::Vec<float, COLS>& value) const {
+    std::vector<Math::Vec<float, COLS>> values;
     values.push_back(value);
     setUniformFloatVecs(variableName, values);
 }
 
 template<size_t COLS>
-void ShaderProgram::setUniformDoubleVec(const std::string variableName, const Vec<double, COLS>& value) const {
-    std::vector<Vec<double, COLS>> values;
+void ShaderProgram::setUniformDoubleVec(const std::string variableName, const Math::Vec<double, COLS>& value) const {
+    std::vector<Math::Vec<double, COLS>> values;
     values.push_back(value);
     setUniformDoubleVecs(variableName, values);
 }
 
 template<size_t COLS>
-void ShaderProgram::setUniformIntVec(const std::string variableName, const Vec<int, COLS>& value) const {
-    std::vector<Vec<int, COLS>> values;
+void ShaderProgram::setUniformIntVec(const std::string variableName, const Math::Vec<int, COLS>& value) const {
+    std::vector<Math::Vec<int, COLS>> values;
     values.push_back(value);
     setUniformIntVecs(variableName, values);
 }
 
 template<size_t COLS>
-void ShaderProgram::setUniformUIntVec(const std::string variableName, const Vec<unsigned int, COLS>& value) const {
-    std::vector<Vec<unsigned int, COLS>> values;
+void ShaderProgram::setUniformUIntVec(const std::string variableName, const Math::Vec<unsigned int, COLS>& value) const {
+    std::vector<Math::Vec<unsigned int, COLS>> values;
     values.push_back(value);
     setUniformUIntVecs(variableName, values);
 }
 
 template<size_t ROWS, size_t COLS>
-void ShaderProgram::setUniformFloatMats(const std::string variableName, const std::vector<Mat<float, ROWS, COLS>>& values) const {
+void ShaderProgram::setUniformFloatMats(const std::string variableName, const std::vector<Math::Mat<float, ROWS, COLS>>& values) const {
 #ifdef _DEBUG
     assert(COLS > 1 && COLS <= 4);
     assert(ROWS > 1 && ROWS <= 4);
@@ -195,7 +197,7 @@ void ShaderProgram::setUniformFloatMats(const std::string variableName, const st
 }
 
 template<size_t ROWS, size_t COLS>
-void ShaderProgram::setUniformDoubleMats(const std::string variableName, const std::vector<Mat<double, ROWS, COLS>>& values) const {
+void ShaderProgram::setUniformDoubleMats(const std::string variableName, const std::vector<Math::Mat<double, ROWS, COLS>>& values) const {
 #ifdef _DEBUG
     assert(COLS > 1 && COLS <= 4);
     assert(ROWS > 1 && ROWS <= 4);
@@ -253,17 +255,19 @@ void ShaderProgram::setUniformDoubleMats(const std::string variableName, const s
 }
 
 template<size_t ROWS, size_t COLS>
-void ShaderProgram::setUniformFloatMat(const std::string variableName, const Mat<float, ROWS, COLS>& value) const {
-    std::vector<Mat<float, ROWS, COLS>> values;
+void ShaderProgram::setUniformFloatMat(const std::string variableName, const Math::Mat<float, ROWS, COLS>& value) const {
+    std::vector<Math::Mat<float, ROWS, COLS>> values;
     values.push_back(value);
     setUniformFloatMats(variableName, values);
 }
 
 template<size_t ROWS, size_t COLS>
-void ShaderProgram::setUniformDoubleMat(const std::string variableName, const Mat<double, ROWS, COLS>& value) const {
-    std::vector<Mat<double, ROWS, COLS>> values;
+void ShaderProgram::setUniformDoubleMat(const std::string variableName, const Math::Mat<double, ROWS, COLS>& value) const {
+    std::vector<Math::Mat<double, ROWS, COLS>> values;
     values.push_back(value);
     setUniformDoubleMats(variableName, values);
 }
+
+};
 
 #endif //SHADER_UNIFORM_H

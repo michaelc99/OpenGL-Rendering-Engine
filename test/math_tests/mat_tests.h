@@ -9,13 +9,16 @@
 #include <test_comparison.h>
 
 namespace MatTests {
-    int TestConstructors();
-    int TestAccessorsMutators();
-    int TestAssignmentOperators();
-    int TestUnaryOperators();
-    int TestBinaryOperators();
-    int TestOther();
-    int TestPerformance();
+
+int DoTests();
+int TestConstructors();
+int TestAccessorsMutators();
+int TestAssignmentOperators();
+int TestUnaryOperators();
+int TestBinaryOperators();
+int TestOther();
+int TestPerformance();
+
 };
 
 #endif //MAT_TESTS_H

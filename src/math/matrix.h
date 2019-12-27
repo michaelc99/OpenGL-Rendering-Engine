@@ -2,10 +2,12 @@
 #define MAT_H
 
 #include <exceptions/math_exception.h>
-#include <math/vec.h>
+#include "vector.h"
 #include <cmath>
 #include <cassert>
 #include <iostream>
+
+namespace Engine::Math {
 
 template<typename T, size_t ROWS, size_t COLS>
 class Mat;
@@ -15,14 +17,6 @@ template<typename T, size_t ROWS, size_t COLS>
 bool operator==(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
 template<typename T, size_t ROWS, size_t COLS>
 bool operator!=(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
-template<typename T, size_t ROWS, size_t COLS>
-bool operator>(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
-template<typename T, size_t ROWS, size_t COLS>
-bool operator<(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
-template<typename T, size_t ROWS, size_t COLS>
-bool operator>=(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
-template<typename T, size_t ROWS, size_t COLS>
-bool operator<=(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
 template<typename T, size_t ROWS, size_t COLS>
 std::ostream& operator<<(std::ostream& out, const Mat<T, ROWS, COLS>& mat);
 template<typename T, size_t ROWS, size_t COLS>
@@ -81,9 +75,6 @@ class Mat {
             }
         }
         
-        /*
-         * Copy constructor.
-         */
         Mat(const Mat<T, ROWS, COLS>& mat) {
             for(size_t r = 0; r < ROWS; r++) {
                 dataVecs[r] = mat[r];
@@ -113,6 +104,7 @@ class Mat {
 #endif
             return dataVecs[row];
         }
+        
         inline Mat<T, ROWS, COLS>& setRow(const size_t row, const Vec<T, COLS> rowVec) {
 #ifdef _DEBUG
             assert(row >= 0 && row < ROWS);
@@ -236,27 +228,26 @@ class Mat {
         friend bool equalsTol <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2, const T tolerance);
         friend bool operator== <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
         friend bool operator!= <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
-        friend bool operator> <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
-        friend bool operator< <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
-        friend bool operator>= <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
-        friend bool operator<= <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
         friend std::ostream& operator<< <T, COLS>(std::ostream& out, const Mat<T, ROWS, COLS>& mat);
         friend Mat<T, ROWS, COLS> operator+ <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
-        friend Mat<T, ROWS, COLS> (::operator- <T, ROWS, COLS>)(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
+        friend Mat<T, ROWS, COLS> (Engine::Math::operator- <T, ROWS, COLS>)(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
         friend Mat<T, ROWS, COLS> operator* <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2);
         friend Mat<T, ROWS, COLS> operator+ <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat, const T val);
         friend Mat<T, ROWS, COLS> operator+ <T, ROWS, COLS>(const T val, const Mat<T, ROWS, COLS>& mat);
-        friend Mat<T, ROWS, COLS> (::operator- <T, ROWS, COLS>)(const Mat<T, ROWS, COLS>& mat, const T val);
-        friend Mat<T, ROWS, COLS> (::operator- <T, ROWS, COLS>)(const T val, const Mat<T, ROWS, COLS>& mat);
+        friend Mat<T, ROWS, COLS> (Engine::Math::operator- <T, ROWS, COLS>)(const Mat<T, ROWS, COLS>& mat, const T val);
+        friend Mat<T, ROWS, COLS> (Engine::Math::operator- <T, ROWS, COLS>)(const T val, const Mat<T, ROWS, COLS>& mat);
         friend Mat<T, ROWS, COLS> operator* <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat, const T val);
         friend Mat<T, ROWS, COLS> operator* <T, ROWS, COLS>(const T val, const Mat<T, ROWS, COLS>& mat);
         friend Mat<T, ROWS, COLS> operator/ <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat, const T val);
         friend Vec<T, COLS> operator* <T, ROWS, COLS>(const Vec<T, COLS>& vec, const Mat<T, ROWS, COLS>& mat);
         friend Vec<T, ROWS> operator* <T, ROWS, COLS>(const Mat<T, ROWS, COLS>& mat, const Vec<T, ROWS>& vec);
-    private:
+    protected:
         Vec<T, COLS> dataVecs[ROWS];
 };
 
+/*
+ * 
+ */
 template<typename T, size_t ROWS, size_t COLS>
 bool equalsTol(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2, const T tolerance) {
     if(tolerance == (T)0.0) {
@@ -285,46 +276,6 @@ bool operator==(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2) 
 template<typename T, size_t ROWS, size_t COLS>
 bool operator!=(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2) {
     return !(mat1 == mat2);
-}
-
-template<typename T, size_t ROWS, size_t COLS>
-bool operator>(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2) {
-    for(size_t r = 0; r < ROWS; r++) {
-        if(!(mat1[r] > mat2[r])) {
-            return false;
-        }
-    }
-    return true;
-}
-
-template<typename T, size_t ROWS, size_t COLS>
-bool operator<(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2) {
-    for(size_t r = 0; r < ROWS; r++) {
-        if(!(mat1[r] < mat2[r])) {
-            return false;
-        }
-    }
-    return true;
-}
-
-template<typename T, size_t ROWS, size_t COLS>
-bool operator>=(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2) {
-    for(size_t r = 0; r < ROWS; r++) {
-        if(!(mat1[r] >= mat2[r])) {
-            return false;
-        }
-    }
-    return true;
-}
-
-template<typename T, size_t ROWS, size_t COLS>
-bool operator<=(const Mat<T, ROWS, COLS>& mat1, const Mat<T, ROWS, COLS>& mat2) {
-    for(size_t r = 0; r < ROWS; r++) {
-        if(!(mat1[r] <= mat2[r])) {
-            return false;
-        }
-    }
-    return true;
 }
 
 template<typename T, size_t ROWS, size_t COLS>
@@ -443,249 +394,277 @@ Vec<T, ROWS> operator*(const Mat<T, ROWS, COLS>& mat, const Vec<T, COLS>& vec) {
     return newVec;
 }
 
-// Specifically sized matrices
+// Explicitly sized typedefs
 template<typename T>
-class Mat2 : public Mat<T, 2, 2> {
-    public:
-        Mat2() {}
-        Mat2(const T diagVal) : Mat<T, 2, 2>::Mat(diagVal) {}
-        Mat2(T x1, T y1,
-             T x2, T y2) {
-                (*this)[0] = Vec2<T>(x1, y1);
-                (*this)[1] = Vec2<T>(x2, y2);
-        }
-        template<size_t OTHER_ROWS, size_t OTHER_COLS>
-        explicit Mat2(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
-            for(size_t r = 0; r < 2; r++) {
-                for(size_t c = 0; c < 2; c++) {
-                    if(r < OTHER_ROWS && c < OTHER_COLS) {
-                        (*this)[r][c] = mat[r][c];
-                    }
-                    else {
-                        (*this)[r][c] = (T)(r == c);
-                    }
-                }
-            }
-        }
-};
+using Mat2 = Mat<T, 2, 2>;
 
 template<typename T>
-class Mat3 : public Mat<T, 3, 3> {
-    public:
-        Mat3() {}
-        Mat3(const T diagVal) : Mat<T, 3, 3>::Mat(diagVal) {}
-        Mat3(T x1, T y1, T z1,
-             T x2, T y2, T z2,
-             T x3, T y3, T z3) {
-                (*this)[0] = Vec3<T>(x1, y1, z1);
-                (*this)[1] = Vec3<T>(x2, y2, z2);
-                (*this)[2] = Vec3<T>(x3, y3, z3);
-        }
-        template<size_t OTHER_ROWS, size_t OTHER_COLS>
-        explicit Mat3(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
-            for(size_t r = 0; r < 3; r++) {
-                for(size_t c = 0; c < 3; c++) {
-                    if(r < OTHER_ROWS && c < OTHER_COLS) {
-                        (*this)[r][c] = mat[r][c];
-                    }
-                    else {
-                        (*this)[r][c] = (T)(r == c);
-                    }
-                }
-            }
-        }
-};
+using Mat3 = Mat<T, 3, 3>;
 
 template<typename T>
-class Mat3x2 : public Mat<T, 3, 2> {
-    public:
-        Mat3x2() {}
-        Mat3x2(const T diagVal) : Mat<T, 3, 2>::Mat(diagVal) {}
-        Mat3x2(T x1, T y1,
-               T x2, T y2,
-               T x3, T y3) {
-                (*this)[0] = Vec2<T>(x1, y1);
-                (*this)[1] = Vec2<T>(x2, y2);
-                (*this)[2] = Vec2<T>(x3, y3);
-        }
-        template<size_t OTHER_ROWS, size_t OTHER_COLS>
-        explicit Mat3x2(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
-            for(size_t r = 0; r < 3; r++) {
-                for(size_t c = 0; c < 2; c++) {
-                    if(r < OTHER_ROWS && c < OTHER_COLS) {
-                        (*this)[r][c] = mat[r][c];
-                    }
-                    else {
-                        (*this)[r][c] = (T)(r == c);
-                    }
-                }
-            }
-        }
-};
+using Mat3x2 = Mat<T, 3, 2>;
 
 template<typename T>
-class Mat2x3 : public Mat<T, 2, 3> {
-    public:
-        Mat2x3() {}
-        Mat2x3(const T diagVal) : Mat<T, 2, 3>::Mat(diagVal) {}
-        Mat2x3(T x1, T y1, T z1,
-               T x2, T y2, T z2) {
-                (*this)[0] = Vec3<T>(x1, y1, z1);
-                (*this)[1] = Vec3<T>(x2, y2, z2);
-        }
-        template<size_t OTHER_ROWS, size_t OTHER_COLS>
-        explicit Mat2x3(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
-            for(size_t r = 0; r < 2; r++) {
-                for(size_t c = 0; c < 3; c++) {
-                    if(r < OTHER_ROWS && c < OTHER_COLS) {
-                        (*this)[r][c] = mat[r][c];
-                    }
-                    else {
-                        (*this)[r][c] = (T)(r == c);
-                    }
-                }
-            }
-        }
-};
+using Mat2x3 = Mat<T, 2, 3>;
 
 template<typename T>
-class Mat4 : public Mat<T, 4, 4> {
-    public:
-        Mat4() {}
-        Mat4(const T diagVal) : Mat<T, 4, 4>::Mat(diagVal) {}
-        Mat4(T x1, T y1, T z1, T w1,
-             T x2, T y2, T z2, T w2,
-             T x3, T y3, T z3, T w3,
-             T x4, T y4, T z4, T w4) {
-                (*this)[0] = Vec4<T>(x1, y1, z1, w1);
-                (*this)[1] = Vec4<T>(x2, y2, z2, w2);
-                (*this)[2] = Vec4<T>(x3, y3, z3, w3);
-                (*this)[3] = Vec4<T>(x4, y4, z4, w4);
-        }
-        template<size_t OTHER_ROWS, size_t OTHER_COLS>
-        explicit Mat4(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
-            for(size_t r = 0; r < 4; r++) {
-                for(size_t c = 0; c < 4; c++) {
-                    if(r < OTHER_ROWS && c < OTHER_COLS) {
-                        (*this)[r][c] = mat[r][c];
-                    }
-                    else {
-                        (*this)[r][c] = (T)(r == c);
-                    }
-                }
-            }
-        }
-};
+using Mat4 = Mat<T, 4, 4>;
 
 template<typename T>
-class Mat4x3 : public Mat<T, 4, 3> {
-    public:
-        Mat4x3() {}
-        Mat4x3(const T diagVal) : Mat<T, 4, 3>::Mat(diagVal) {}
-        Mat4x3(T x1, T y1, T z1,
-               T x2, T y2, T z2,
-               T x3, T y3, T z3,
-               T x4, T y4, T z4) {
-                (*this)[0] = Vec3<T>(x1, y1, z1);
-                (*this)[1] = Vec3<T>(x2, y2, z2);
-                (*this)[2] = Vec3<T>(x3, y3, z3);
-                (*this)[3] = Vec3<T>(x4, y4, z4);
-        }
-        template<size_t OTHER_ROWS, size_t OTHER_COLS>
-        explicit Mat4x3(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
-            for(size_t r = 0; r < 4; r++) {
-                for(size_t c = 0; c < 3; c++) {
-                    if(r < OTHER_ROWS && c < OTHER_COLS) {
-                        (*this)[r][c] = mat[r][c];
-                    }
-                    else {
-                        (*this)[r][c] = (T)(r == c);
-                    }
-                }
-            }
-        }
-};
+using Mat4x3 = Mat<T, 4, 3>;
 
 template<typename T>
-class Mat4x2 : public Mat<T, 4, 2> {
-    public:
-        Mat4x2() {}
-        Mat4x2(const T diagVal) : Mat<T, 4, 2>::Mat(diagVal) {}
-        Mat4x2(T x1, T y1,
-               T x2, T y2,
-               T x3, T y3,
-               T x4, T y4) {
-                (*this)[0] = Vec2<T>(x1, y1);
-                (*this)[1] = Vec2<T>(x2, y2);
-                (*this)[2] = Vec2<T>(x3, y3);
-                (*this)[3] = Vec2<T>(x4, y4);
-        }
-        template<size_t OTHER_ROWS, size_t OTHER_COLS>
-        explicit Mat4x2(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
-            for(size_t r = 0; r < 4; r++) {
-                for(size_t c = 0; c < 2; c++) {
-                    if(r < OTHER_ROWS && c < OTHER_COLS) {
-                        (*this)[r][c] = mat[r][c];
-                    }
-                    else {
-                        (*this)[r][c] = (T)(r == c);
-                    }
-                }
-            }
-        }
-};
+using Mat4x2 = Mat<T, 4, 2>;
 
 template<typename T>
-class Mat3x4 : public Mat<T, 3, 4> {
-    public:
-        Mat3x4() {}
-        Mat3x4(const T diagVal) : Mat<T, 3, 4>::Mat(diagVal) {}
-        Mat3x4(T x1, T y1, T z1, T w1,
-               T x2, T y2, T z2, T w2,
-               T x3, T y3, T z3, T w3) {
-                (*this)[0] = Vec4<T>(x1, y1, z1, w1);
-                (*this)[1] = Vec4<T>(x2, y2, z2, w2);
-                (*this)[2] = Vec4<T>(x3, y3, z3, w3);
-        }
-        template<size_t OTHER_ROWS, size_t OTHER_COLS>
-        explicit Mat3x4(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
-            for(size_t r = 0; r < 3; r++) {
-                for(size_t c = 0; c < 4; c++) {
-                    if(r < OTHER_ROWS && c < OTHER_COLS) {
-                        (*this)[r][c] = mat[r][c];
-                    }
-                    else {
-                        (*this)[r][c] = (T)(r == c);
-                    }
-                }
-            }
-        }
-};
+using Mat3x4 = Mat<T, 3, 4>;
 
 template<typename T>
-class Mat2x4 : public Mat<T, 2, 4> {
-    public:
-        Mat2x4() {}
-        Mat2x4(const T diagVal) : Mat<T, 2, 4>::Mat(diagVal) {}
-        Mat2x4(T x1, T y1, T z1, T w1,
-               T x2, T y2, T z2, T w2) {
-                (*this)[0] = Vec4<T>(x1, y1, z1, w1);
-                (*this)[1] = Vec4<T>(x2, y2, z2, w2);
-        }
-        template<size_t OTHER_ROWS, size_t OTHER_COLS>
-        explicit Mat2x4(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
-            for(size_t r = 0; r < 2; r++) {
-                for(size_t c = 0; c < 4; c++) {
-                    if(r < OTHER_ROWS && c < OTHER_COLS) {
-                        (*this)[r][c] = mat[r][c];
-                    }
-                    else {
-                        (*this)[r][c] = (T)(r == c);
-                    }
-                }
+using Mat2x4 = Mat<T, 2, 4>;
+
+// Factory constructors
+template<typename T>
+Mat2<T> createMat2(T x1, T y1,
+                   T x2, T y2) {
+    Mat2<T> newMat;
+    newMat[0] = createVec2<T>(x1, y1);
+    newMat[1] = createVec2<T>(x2, y2);
+    return newMat;
+}
+
+template<typename T, size_t OTHER_ROWS, size_t OTHER_COLS>
+Mat2<T> createMat2(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+    Mat2<T> newMat;
+    for(size_t r = 0; r < 2; r++) {
+        for(size_t c = 0; c < 2; c++) {
+            if(r < OTHER_ROWS && c < OTHER_COLS) {
+                newMat[r][c] = mat[r][c];
+            }
+            else {
+                newMat[r][c] = (T)(r == c);
             }
         }
-};
+    }
+    return newMat;
+}
+
+template<typename T>
+Mat3<T> createMat3(T x1, T y1, T z1,
+                   T x2, T y2, T z2,
+                   T x3, T y3, T z3) {
+    Mat3<T> newMat;
+    newMat[0] = createVec3<T>(x1, y1, z1);
+    newMat[1] = createVec3<T>(x2, y2, z2);
+    newMat[2] = createVec3<T>(x3, y3, z3);
+    return newMat;
+}
+
+template<typename T, size_t OTHER_ROWS, size_t OTHER_COLS>
+Mat3<T> createMat3(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+    Mat3<T> newMat;
+    for(size_t r = 0; r < 3; r++) {
+        for(size_t c = 0; c < 3; c++) {
+            if(r < OTHER_ROWS && c < OTHER_COLS) {
+                newMat[r][c] = mat[r][c];
+            }
+            else {
+                newMat[r][c] = (T)(r == c);
+            }
+        }
+    }
+    return newMat;
+}
+
+template<typename T>
+Mat3x2<T> createMat3x2(T x1, T y1,
+                       T x2, T y2,
+                       T x3, T y3) {
+    Mat3x2<T> newMat;
+    newMat[0] = createVec2<T>(x1, y1);
+    newMat[1] = createVec2<T>(x2, y2);
+    newMat[2] = createVec2<T>(x3, y3);
+    return newMat;
+}
+
+template<typename T, size_t OTHER_ROWS, size_t OTHER_COLS>
+Mat3x2<T> createMat3x2(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+    Mat3x2<T> newMat;
+    for(size_t r = 0; r < 3; r++) {
+        for(size_t c = 0; c < 2; c++) {
+            if(r < OTHER_ROWS && c < OTHER_COLS) {
+                newMat[r][c] = mat[r][c];
+            }
+            else {
+                newMat[r][c] = (T)(r == c);
+            }
+        }
+    }
+    return newMat;
+}
+
+template<typename T>
+Mat2x3<T> createMat2x3(T x1, T y1, T z1,
+                       T x2, T y2, T z2) {
+    Mat2x3<T> newMat;
+    newMat[0] = createVec3<T>(x1, y1, z1);
+    newMat[1] = createVec3<T>(x2, y2, z2);
+    return newMat;
+}
+
+template<typename T, size_t OTHER_ROWS, size_t OTHER_COLS>
+Mat2x3<T> createMat2x3(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+    Mat2x3<T> newMat;
+    for(size_t r = 0; r < 2; r++) {
+        for(size_t c = 0; c < 3; c++) {
+            if(r < OTHER_ROWS && c < OTHER_COLS) {
+                newMat[r][c] = mat[r][c];
+            }
+            else {
+                newMat[r][c] = (T)(r == c);
+            }
+        }
+    }
+    return newMat;
+}
+
+template<typename T>
+Mat4<T> createMat4(T x1, T y1, T z1, T w1,
+                   T x2, T y2, T z2, T w2,
+                   T x3, T y3, T z3, T w3,
+                   T x4, T y4, T z4, T w4) {
+    Mat4<T> newMat;
+    newMat[0] = createVec4<T>(x1, y1, z1, w1);
+    newMat[1] = createVec4<T>(x2, y2, z2, w2);
+    newMat[2] = createVec4<T>(x3, y3, z3, w3);
+    newMat[3] = createVec4<T>(x4, y4, z4, w4);
+    return newMat;
+}
+
+template<typename T, size_t OTHER_ROWS, size_t OTHER_COLS>
+Mat4<T> createMat4(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+    Mat4<T> newMat;
+    for(size_t r = 0; r < 4; r++) {
+        for(size_t c = 0; c < 4; c++) {
+            if(r < OTHER_ROWS && c < OTHER_COLS) {
+                newMat[r][c] = mat[r][c];
+            }
+            else {
+                newMat[r][c] = (T)(r == c);
+            }
+        }
+    }
+    return newMat;
+}
+
+template<typename T>
+Mat4x3<T> createMat4x3(T x1, T y1, T z1,
+                       T x2, T y2, T z2,
+                       T x3, T y3, T z3,
+                       T x4, T y4, T z4) {
+    Mat4<T> newMat;    
+    newMat[0] = createVec3<T>(x1, y1, z1);
+    newMat[1] = createVec3<T>(x2, y2, z2);
+    newMat[2] = createVec3<T>(x3, y3, z3);
+    newMat[3] = createVec3<T>(x4, y4, z4);
+    return newMat;
+}
+
+template<typename T, size_t OTHER_ROWS, size_t OTHER_COLS>
+Mat4x3<T> createMat4x3(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+    Mat4x3<T> newMat;
+    for(size_t r = 0; r < 4; r++) {
+        for(size_t c = 0; c < 3; c++) {
+            if(r < OTHER_ROWS && c < OTHER_COLS) {
+                newMat[r][c] = mat[r][c];
+            }
+            else {
+                newMat[r][c] = (T)(r == c);
+            }
+        }
+    }
+    return newMat;
+}
+
+template<typename T>
+Mat4x2<T> createMat4x2(T x1, T y1,
+                       T x2, T y2,
+                       T x3, T y3,
+                       T x4, T y4) {
+    Mat4x2<T> newMat;
+    newMat[0] = createVec2<T>(x1, y1);
+    newMat[1] = createVec2<T>(x2, y2);
+    newMat[2] = createVec2<T>(x3, y3);
+    newMat[3] = createVec2<T>(x4, y4);
+    return newMat;
+}
+
+template<typename T, size_t OTHER_ROWS, size_t OTHER_COLS>
+Mat4x2<T> createMat4x2(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+    Mat4x2<T> newMat;
+    for(size_t r = 0; r < 4; r++) {
+        for(size_t c = 0; c < 2; c++) {
+            if(r < OTHER_ROWS && c < OTHER_COLS) {
+                newMat[r][c] = mat[r][c];
+            }
+            else {
+                newMat[r][c] = (T)(r == c);
+            }
+        }
+    }
+    return newMat;
+}
+
+template<typename T>
+Mat3x4<T> createMat3x4(T x1, T y1, T z1, T w1,
+                       T x2, T y2, T z2, T w2,
+                       T x3, T y3, T z3, T w3) {
+    Mat3x4<T> newMat;
+    newMat[0] = createVec4<T>(x1, y1, z1, w1);
+    newMat[1] = createVec4<T>(x2, y2, z2, w2);
+    newMat[2] = createVec4<T>(x3, y3, z3, w3);
+    return newMat;
+}
+
+template<typename T, size_t OTHER_ROWS, size_t OTHER_COLS>
+Mat3x4<T> createMat3x4(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+    Mat3x4<T> newMat;
+    for(size_t r = 0; r < 3; r++) {
+        for(size_t c = 0; c < 4; c++) {
+            if(r < OTHER_ROWS && c < OTHER_COLS) {
+                newMat[r][c] = mat[r][c];
+            }
+            else {
+                newMat[r][c] = (T)(r == c);
+            }
+        }
+    }
+    return newMat;
+}
+
+template<typename T>
+Mat2x4<T> createMat2x4(T x1, T y1, T z1, T w1,
+                       T x2, T y2, T z2, T w2) {
+    Mat2x4<T> newMat;
+    newMat[0] = createVec4<T>(x1, y1, z1, w1);
+    newMat[1] = createVec4<T>(x2, y2, z2, w2);
+    return newMat;
+}
+
+template<typename T, size_t OTHER_ROWS, size_t OTHER_COLS>
+Mat2x4<T> createMat2x4(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
+    Mat2x4<T> newMat;
+    for(size_t r = 0; r < 2; r++) {
+        for(size_t c = 0; c < 4; c++) {
+            if(r < OTHER_ROWS && c < OTHER_COLS) {
+                newMat[r][c] = mat[r][c];
+            }
+            else {
+                newMat[r][c] = (T)(r == c);
+            }
+        }
+    }
+    return newMat;
+}
 
 // Typedefs
 typedef Mat2<float> Mat2f;
@@ -717,5 +696,7 @@ typedef Mat4x3<float> Mat4x3i;
 typedef Mat4x2<float> Mat4x2i;
 typedef Mat3x4<float> Mat3x4i;
 typedef Mat2x4<float> Mat2x4i;
+
+};
 
 #endif //MAT_H

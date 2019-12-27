@@ -3,7 +3,7 @@
 
 #include <exceptions/general_exception.h>
 
-class TestFailedException : public GeneralException {
+class TestFailedException : public Engine::GeneralException {
     public:
         TestFailedException(std::string message) : GeneralException(std::string("TestFailedException:") + message) {}
         TestFailedException(std::string message, std::string expected, std::string result)

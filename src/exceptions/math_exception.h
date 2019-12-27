@@ -3,6 +3,8 @@
 
 #include "general_exception.h"
 
+namespace Engine {
+
 class MathException : public GeneralException {
     public:
         MathException(std::string message) : GeneralException(std::string("MathException:") + message) {}
@@ -13,6 +15,8 @@ class DivideByZeroException : public MathException {
     public:
         DivideByZeroException(std::string message) : MathException(std::string("DivideByZeroException:") + message) {}
     private:
+};
+
 };
 
 #endif //MATH_EXCEPTION_H

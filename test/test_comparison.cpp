@@ -1,14 +1,14 @@
 #include "test_comparison.h"
 
-using namespace std;
+using namespace Engine;
 
-void CompareResult(const string errorInfo, stringstream& expectedStringStream, stringstream& resultStringStream) {
-    string word;
-    string expectedString;
+void CompareResult(const std::string errorInfo, std::stringstream& expectedStringStream, std::stringstream& resultStringStream) {
+    std::string word;
+    std::string expectedString;
     while(expectedStringStream >> word) {
         expectedString += word;
     }
-    string resultString;
+    std::string resultString;
     while(resultStringStream >> word) {
         resultString += word;
     }
@@ -17,18 +17,18 @@ void CompareResult(const string errorInfo, stringstream& expectedStringStream, s
     }
 }
 
-void CompareResult(const string errorInfo, stringstream& expectedStringStream, stringstream& resultStringStream, int& failedCount) {
-    string word;
-    string expectedString;
+void CompareResult(const std::string errorInfo, std::stringstream& expectedStringStream, std::stringstream& resultStringStream, int& failedCount) {
+    std::string word;
+    std::string expectedString;
     while(expectedStringStream >> word) {
         expectedString += word;
     }
-    string resultString;
+    std::string resultString;
     while(resultStringStream >> word) {
         resultString += word;
     }
     if(resultString != expectedString) {
-        cout << errorInfo + ":Test failed:\n\tExpected: " + expectedString + "\n\tResult: " + resultString << endl;
+        std::cout << errorInfo + ":Test failed:\n\tExpected: " + expectedString + "\n\tResult: " + resultString << std::endl;
         failedCount++;
     }
 }

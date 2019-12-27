@@ -8,7 +8,10 @@
 #include <test_comparison.h>
 
 namespace LinearMathTests {
-    int TestTransforms();
+
+int DoTests();
+int TestTransforms();
+
 };
 
 #endif //LINEAR_MATH_TESTS_H

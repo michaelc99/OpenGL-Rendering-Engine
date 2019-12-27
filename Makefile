@@ -125,7 +125,7 @@ $(LIB_OBJ_FILES) : $(LIB_SRC_FILES)
 	@if NOT exist $(OBJ_DIR_WITHOUT_FILENAME) mkdir $(OBJ_DIR_WITHOUT_FILENAME)
 	g++ -c $(CXXFLAGS) $(IFLAGS) $(PRE_REQ_SRC) -o $@ $(LFLAGS)
 
-$(TEST_OBJ_FILES) : $(BUILD_DIR)/%.o : %.cpp $(TEST_HEADER_FILES)
+$(TEST_OBJ_FILES) : $(BUILD_DIR)/%.o : %.cpp $(TEST_HEADER_FILES) $(HEADER_FILES)
 #	$(info recipe for $@ with prerequisite $(filter $(patsubst $(TEST_OBJ_DIR)/%.o,$(TEST_SRC_DIR)/%,$@).%,$^))
 #	$(info directory without filename: $(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@)))
 	$(eval PRE_REQ_SRC := $(filter-out %.h,$(filter $(patsubst $(TEST_OBJ_DIR)/%.o,$(TEST_SRC_DIR)/%,$@).%,$^)))
