@@ -303,7 +303,7 @@ int main(void) {
         errorNum = -1;
     }
     catch(...) {
-        std::cerr << "ERROR: Unknown std::exception occurred." << std::endl;
+        std::cerr << "ERROR: Unknown exception occurred." << std::endl;
         glfwTerminate();
         errorNum = -1;
     }

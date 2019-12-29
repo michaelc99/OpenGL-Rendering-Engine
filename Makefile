@@ -1,15 +1,16 @@
 # RELEASE MAKEFILE -D _DEBUG -U _DEBUG
 CXXFLAGS := -std=c++17 -Wall -D _DEBUG
 ifdef GDB
-	CXXFLAGS += -Og
-endif
-ifdef RELEASE
+	CXXFLAGS += -g
+else ifdef RELEASE
 	CXXFLAGS += -O3 -U _DEBUG
+else
+	CXXFLAGS += -Og
 endif
 
 # EXECUTABLES AND MAIN FILES SPECIFICATION
-MAIN_SRC_FILES := main.cpp
-EXECUTABLE_FILES := main
+MAIN_SRC_FILES := main.cpp graphics/model/model_converter_utility.cpp
+EXECUTABLE_FILES := main model_converter_utility
 OUTPUT_DIR := bin/core
 
 TEST_MAIN_SRC_FILES := math_tests/math_tests.cpp

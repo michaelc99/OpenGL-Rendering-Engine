@@ -12,7 +12,8 @@ ShaderObject::~ShaderObject() {
 
 void ShaderObject::load(std::string filename) {
     this->filename = filename;
-    std::string source = readShader(filename);
+    std::string source;
+    readFile(filename, source);
     const char* sourceCString = source.c_str();
     shader = glCreateShader(type);
     if(!glIsShader(shader)) {
@@ -42,24 +43,6 @@ void ShaderObject::release() {
     }
     shader = 0;
     filename = "";
-}
-
-std::string ShaderObject::readShader(std::string filename) {
-    std::ifstream inFile;
-    std::string source = "";
-    inFile = std::ifstream(filename, std::ios_base::in);
-    if(inFile.fail()) {
-        throw RenderException("ERROR: Failed to open shader source file: \"" + filename + "\"");
-    }
-    char line[1000];
-    while(!inFile.eof()) {
-        inFile.getline(line, 1000);
-        if(!inFile.fail()) {
-            source = source + std::string(line) + std::string("\n");
-        }
-    }
-    inFile.close();
-    return source;
 }
 
 ShaderProgram::ShaderProgram(std::vector<GLenum>types, std::vector<std::string> filenames) : ShaderProgram() {

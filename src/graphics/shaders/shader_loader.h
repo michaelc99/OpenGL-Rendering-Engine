@@ -15,6 +15,7 @@
 #include <exceptions/render_exception.h>
 #include <math/vector.h>
 #include <math/matrix.h>
+#include <fileio/fileio.h>
 
 #include <glad/glad.h>
 
@@ -32,8 +33,6 @@ class ShaderObject {
         GLuint getShader() { return shader; }
         std::string getFileName() { return filename; }
     private:
-        std::string readShader(std::string filename);
-        
         GLenum type;
         GLuint shader;
         std::string filename;
