@@ -23,25 +23,25 @@ namespace Engine {
 
 class ShaderObject {
     public:
-        ShaderObject(GLenum type) : type(type), shader(0), filename("") {}
-        ShaderObject(GLenum type, std::string filename);
+        ShaderObject(GLenum type) : type(type), shader(0), filePath("") {}
+        ShaderObject(GLenum type, std::string filePath);
         ~ShaderObject();
-        void load(std::string filename);
+        void load(std::string filePath);
         void compile();
         void release();
         GLenum getType() { return type; }
         GLuint getShader() { return shader; }
-        std::string getFileName() { return filename; }
+        std::string getFileName() { return filePath; }
     private:
         GLenum type;
         GLuint shader;
-        std::string filename;
+        std::string filePath;
 };
 
 class ShaderProgram {
     public:
         ShaderProgram() : program(0), linked(false) {}
-        ShaderProgram(std::vector<GLenum> types, std::vector<std::string> filenames);
+        ShaderProgram(std::vector<GLenum> types, std::vector<std::string> filePaths);
         ~ShaderProgram();
         ShaderProgram& operator=(const ShaderProgram& shaderProgram);
         

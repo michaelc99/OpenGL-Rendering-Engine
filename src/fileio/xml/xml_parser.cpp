@@ -2,14 +2,14 @@
 
 namespace Utility {
 
-XmlParser::XmlParser(std::string filename) {
-    parseFile(filename);
+XmlParser::XmlParser(std::string filePath) {
+    parseFile(filePath);
 }
 
-void XmlParser::parseFile(std::string filename) {
+void XmlParser::parseFile(std::string filePath) {
     topNode.reset();
     std::string fileString;
-    Engine::readFile(filename, fileString, "\n");
+    Engine::readFile(filePath, fileString, "\n");
     // Clip XML info header node
     int xmlHeaderEnd = findCloseBracket(fileString);
     int xmlHeaderLength = xmlHeaderEnd + 1;
@@ -19,8 +19,8 @@ void XmlParser::parseFile(std::string filename) {
     topNode = constructNode(fileString, index);
 }
 
-std::shared_ptr<XmlNode> XmlParser::constructNode(std::string& fileString, int& index, std::shared_ptr<XmlNode> parentNode) {
-    std::shared_ptr<XmlNode> node = std::make_shared<XmlNode>("", "", parentNode);
+XmlNodePtr XmlParser::constructNode(std::string& fileString, int& index, XmlNodePtr parentNode) {
+    XmlNodePtr node = std::make_shared<XmlNode>("", "", parentNode);
     if(setNodeHeaderInfo(fileString, index, node)) {
         return node;
     }
@@ -29,7 +29,7 @@ std::shared_ptr<XmlNode> XmlParser::constructNode(std::string& fileString, int& 
     bool hasChildren = true;
     int numChildren = 0;
     while(hasChildren) {
-        std::shared_ptr<XmlNode> childNode = constructNode(fileString, index, node);
+        XmlNodePtr childNode = constructNode(fileString, index, node);
         if(childNode->getName() == "") { // Hit end of child nodes
             if(numChildren == 0) {
                 hasChildren = false;
@@ -50,7 +50,7 @@ std::shared_ptr<XmlNode> XmlParser::constructNode(std::string& fileString, int& 
     return node;
 }
 
-bool XmlParser::setNodeHeaderInfo(std::string& fileString, int& index, std::shared_ptr<XmlNode> node) {
+bool XmlParser::setNodeHeaderInfo(std::string& fileString, int& index, XmlNodePtr node) {
     int nodeHeaderStart = findOpenBracket(fileString, index) + 1;
     int closeBracketIndex = findCloseBracket(fileString, nodeHeaderStart);
     int nodeHeaderEnd = closeBracketIndex - 1;
@@ -96,7 +96,7 @@ bool XmlParser::setNodeHeaderInfo(std::string& fileString, int& index, std::shar
     return false;
 }
 
-void XmlParser::setNodeData(std::string& fileString, int& index, std::shared_ptr<XmlNode> node) {
+void XmlParser::setNodeData(std::string& fileString, int& index, XmlNodePtr node) {
     int dataStart = index;
     int openBracketIndex = findOpenBracket(fileString, index);
     int dataEnd = openBracketIndex - 1;
@@ -108,7 +108,7 @@ void XmlParser::setNodeData(std::string& fileString, int& index, std::shared_ptr
     index = openBracketIndex;
 }
 
-int XmlParser::findNodeTrailerEnd(std::string& fileString, const int& index, const std::shared_ptr<XmlNode> node) {
+int XmlParser::findNodeTrailerEnd(std::string& fileString, const int& index, const XmlNodePtr node) {
     int startOfTrailer = findOpenBracket(fileString, index);
     int endOfTrailer = findCloseBracket(fileString, startOfTrailer);
     int trailerNameStart = startOfTrailer + 1;

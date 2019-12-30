@@ -2,18 +2,18 @@
 
 namespace Engine {
 
-ShaderObject::ShaderObject(GLenum type, std::string filename) : ShaderObject(type) {
-    load(filename);
+ShaderObject::ShaderObject(GLenum type, std::string filePath) : ShaderObject(type) {
+    load(filePath);
 }
 
 ShaderObject::~ShaderObject() {
     release();
 }
 
-void ShaderObject::load(std::string filename) {
-    this->filename = filename;
+void ShaderObject::load(std::string filePath) {
+    this->filePath = filePath;
     std::string source;
-    readFile(filename, source);
+    readFile(filePath, source);
     const char* sourceCString = source.c_str();
     shader = glCreateShader(type);
     if(!glIsShader(shader)) {
@@ -24,7 +24,7 @@ void ShaderObject::load(std::string filename) {
 
 void ShaderObject::compile() {
     if(!shader) {
-        throw RenderException("ERROR: Attempted to compile shader file \"" + filename + "\"that wasn't loaded.");
+        throw RenderException("ERROR: Attempted to compile shader file \"" + filePath + "\"that wasn't loaded.");
     }
     glCompileShader(shader);
     int compleStatus = 0;
@@ -33,7 +33,7 @@ void ShaderObject::compile() {
         char infoLog[1000] = {0};
         int infoLogLength = 0;
         glGetShaderInfoLog(shader, 1000, &infoLogLength, infoLog);
-        throw RenderException("ERROR: Failed to compile shader file \"" + filename + "\". InfoLog:\n" + std::string(infoLog, infoLogLength));
+        throw RenderException("ERROR: Failed to compile shader file \"" + filePath + "\". InfoLog:\n" + std::string(infoLog, infoLogLength));
     }
 }
 
@@ -42,21 +42,21 @@ void ShaderObject::release() {
         glDeleteShader(shader);
     }
     shader = 0;
-    filename = "";
+    filePath = "";
 }
 
-ShaderProgram::ShaderProgram(std::vector<GLenum>types, std::vector<std::string> filenames) : ShaderProgram() {
+ShaderProgram::ShaderProgram(std::vector<GLenum>types, std::vector<std::string> filePaths) : ShaderProgram() {
 #ifdef _DEBUG
-    assert(types.size() == filenames.size());
+    assert(types.size() == filePaths.size());
 #endif
     create();
     std::vector<std::shared_ptr<ShaderObject>> shaderObjects;
-    for(size_t i = 0; i < filenames.size(); i++) {
-        std::shared_ptr<ShaderObject> shaderObject(new ShaderObject(types[i], filenames[i]));
+    for(size_t i = 0; i < filePaths.size(); i++) {
+        std::shared_ptr<ShaderObject> shaderObject(new ShaderObject(types[i], filePaths[i]));
         shaderObject->compile();
         shaderObjects.push_back(shaderObject);
     }
-    for(size_t i = 0; i < filenames.size(); i++) {
+    for(size_t i = 0; i < filePaths.size(); i++) {
         addShaderObject(shaderObjects[i]);
     }
     link();

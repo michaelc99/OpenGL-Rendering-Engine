@@ -8,7 +8,7 @@
 #include <test_exception.h>
 #include <test_comparison.h>
 
-namespace VecTests {
+namespace Tests::VecTests {
 
 int DoTests();
 int TestConstructors();

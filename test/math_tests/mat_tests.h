@@ -8,7 +8,7 @@
 #include <test_exception.h>
 #include <test_comparison.h>
 
-namespace MatTests {
+namespace Tests::MatTests {
 
 int DoTests();
 int TestConstructors();

@@ -7,7 +7,7 @@
 #include <test_exception.h>
 #include <test_comparison.h>
 
-namespace QuatTests {
+namespace Tests::QuatTests {
 
 int DoTests();
 int TestConstructors();

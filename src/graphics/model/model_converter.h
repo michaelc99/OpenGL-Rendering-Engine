@@ -3,14 +3,24 @@
 
 #include "model.h"
 #include <fileio/xml/xml_parser.h>
+#include <vector>
 
-namespace Engine {
+namespace Utility {
 
 class ModelConverter {
     public:
-        
+        void createModelsFromCollada(const std::string& filePath);
     private:
-        //Utility::XmlParser xmlParser;
+        enum ColladaMeshPolygonType {TRIANGLES, POLYLIST};
+        
+        std::shared_ptr<Engine::Model> createModelFromCollada(XmlNodePtr xmlMesh);
+        void addModel(std::shared_ptr<Engine::Model> staticModel);
+        
+        Engine::Mesh createMeshFromTriangles(XmlNodePtr xmlPositions, XmlNodePtr xmlNormals, XmlNodePtr xmlIndices, XmlNodePtr triangles);
+        Engine::Mesh createMeshFromPolyList(XmlNodePtr xmlPositions, XmlNodePtr xmlNormals, XmlNodePtr xmlIndices, XmlNodePtr polylist);
+        
+        XmlParser xmlParser;
+        std::vector<Engine::Model> staticModels;
         /*
         std::string elementType;
         std::string elementID;

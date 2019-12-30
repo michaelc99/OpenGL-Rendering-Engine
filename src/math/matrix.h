@@ -670,6 +670,7 @@ Mat2x4<T> createMat2x4(const Mat<T, OTHER_ROWS, OTHER_COLS>& mat) {
 typedef Mat2<float> Mat2f;
 typedef Mat2<double> Mat2d;
 typedef Mat2<int> Mat2i;
+typedef Mat2<unsigned int> Mat2ui;
 
 typedef Mat3<float> Mat3f;
 typedef Mat3x2<float> Mat3x2f;
@@ -678,8 +679,11 @@ typedef Mat3<double> Mat3d;
 typedef Mat3x2<double> Mat3x2d;
 typedef Mat2x3<double> Mat2x3d;
 typedef Mat3<int> Mat3i;
-typedef Mat3x2<float> Mat3x2i;
-typedef Mat2x3<float> Mat2x3i;
+typedef Mat3x2<int> Mat3x2i;
+typedef Mat2x3<int> Mat2x3i;
+typedef Mat3<unsigned int> Mat3ui;
+typedef Mat3x2<unsigned int> Mat3x2ui;
+typedef Mat2x3<unsigned int> Mat2x3ui;
 
 typedef Mat4<float> Mat4f;
 typedef Mat4x3<float> Mat4x3f;
@@ -692,10 +696,15 @@ typedef Mat4x2<double> Mat4x2d;
 typedef Mat3x4<double> Mat3x4d;
 typedef Mat2x4<double> Mat2x4d;
 typedef Mat4<int> Mat4i;
-typedef Mat4x3<float> Mat4x3i;
-typedef Mat4x2<float> Mat4x2i;
-typedef Mat3x4<float> Mat3x4i;
-typedef Mat2x4<float> Mat2x4i;
+typedef Mat4x3<int> Mat4x3i;
+typedef Mat4x2<int> Mat4x2i;
+typedef Mat3x4<int> Mat3x4i;
+typedef Mat2x4<int> Mat2x4i;
+typedef Mat4<unsigned int> Mat4ui;
+typedef Mat4x3<unsigned int> Mat4x3ui;
+typedef Mat4x2<unsigned int> Mat4x2ui;
+typedef Mat3x4<unsigned int> Mat3x4ui;
+typedef Mat2x4<unsigned int> Mat2x4ui;
 
 };
 

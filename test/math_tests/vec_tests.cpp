@@ -3,7 +3,7 @@
 using namespace Engine;
 using namespace Engine::Math;
 
-namespace VecTests {
+namespace Tests::VecTests {
 
 int DoTests() {
     int failedCount = 0;

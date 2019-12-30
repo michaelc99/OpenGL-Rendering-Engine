@@ -308,6 +308,10 @@ Quat<T> operator/(const Quat<T>& quat, const T val) {
     return Quat<T>(quat.dataVec / val);
 }
 
+// Explicitly typed typedefs
+typedef Quat<float> Quatf;
+typedef Quat<double> Quatd;
+
 };
 
 #endif //QUATERNION_H

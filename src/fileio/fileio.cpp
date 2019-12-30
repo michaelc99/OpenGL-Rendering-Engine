@@ -2,12 +2,12 @@
 
 namespace Engine {
 
-void readFile(std::string filename, std::string& fileString, const char* endLineDelimiter) {
+void readFile(std::string filePath, std::string& fileString, const char* endLineDelimiter) {
     std::ifstream inFile;
     fileString = "";
-    inFile = std::ifstream(filename, std::ios_base::in);
+    inFile = std::ifstream(filePath, std::ios_base::in);
     if(inFile.fail()) {
-        throw FileIOException("ERROR: Failed to open file: \"" + filename + "\"");
+        throw FileIOException("ERROR: Failed to open file: \"" + filePath + "\"");
     }
     while(!inFile.eof()) {
         std::string line;
@@ -19,12 +19,12 @@ void readFile(std::string filename, std::string& fileString, const char* endLine
     inFile.close();
 }
 
-void readFile(std::string filename, std::stringstream& fileStringStream, const char* endLineDelimiter) {
+void readFile(std::string filePath, std::stringstream& fileStringStream, const char* endLineDelimiter) {
     std::ifstream inFile;
     fileStringStream = std::stringstream();
-    inFile = std::ifstream(filename, std::ios_base::in);
+    inFile = std::ifstream(filePath, std::ios_base::in);
     if(inFile.fail()) {
-        throw FileIOException("ERROR: Failed to open file: \"" + filename + "\"");
+        throw FileIOException("ERROR: Failed to open file: \"" + filePath + "\"");
     }
     while(!inFile.eof()) {
         std::string line;

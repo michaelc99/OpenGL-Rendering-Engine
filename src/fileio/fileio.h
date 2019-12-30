@@ -9,9 +9,9 @@
 
 namespace Engine {
 
-void readFile(std::string filename, std::string& fileString, const char* endLineDelimiter = "\n");
+void readFile(std::string filePath, std::string& fileString, const char* endLineDelimiter = "\n");
 
-void readFile(std::string filename, std::stringstream& fileStringStream, const char* endLineDelimiter = "\n");
+void readFile(std::string filePath, std::stringstream& fileStringStream, const char* endLineDelimiter = "\n");
 
 //readBinaryfile
 

@@ -1,16 +1,15 @@
 #ifndef MODEL_LOADER_H
 #define MODEL_LOADER_H
 
-#include "model.h"
+#include <graphics/model/model.h>
+#include <graphics/mesh/mesh.h>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace Engine {
 
-class ModelLoader {
-    public:
-        
-    private:
-        
-};
+
 
 }
 

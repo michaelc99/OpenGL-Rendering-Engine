@@ -3,7 +3,7 @@
 using namespace Engine;
 using namespace Engine::Math;
 
-namespace MatTests {
+namespace Tests::MatTests {
 
 int DoTests() {
     int failedCount = 0;

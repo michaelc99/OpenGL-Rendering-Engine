@@ -3,6 +3,8 @@
 
 #include <exceptions/general_exception.h>
 
+namespace Tests {
+
 class TestFailedException : public Engine::GeneralException {
     public:
         TestFailedException(std::string message) : GeneralException(std::string("TestFailedException:") + message) {}
@@ -10,5 +12,7 @@ class TestFailedException : public Engine::GeneralException {
             : TestFailedException(message + "\nExpected: " + expected + "\nResult: " + result) {}
     private:
 };
+
+}
 
 #endif //TEST_EXCEPTION_H

@@ -2,6 +2,8 @@
 
 using namespace Engine;
 
+namespace Tests {
+
 void CompareResult(const std::string errorInfo, std::stringstream& expectedStringStream, std::stringstream& resultStringStream) {
     std::string word;
     std::string expectedString;
@@ -31,4 +33,6 @@ void CompareResult(const std::string errorInfo, std::stringstream& expectedStrin
         std::cout << errorInfo + ":Test failed:\n\tExpected: " + expectedString + "\n\tResult: " + resultString << std::endl;
         failedCount++;
     }
+}
+
 }

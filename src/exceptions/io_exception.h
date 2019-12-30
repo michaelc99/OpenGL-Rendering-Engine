@@ -27,6 +27,12 @@ class XmlFormatException : public Engine::FileIOException {
     private:
 };
 
+class ColladaFormatException : public XmlFormatException {
+    public:
+        ColladaFormatException(std::string message) : XmlFormatException(std::string("ColladaFormatException:") + message) {}
+    private:
+};
+
 }
 
 #endif //IO_EXCEPTION_H

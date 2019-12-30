@@ -1,4 +1,4 @@
-#include "model_converter.h"
+#include <graphics/model/model_converter.h>
 #include <fileio/xml/xml_parser.h>
 #include <iostream>
 

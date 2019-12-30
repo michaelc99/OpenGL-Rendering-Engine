@@ -8,6 +8,7 @@
 #include "test_exception.h"
 
 using namespace Engine;
+using namespace Tests;
 
 int main() {
     std::cout << "STARTING MATH TESTS." << std::endl;

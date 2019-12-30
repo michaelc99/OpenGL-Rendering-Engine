@@ -2,15 +2,27 @@
 
 namespace Utility {
 
-XmlNode::XmlNode(const std::string& name, const std::string& attributes, const std::shared_ptr<XmlNode> parentNode)
+XmlNode::XmlNode(const std::string& name, const std::string& attributes, const XmlNodePtr parentNode)
     : name(name), attributes(attributes), data(""), parentNode(parentNode) {
     
 }
 
-std::string XmlNode::toString(const int depth) const {
+void XmlNode::addChild(XmlNodePtr node) {
+    childNodes.push_back(node);
+}
+
+std::vector<XmlNodePtr> XmlNode::getChildNodes() const {
+    return childNodes;
+}
+
+std::string XmlNode::getKey() const {
+    return name + " " + attributes;
+}
+
+std::string XmlNode::toString(const unsigned int depth) const {
     std::string asString = "";
     std::string padding = "";
-    for(int i = 0; i < depth; i++) {
+    for(unsigned int i = 0; i < depth; i++) {
         padding = padding + "    ";
     }
     asString += padding + "<" + name;

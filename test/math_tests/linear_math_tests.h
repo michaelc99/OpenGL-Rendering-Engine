@@ -7,7 +7,7 @@
 #include <test_exception.h>
 #include <test_comparison.h>
 
-namespace LinearMathTests {
+namespace Tests::LinearMathTests {
 
 int DoTests();
 int TestTransforms();
