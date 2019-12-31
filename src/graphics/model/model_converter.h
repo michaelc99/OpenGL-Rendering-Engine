@@ -1,7 +1,7 @@
 #ifndef MODEL_CONVERTER_H
 #define MODEL_CONVERTER_H
 
-#include "model.h"
+#include <graphics/model/model.h>
 #include <fileio/xml/xml_parser.h>
 #include <vector>
 
@@ -11,16 +11,16 @@ class ModelConverter {
     public:
         void createModelsFromCollada(const std::string& filePath);
     private:
-        enum ColladaMeshPolygonType {TRIANGLES, POLYLIST};
+        std::shared_ptr<Engine::ModelData> createModelFromCollada(XmlNodePtr xmlMesh);
+        void addModel(std::shared_ptr<Engine::ModelData> staticModel);
         
-        std::shared_ptr<Engine::Model> createModelFromCollada(XmlNodePtr xmlMesh);
-        void addModel(std::shared_ptr<Engine::Model> staticModel);
-        
-        Engine::Mesh createMeshFromTriangles(XmlNodePtr xmlPositions, XmlNodePtr xmlNormals, XmlNodePtr xmlIndices, XmlNodePtr triangles);
-        Engine::Mesh createMeshFromPolyList(XmlNodePtr xmlPositions, XmlNodePtr xmlNormals, XmlNodePtr xmlIndices, XmlNodePtr polylist);
+        /*
+         * Assumes that geometric information is formatted as triangles in Collada file.
+         */
+        Engine::MeshData createMeshDataFromTriangles(XmlNodePtr xmlPositions, XmlNodePtr xmlNormals, XmlNodePtr xmlIndices, XmlNodePtr triangles);
         
         XmlParser xmlParser;
-        std::vector<Engine::Model> staticModels;
+        std::vector<Engine::ModelData> modelDataList;
         /*
         std::string elementType;
         std::string elementID;

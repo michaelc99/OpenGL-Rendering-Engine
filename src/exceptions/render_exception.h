@@ -17,6 +17,18 @@ class ShaderException : public RenderException {
     private:
 };
 
+class TextureException : public RenderException {
+    public:
+        TextureException(std::string message) : RenderException(std::string("TextureException:") + message) {}
+    private:
+};
+
+class MeshException : public RenderException {
+    public:
+        MeshException(std::string message) : RenderException(std::string("MeshException:") + message) {}
+    private:
+};
+
 };
 
 #endif //RENDER_EXCEPTION_H
