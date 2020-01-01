@@ -1,9 +1,8 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include <graphics/images/image_loader.h>
-#include <exceptions/render_exception.h>
-#include <exceptions/io_exception.h>
+#include <fileio/image_reader.h>
+#include <cassert>
 #include <vector>
 #include <string>
 #include <memory>
@@ -29,20 +28,19 @@ class Texture {
         ~Texture();
         
         /*
-         * 
+         * Returns TextureDataPtr to a copy of this texture's data.
          */
-        void copyTextureData(const TextureDataPtr textureDataPtr);
+        TextureDataPtr copyTextureData();
         
         std::string getFilePath() const { return filePath; }
-        void setFilePath(std::string filePath) { this->filePath = filePath; }
         TextureType getType() const { return type; }
         void setType(TextureType type) { this->type = type; }
-        unsigned int getTextureID() const { return textureID; }
-        void setTextureID(unsigned int textureID) { this->textureID = textureID; }
+        unsigned int getWidth() const { return width; }
+        unsigned int getHeight() const { return height; }
     private:
         std::string filePath;
         TextureType type;
-        unsigned int textureID;
+        int textureID = -1;
         unsigned int width;
         unsigned int height;
 };
@@ -53,17 +51,19 @@ class Texture {
 class TextureData {
     public:
         TextureData();
-        TextureData(unsigned int width, unsigned int height, std::shared_ptr<unsigned char> data);
+        TextureData(unsigned int width, unsigned int height, std::shared_ptr<unsigned char> dataPtr);
+        TextureData(const TextureData& textureData);
+        
         unsigned int getWidth() const { return width; }
         void setWidth(const unsigned int width) { this->width = width; }
         unsigned int getHeight() const { return height; }
         void setHeight(const unsigned int height) { this->height = height; }
-        std::shared_ptr<unsigned char> getData() const { return data; };
-        void setData(const std::shared_ptr<unsigned char> data) { this->data = data; };
+        std::shared_ptr<unsigned char> getDataPtr() const { return dataPtr; };
+        void setDataPtr(const std::shared_ptr<unsigned char> dataPtr) { this->dataPtr = dataPtr; };
     private:
         unsigned int width;
         unsigned int height;
-        std::shared_ptr<unsigned char> data;
+        std::shared_ptr<unsigned char> dataPtr;
 };
 
 /*
@@ -72,51 +72,72 @@ class TextureData {
  */
 class TextureLoader {
     friend Texture;
+    public:
+        /*
+         * 
+         */
+        static void PreLoadTextures(const std::vector<std::string>& textureFilePaths);
+        
+        /*
+         * Unloads all loaded textures with usage count less than 1 from system memory. Unloaded textures will need to be
+         * loaded from system memory to be used again.
+         */
+        static void UnloadUnusedTextures();
+        
     private:
         /*
-         * Loads texture and buffers it using OpenGL. Returns OpenGL name of texture;
-         * If a texture with the same filename is already buffered, then the buffered copy will be used. If the texture is not
-         * currently buffered then it will be loaded from the file system.
+         * Loads texture from file system into system memory. Returns the index of texture from list of loaded textures.
+         * If a texture with the same filename is already loaded, then the loaded instance will be used. If the texture is
+         * not currently loaded then it will be loaded from the file system.
          */
-        static unsigned int loadTextureFromFile(const std::string filePath, unsigned int& width, unsigned int& height);
+        static int LoadTextureFromFile(const std::string filePath, unsigned int& width, unsigned int& height);
         
         /*
-         * Increments using count for texture with OpenGL name of textureID. Returns OpenGL name of texture;
+         * Puts texture with data given by TextureDataPtr into list of loaded textures. Returns the index of the texture
+         * from list of loaded textures.
          */
-        static unsigned int useTextureFromLoaded(const unsigned int textureID);
+        static int LoadTextureFromTextureData(const TextureDataPtr textureDataPtr);
         
         /*
-         * Creates an OpenGL readable texture from TextureData and buffers it using OpenGL. Returns OpenGL name of texture;
+         * Increments using count for loaded texture with index textureID from list of loaded textures and ensures it is
+         * buffered with OpenGL.
          */
-        static unsigned int generateTextureFromData(const TextureDataPtr textureDataPtr);
+        static void UseLoadedTexture(const int textureID);
         
         /*
-         * Buffers texture data from TextureDataPtr using OpenGL. Returns OpenGL name of texture;
+         * Decrements using count for texture with index textureID from list of loaded textures.
          */
-        static unsigned int bufferTextureData(const TextureDataPtr textureDataPtr);
+        static void ReleaseLoadedTexture(const int textureID);
         
         /*
-         * Copies the buffered texture data from textureID to TextureDataPtr.
+         * Copies the loaded texture data of texture with index textureID from list of loaded textures to TextureDataPtr.
          */
-        static void copyTextureDataFromLoaded(const unsigned int textureID, const TextureDataPtr textureDataPtr);
+        static void CopyTextureDataFromLoaded(const int textureID, const TextureDataPtr textureDataPtr);
         
         /*
-         * Decrements using count for texture with OpenGL name of textureID. Returns OpenGL name of texture.
+         * Buffers texture data to GPU from loaded texture list with index textureID.
          */
-        static void releaseTexture(const unsigned int textureID);
+        static void BufferTextureData(const int textureID);
         
         /*
-         * Deletes/unbuffers all buffered textures with usage count less than 1.
+         * Deletes OpenGL texture buffer of texture from loaded texture list with index textureID.
          */
-        static void unloadUnusedTextures();
+        static void UnbufferTextureData(const int textureID);
+        
+        /*
+         * Unloads loaded texture from system memory. Removes the texture from list of loaded textures.
+         */
+        static void UnloadTexture(const int textureID);
         
         struct TextureInfo {
             std::string filePath;
             unsigned int height;
             unsigned int width;
-            unsigned int textureID;
-            unsigned int count;
+            TextureDataPtr textureDataPtr;
+            unsigned int textureName = 0;
+            unsigned int usingCount = 0;
         };
+        // CHANGE TO SINGLETON PATTERN TO ALLOW RESEARTING OF ENGINE!!!!!!!!!!!!
         static std::vector<TextureInfo> loadedTextures;
 };
 

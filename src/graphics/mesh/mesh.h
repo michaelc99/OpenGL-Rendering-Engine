@@ -2,7 +2,7 @@
 #define MESH_H
 
 #include <math/vector.h>
-#include <graphics/texture/texture.h>
+#include <graphics/material/material.h>
 #include <vector>
 #include <memory>
 
@@ -18,8 +18,8 @@ class Mesh {
         Mesh(const Mesh& mesh);
         ~Mesh();
     private:
-        unsigned int meshVAO;
-        std::vector<Texture> textures;
+        Material material;
+        int meshID = -1;
 };
 
 template<typename T>
@@ -27,7 +27,7 @@ using VectorPtr = std::shared_ptr<std::vector<T>>;
 
 /*
  * MeshData contains the vertices, normals, texture coordinates, and indices for a mesh in system memory and the list of
- * texture objects for the mesh.
+ * texture objects for the mesh. ModelLoader handles loading the textures from TextureLoader.
  */
 class MeshData {
     public:
@@ -56,45 +56,17 @@ class MeshData {
  */
 class MeshLoader {
     friend Mesh;
+    public:
+        
     private:
-        /*
-         * Increments using count for mesh with OpenGL VAO name of meshVAO. Returns OpenGL VAO name for mesh;
-         */
-        static unsigned int useMeshFromLoaded(const unsigned int meshVAO);
         
-        /*
-         * Creates an OpenGL readable mesh from MeshData and buffers it using OpenGL. Returns OpenGL VAO name for mesh;
-         */
-        static unsigned int generateMeshFromData(const MeshDataPtr meshDataPtr);
-        
-        /*
-         * Buffers mesh data from MeshDataPtr using OpenGL. Returns OpenGL VAO name for mesh;
-         */
-        static unsigned int bufferMeshData(const MeshDataPtr meshDataPtr);
-        
-        /*
-         * Copies the buffered mesh data from meshVAO to MeshDataPtr.
-         */
-        static void copyMeshDataFromLoaded(const unsigned int meshVAO, const MeshDataPtr meshDataPtr);
-        
-        /*
-         * Decrements using count for mesh with OpenGL VAO name of meshVAO. Returns OpenGL VAO name for mesh.
-         */
-        static void releaseMesh(const unsigned int meshVAO);
-        
-        /*
-         * Deletes/unbuffers all buffered meshes with usage count less than 1.
-         */
-        static void unloadUnusedMeshes();
         
         struct MeshInfo {
-            unsigned int numVertices;
-            unsigned int numNormals;
-            unsigned int numTextureCoords;
-            unsigned int numIndices;
+            MeshDataPtr meshDataPtr;
             unsigned int meshVAO;
-            unsigned int count;
+            unsigned int usingCount = 0;
         };
+        // CHANGE TO SINGLETON PATTERN TO ALLOW RESEARTING OF ENGINE!!!!!!!!!!!!
         static std::vector<MeshInfo> loadedMeshes;
 };
 

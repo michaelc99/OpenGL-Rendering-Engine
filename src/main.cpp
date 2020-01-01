@@ -5,7 +5,7 @@
 #include <exceptions/render_exception.h>
 #include <graphics/shaders/shaders.h>
 #include <math/linear_math.h>
-#include <graphics/images/image_loader.h>
+#include <fileio/image_reader.h>
 
 #include <glad/glad.h> // Must include before GLFW
 #include <GLFW/glfw3.h>

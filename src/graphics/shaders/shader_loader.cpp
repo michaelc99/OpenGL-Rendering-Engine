@@ -2,7 +2,10 @@
 
 namespace Engine {
 
-ShaderObject::ShaderObject(GLenum type, std::string filePath) : ShaderObject(type) {
+/*
+ * Class ShaderObject
+ */
+ShaderObject::ShaderObject(const GLenum type, const std::string filePath) : ShaderObject(type) {
     load(filePath);
 }
 
@@ -10,7 +13,7 @@ ShaderObject::~ShaderObject() {
     release();
 }
 
-void ShaderObject::load(std::string filePath) {
+void ShaderObject::load(const std::string filePath) {
     this->filePath = filePath;
     std::string source;
     readFile(filePath, source);
@@ -45,11 +48,15 @@ void ShaderObject::release() {
     filePath = "";
 }
 
-ShaderProgram::ShaderProgram(std::vector<GLenum>types, std::vector<std::string> filePaths) : ShaderProgram() {
+/*
+ * Class ShaderProgram
+ */
+ShaderProgram::ShaderProgram(const std::vector<GLenum> types, const std::vector<std::string> filePaths, const std::string shaderProgramName) : ShaderProgram() {
 #ifdef _DEBUG
     assert(types.size() == filePaths.size());
 #endif
     create();
+    this->shaderProgramName = shaderProgramName;
     std::vector<std::shared_ptr<ShaderObject>> shaderObjects;
     for(size_t i = 0; i < filePaths.size(); i++) {
         std::shared_ptr<ShaderObject> shaderObject(new ShaderObject(types[i], filePaths[i]));
@@ -84,18 +91,18 @@ void ShaderProgram::create() {
 /*
  * Assumes shaderObject has already been compiled successfully.
  */
-void ShaderProgram::addShaderObject(std::shared_ptr<ShaderObject> shaderObject) {
+void ShaderProgram::addShaderObject(const std::shared_ptr<ShaderObject> shaderObject) {
     if(!program) {
-        throw RenderException("ERROR: Attempted to add shader object to shader program before it was created.");
+        throw RenderException("ERROR: Attempted to add shader object \"" + shaderObject->getFileName() + "\" to shader program before it was created.");
     }
     glAttachShader(program, shaderObject->getShader());
     shaderFileNames.push_back(shaderObject->getFileName());
     linked = false;
 }
 
-void ShaderProgram::detachShaderObject(std::shared_ptr<ShaderObject> shaderObject) {
+void ShaderProgram::detachShaderObject(const std::shared_ptr<ShaderObject> shaderObject) {
     if(!program) {
-        throw RenderException("ERROR: Attempted to add shader object to shader program before it was created.");
+        throw RenderException("ERROR: Attempted to add shader object \"" + shaderObject->getFileName() + "\" to shader program before the program was created.");
     }
     glDetachShader(program, shaderObject->getShader());
 }
@@ -140,6 +147,48 @@ void ShaderProgram::use() const {
         throw RenderException("ERROR: Attempted to use shader program that linked.");
     }
     glUseProgram(program);
+}
+
+/*
+ * Class ShaderLoader
+ */
+void ShaderLoader::LoadShaderPrograms(const std::vector<ShaderFiles>& shaderFiles) {
+#ifdef _DEBUG
+    assert(shaderFiles.size() > 0);
+#endif
+    for(int i = 0; i < shaderFiles.size(); i++) {
+        std::vector<GLenum> types;
+        std::vector<std::string> filePaths;
+#ifdef _DEBUG
+        assert(shaderFiles[i].shaderProgramName != "");
+        assert(shaderFiles[i].vertexShaderFilePath != "");
+        assert(shaderFiles[i].fragmentShaderFilePath != "");
+#endif
+        types.push_back(GL_VERTEX_SHADER);
+        types.push_back(GL_FRAGMENT_SHADER);
+        filePaths.push_back(shaderFiles[i].vertexShaderFilePath);
+        filePaths.push_back(shaderFiles[i].fragmentShaderFilePath);
+        if(shaderFiles[i].geometryShaderFilePath != "") {
+            types.push_back(GL_GEOMETRY_SHADER);
+            filePaths.push_back(shaderFiles[i].geometryShaderFilePath);
+        }
+        ShaderProgramPtr shaderProgramPtr = std::make_shared<ShaderProgram>(types, filePaths, shaderFiles[i].shaderProgramName);
+        loadedShaderPrograms.push_back(shaderProgramPtr);
+    }
+}
+
+ShaderProgramPtr ShaderLoader::getShaderProgram(const std::string& shaderProgramName) {
+    int index = -1;
+    for(int i = 0; i < loadedShaderPrograms.size(); i++) {
+        if(shaderProgramName == loadedShaderPrograms[i]->getShaderProgramName()) {
+            index = i;
+            break;
+        }
+    }
+#ifdef _DEBUG
+    assert(index != -1);
+#endif
+    return loadedShaderPrograms[index];
 }
 
 };

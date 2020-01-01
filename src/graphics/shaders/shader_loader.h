@@ -23,10 +23,10 @@ namespace Engine {
 
 class ShaderObject {
     public:
-        ShaderObject(GLenum type) : type(type), shader(0), filePath("") {}
-        ShaderObject(GLenum type, std::string filePath);
+        ShaderObject(const GLenum type) : type(type), shader(0), filePath("") {}
+        ShaderObject(const GLenum type, const std::string filePath);
         ~ShaderObject();
-        void load(std::string filePath);
+        void load(const std::string filePath);
         void compile();
         void release();
         GLenum getType() { return type; }
@@ -40,15 +40,15 @@ class ShaderObject {
 
 class ShaderProgram {
     public:
-        ShaderProgram() : program(0), linked(false) {}
-        ShaderProgram(std::vector<GLenum> types, std::vector<std::string> filePaths);
+        ShaderProgram() : program(0), linked(false), shaderProgramName("") {}
+        ShaderProgram(const std::vector<GLenum> types, const std::vector<std::string> filePaths, const std::string shaderProgramName);
         ~ShaderProgram();
         ShaderProgram& operator=(const ShaderProgram& shaderProgram);
         
         void create();
-        void addShaderObject(std::shared_ptr<ShaderObject> shaderObject);
+        void addShaderObject(const std::shared_ptr<ShaderObject> shaderObject);
         void link();
-        void detachShaderObject(std::shared_ptr<ShaderObject> shaderObject);
+        void detachShaderObject(const std::shared_ptr<ShaderObject> shaderObject);
         void release();
         void use() const;
         
@@ -89,10 +89,38 @@ class ShaderProgram {
         //void setUniformBlock(std::string blockName, std::shared_ptr<void> buf, size_t size) const;
         
         GLuint getProgram() { return program; }
+        std::string getShaderProgramName() { return shaderProgramName; }
     private:
         GLuint program;
         bool linked;
+        std::string shaderProgramName;
         std::vector<std::string> shaderFileNames;
+};
+
+typedef std::shared_ptr<ShaderProgram> ShaderProgramPtr;
+
+struct ShaderFiles {
+    std::string shaderProgramName = "";
+    std::string vertexShaderFilePath = ""
+    std::string geometryShaderFilePath = "";
+    std::string fragmentShaderFilePath = "";
+};
+
+class ShaderLoader {
+    public:
+        /*
+         * Loads, compiles, and buffers a list of shader programs using OpenGL.
+         */
+        static void LoadShaderPrograms(const std::vector<ShaderFiles>& shaderFiles);
+        
+        /*
+         * Returns pointer to ShaderProgram buffered with OpenGL from list of buffered shader programs with name
+         * shaderProgramName.
+         */
+        static ShaderProgramPtr getShaderProgram(const std::string& shaderProgramName);
+    private:
+        // CHANGE TO SINGLETON PATTERN TO ALLOW RESEARTING OF ENGINE!!!!!!!!!!!!
+        static std::vector<ShaderProgramPtr> loadedShaderPrograms;
 };
 
 };
