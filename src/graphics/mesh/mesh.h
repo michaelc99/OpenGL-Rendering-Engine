@@ -1,73 +1,38 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include <math/vector.h>
+#include <graphics/mesh/mesh_data.h>
 #include <graphics/material/material.h>
 #include <vector>
-#include <memory>
 
 namespace Engine {
 
-class MeshData;
-typedef std::shared_ptr<MeshData> MeshDataPtr;
-class MeshLoader;
-
 class Mesh {
     public:
-        Mesh(const MeshDataPtr meshDataPtr, const std::vector<Texture>& textures);
+        Mesh(const MeshDataPtr meshDataPtr, const TexturedMaterial texturedMaterial, const UnTexturedMaterial unTexturedMaterial);
         Mesh(const Mesh& mesh);
         ~Mesh();
+        
+        void render() const;
+        
+        /*
+         * Returns a MeshDataPtr to a shallow copy of the mesh's data in the list of (shared) loaded meshes.
+         */
+        MeshDataPtr getMeshDataPtr() const;
+        
+        /*
+         * Returns MeshDataPtr to a deep copy of this mesh's data.
+         */
+        MeshDataPtr copyMeshData() const;
+        
+        TexturedMaterial getTexturedMaterial() const { return texturedMaterial; }
+        void setTexturedMaterial(const TexturedMaterial texturedMaterial) { this->texturedMaterial = texturedMaterial; }
+        UnTexturedMaterial getUnTexturedMaterial() const { return unTexturedMaterial; }
+        void setUnTexturedMaterial(const UnTexturedMaterial unTexturedMaterial) { this->unTexturedMaterial = unTexturedMaterial; }
     private:
-        Material material;
         int meshID = -1;
-};
-
-template<typename T>
-using VectorPtr = std::shared_ptr<std::vector<T>>;
-
-/*
- * MeshData contains the vertices, normals, texture coordinates, and indices for a mesh in system memory and the list of
- * texture objects for the mesh. ModelLoader handles loading the textures from TextureLoader.
- */
-class MeshData {
-    public:
-        MeshData();
-        VectorPtr<Math::Vec3f> getVertices() { return vertices; }
-        void setVertices(const VectorPtr<Math::Vec3f>& vertices) { this->vertices = vertices; }
-        VectorPtr<Math::Vec3f> getNormals() { return normals; }
-        void setNormals(const VectorPtr<Math::Vec3f>& normals) { this->normals = normals; }
-        VectorPtr<Math::Vec2f> getTextureCoords() { return textureCoords; }
-        void setTextureCoords(const VectorPtr<Math::Vec2f>& textureCoords) { this->textureCoords = textureCoords; }
-        VectorPtr<Math::Vec3ui> getIndices() { return indices; }
-        void setIndices(const VectorPtr<Math::Vec3ui>& indices) { this->indices = indices; }
-        VectorPtr<Texture> getTextures() { return textures; }
-        void setTextures(const VectorPtr<Texture>& textures) { this->textures = textures; }
-    private:
-        VectorPtr<Math::Vec3f> vertices;
-        VectorPtr<Math::Vec3f> normals;
-        VectorPtr<Math::Vec2f> textureCoords;
-        VectorPtr<Math::Vec3ui> indices;
-        VectorPtr<Texture> textures;
-};
-
-/*
- * MeshLoader handles buffering meshes into OpenGL from mesh data and maintaining a list of all unique buffered meshes by
- * OpenGL VAO name.
- */
-class MeshLoader {
-    friend Mesh;
-    public:
-        
-    private:
-        
-        
-        struct MeshInfo {
-            MeshDataPtr meshDataPtr;
-            unsigned int meshVAO;
-            unsigned int usingCount = 0;
-        };
-        // CHANGE TO SINGLETON PATTERN TO ALLOW RESEARTING OF ENGINE!!!!!!!!!!!!
-        static std::vector<MeshInfo> loadedMeshes;
+        TexturedMaterial texturedMaterial;
+        UnTexturedMaterial unTexturedMaterial;
 };
 
 }

@@ -104,7 +104,7 @@ int main(void) {
         // Shader loading
         std::shared_ptr<Engine::ShaderProgram> shaderProgram;
         ADD_ERROR_INFO(
-                shaderProgram = std::shared_ptr<Engine::ShaderProgram>(new Engine::ShaderProgram({GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, {"basic_vertex_shader.vs.glsl", "basic_fragment_shader.fs.glsl"}))
+                shaderProgram = std::shared_ptr<Engine::ShaderProgram>(new Engine::ShaderProgram({GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, {"basic_vertex_shader.vs.glsl", "basic_fragment_shader.fs.glsl"}, "shader_test"))
         );
         
         unsigned int VAO;

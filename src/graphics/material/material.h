@@ -9,10 +9,11 @@
 namespace Engine {
 
 class Material {
-    public:
-        Material(); // Get a shaderProgramPtr from ShaderLoader
-        virtual ~Material();
-        void virtual Use(); // ?????????
+        Material();
+        
+        void apply();
+        ShaderProgramPtr getShaderProgramPtr() const { return shaderProgramPtr; }
+        void setShaderProgramPtr(const ShaderProgramPtr shaderProgramPtr) { this->shaderProgramPtr = shaderProgramPtr; }
     protected:
         ShaderProgramPtr shaderProgramPtr;
 };
@@ -20,8 +21,8 @@ class Material {
 class TexturedMaterial : Material {
     public:
         TexturedMaterial();
-        ~TexturedMaterial();
-        void Use();
+        
+        void apply();
     private:
         std::vector<Texture> textures;
         std::vector<float> textureMixingWeights;
@@ -30,10 +31,10 @@ class TexturedMaterial : Material {
 class UnTexturedMaterial : Material {
     public:
         UnTexturedMaterial();
-        ~UnTexturedMaterial();
-        void Use();
+        
+        void apply();
     private:
-        std::vector<Math::Vec3f> colors;
+        std::vector<Math::Vec4f> colors;
 //        std::vector<float> colorMixingWeights; ????????
 };
 

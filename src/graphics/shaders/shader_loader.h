@@ -101,7 +101,7 @@ typedef std::shared_ptr<ShaderProgram> ShaderProgramPtr;
 
 struct ShaderFiles {
     std::string shaderProgramName = "";
-    std::string vertexShaderFilePath = ""
+    std::string vertexShaderFilePath = "";
     std::string geometryShaderFilePath = "";
     std::string fragmentShaderFilePath = "";
 };
