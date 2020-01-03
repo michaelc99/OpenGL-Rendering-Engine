@@ -1,6 +1,7 @@
 #ifndef MESH_DATA_H
 #define MESH_DATA_H
 
+#include <graphics/mesh/mesh_geometry_data.h>
 #include <math/vector.h>
 #include <vector>
 #include <memory>
@@ -11,27 +12,34 @@ template<typename T>
 using VectorPtr = std::shared_ptr<std::vector<T>>;
 
 /*
- * MeshData contains the vertices, normals, texture coordinates, and indices, and material for a mesh in system memory.
+ * MeshData contains the texture coordinates and indices for a mesh in system memory.
  */
 class MeshData {
     public:
-        MeshData();
-        MeshData(const VectorPtr<Math::Vec3f> vertices, const VectorPtr<Math::Vec3f> normals, const VectorPtr<Math::Vec2f> textureCoords,
-                const VectorPtr<Math::Vec3ui> indices);
+        MeshData(const VectorPtr<Math::Vec3ui> indices, const MeshGeometryDataPtr meshGeometryDataPtr, const std::string modelFilePath = "");
         MeshData(const MeshData& meshData);
+        ~MeshData();
         
-        VectorPtr<Math::Vec3f> getVertices() const { return vertices; }
-        void setVertices(const VectorPtr<Math::Vec3f>& vertices) { this->vertices = vertices; }
-        VectorPtr<Math::Vec3f> getNormals() const { return normals; }
-        void setNormals(const VectorPtr<Math::Vec3f>& normals) { this->normals = normals; }
-        VectorPtr<Math::Vec2f> getTextureCoords() const { return textureCoords; }
-        void setTextureCoords(const VectorPtr<Math::Vec2f>& textureCoords) { this->textureCoords = textureCoords; }
+        /*
+         * Returns a MeshGeometryDataPtr to a shallow copy of the mesh's geometry data in the list of (shared) loaded
+         * mesh geometries.
+         */
+        MeshGeometryDataPtr getMeshGeometryDataPtr() const;
+        
+        /*
+         * Equivalent to constructing a new MeshData with the same indices and a new meshGeometryDataPtr.
+         */
+        void setMeshGeometryDataPtr(const MeshGeometryDataPtr meshGeometryDataPtr);
+        
+        /*
+         * Returns MeshGeometryDataPtr to a deep copy of this mesh's geometry data.
+         */
+        MeshGeometryDataPtr copyMeshGeometryData() const;
+        
         VectorPtr<Math::Vec3ui> getIndices() const { return indices; }
         void setIndices(const VectorPtr<Math::Vec3ui>& indices) { this->indices = indices; }
     private:
-        VectorPtr<Math::Vec3f> vertices;
-        VectorPtr<Math::Vec3f> normals;
-        VectorPtr<Math::Vec2f> textureCoords;
+        int meshGeometryID;
         VectorPtr<Math::Vec3ui> indices;
 };
 typedef std::shared_ptr<MeshData> MeshDataPtr;
@@ -60,7 +68,7 @@ class MeshLoader {
          * Puts mesh with data given by MeshDataPtr into list of loaded meshes. Returns the index of the mesh from list
          * of loaded meshes.
          */
-        static int LoadMeshFromMeshData(const MeshDataPtr meshDataPtr);
+        static int LoadMeshFromMeshData(const MeshDataPtr meshDataPtr, const std::string filePath = "");
         
         /*
          * Increments using count for loaded mesh with index meshID from list of loaded meshes and ensures it is
@@ -94,7 +102,9 @@ class MeshLoader {
         static void UnloadMesh(const int meshID);
         
         struct MeshInfo {
+            std::string modelFilePath;
             MeshDataPtr meshDataPtr;
+            unsigned int meshEBO;
             unsigned int meshVAO;
             unsigned int usingCount = 0;
         };

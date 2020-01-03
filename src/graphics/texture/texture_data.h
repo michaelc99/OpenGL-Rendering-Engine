@@ -17,14 +17,15 @@ namespace Engine {
  */
 class TextureData {
     public:
-        TextureData();
-        TextureData(unsigned int width, unsigned int height, std::shared_ptr<unsigned char> dataPtr);
+        TextureData(const unsigned int width, const unsigned int height, const unsigned int numChannels, const std::shared_ptr<unsigned char> dataPtr);
         TextureData(const TextureData& textureData);
         
         unsigned int getWidth() const { return width; }
         void setWidth(const unsigned int width) { this->width = width; }
         unsigned int getHeight() const { return height; }
         void setHeight(const unsigned int height) { this->height = height; }
+        unsigned int getNumChannels() const { return numChannels; }
+        void setNumChannels(const unsigned int numChannels) { this->numChannels = numChannels; }
         std::shared_ptr<unsigned char> getDataPtr() const { return dataPtr; };
         void setDataPtr(const std::shared_ptr<unsigned char> dataPtr) { this->dataPtr = dataPtr; };
         
@@ -33,6 +34,9 @@ class TextureData {
     private:
         unsigned int width;
         unsigned int height;
+        unsigned int numChannels;
+        const unsigned short bytesPerChannel = 1;
+        unsigned int size;
         std::shared_ptr<unsigned char> dataPtr;
         /*std::string format;
         std::string type;*/
@@ -77,6 +81,11 @@ class TextureLoader {
          * from list of loaded textures.
          */
         static int LoadTextureFromTextureData(const TextureDataPtr textureDataPtr);
+        
+        /*
+         * Saves textureDataPtr to image file in file system.
+         */
+        static void SaveTextureFromTextureData(const std::string& filePath, const TextureDataPtr textureDataPtr);
         
         /*
          * Increments using count for loaded texture with index textureID from list of loaded textures and ensures it is

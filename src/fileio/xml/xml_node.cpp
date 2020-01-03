@@ -19,6 +19,13 @@ std::string XmlNode::getKey() const {
     return name + " " + attributes;
 }
 
+std::stringstream XmlNode::getDataAsStringStream() const {
+    // Convert to stringstream to extract node name
+    std::stringstream dataStream;
+    dataStream << data;
+    return dataStream;
+}
+
 std::string XmlNode::toString(const unsigned int depth) const {
     std::string asString = "";
     std::string padding = "";

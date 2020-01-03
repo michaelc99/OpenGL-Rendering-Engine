@@ -5,28 +5,31 @@ namespace Engine {
 /*
  * Class TextureData
  */
-TextureData::TextureData() : width(0), height(0) {}
+TextureData::TextureData() : width(0), height(0), numChannels(0), size(0) {}
 
-TextureData::TextureData(const unsigned int width, const unsigned int height, const std::shared_ptr<unsigned char> dataPtr)
-    : width(width), height(height), dataPtr(dataPtr) {}
+TextureData::TextureData(const unsigned int width, const unsigned int height, const unsigned int numChannels, const std::shared_ptr<unsigned char> dataPtr)
+    : width(width), height(height), numChannels(numChannels), dataPtr(dataPtr) {
+    size = width * height * numChannels * bytesPerChannel;
+}
 
 TextureData::TextureData(const TextureData& textureData)
-    : width(textureData.getWidth()), height(textureData.getHeight()) {
-    this->dataPtr = std::shared_ptr<unsigned char>(new unsigned char[sizeof(textureData.dataPtr.get())]);
-    memcpy(this->dataPtr.get(), textureData.dataPtr.get(), sizeof(textureData.dataPtr.get()));
+    : width(textureData.width), height(textureData.height), numChannels(textureData.numChannels) {
+    this->size = textureData.size;
+    this->dataPtr = std::shared_ptr<unsigned char>(new unsigned char[textureData.size]);
+    memcpy(this->dataPtr.get(), textureData.dataPtr.get(), textureData.size);
 }
 
 /*
  * Class TextureLoader
  */
 void TextureLoader::PreLoadTextures(const std::vector<std::string>& textureFilePaths) {
-    for(int i = 0; i < textureFilePaths.size(); i++) {
+    for(unsigned int i = 0; i < textureFilePaths.size(); i++) {
         LoadTextureFromFile(textureFilePaths[i]);
     }
 }
 
 void TextureLoader::UnloadUnusedTextures() {
-    for(int i = 0; i < loadedTextures.size(); i++) {
+    for(unsigned int i = 0; i < loadedTextures.size(); i++) {
         if(loadedTextures[i].usingCount == 0) {
             UnloadTexture(i);
         }
@@ -36,7 +39,7 @@ void TextureLoader::UnloadUnusedTextures() {
 void TextureLoader::BindTexture(const int textureID) {
 #ifdef _DEBUG
     assert(textureID > -1);
-    assert(textureID < loadedTextures.size());
+    assert(textureID < (int)loadedTextures.size());
 #endif
     glBindTexture(GL_TEXTURE_2D, loadedTextures[textureID].textureName);
 }
@@ -44,7 +47,7 @@ void TextureLoader::BindTexture(const int textureID) {
 TextureDataPtr TextureLoader::GetTextureDataPtr(const int textureID) {
 #ifdef _DEBUG
     assert(textureID > -1);
-    assert(textureID < loadedTextures.size());
+    assert(textureID < (int)loadedTextures.size());
 #endif
     return loadedTextures[textureID].textureDataPtr;
 }
@@ -63,11 +66,11 @@ int TextureLoader::LoadTextureFromFile(const std::string filePath) {
     int height = 0;
     int imgNumChannels = 0;
     stbi_set_flip_vertically_on_load(true);
-    std::shared_ptr<unsigned char> dataPtr = std::shared_ptr<unsigned char>(stbi_load(filePath.c_str(), &(int)width, &(int)height, &imgNumChannels, 0));
+    std::shared_ptr<unsigned char> dataPtr = std::shared_ptr<unsigned char>(stbi_load(filePath.c_str(), &width, &height, &imgNumChannels, 0));
     if(!dataPtr.get()) {
         throw Engine::FileIOException("ERROR: Failed to load image data from \"" + filePath + "\"");
     }
-    textureDataPtr = std::make_shared<TextureData>(width, height, dataPtr);
+    textureDataPtr = std::make_shared<TextureData>((unsigned int)width, (unsigned int)height, (unsigned int)imgNumChannels, dataPtr);
     
     TextureInfo textureInfo;
     textureInfo.filePath = filePath;
@@ -92,10 +95,14 @@ int TextureLoader::LoadTextureFromTextureData(const TextureDataPtr textureDataPt
     return textureID;
 }
 
+void TextureLoader::SaveTextureFromTextureData(const std::string& filePath, const TextureDataPtr textureDataPtr) {
+    
+}
+
 void TextureLoader::UseLoadedTexture(const int textureID) {
 #ifdef _DEBUG
     assert(textureID > -1);
-    assert(textureID < loadedTextures.size());
+    assert(textureID < (int)loadedTextures.size());
 #endif
     if(loadedTextures[textureID].usingCount == 0) {
         BufferTextureData(textureID);
@@ -106,19 +113,22 @@ void TextureLoader::UseLoadedTexture(const int textureID) {
 void TextureLoader::ReleaseLoadedTexture(const int textureID) {
 #ifdef _DEBUG
     assert(textureID > -1);
-    assert(textureID < loadedTextures.size());
+    assert(textureID < (int)loadedTextures.size());
     assert(loadedTextures[textureID].usingCount > 0);
 #endif
     loadedTextures[textureID].usingCount--;
     if(loadedTextures[textureID].usingCount == 0) {
         UnBufferTextureData(textureID);
+        if(loadedTextures[textureID].filePath == "") {
+            UnloadTexture(textureID);
+        }
     }
 }
 
 TextureDataPtr TextureLoader::CopyTextureDataFromLoaded(const int textureID) {
 #ifdef _DEBUG
     assert(textureID > -1);
-    assert(textureID < loadedTextures.size());
+    assert(textureID < (int)loadedTextures.size());
 #endif
     return std::make_shared<TextureData>(*(loadedTextures[textureID].textureDataPtr));
     
@@ -148,7 +158,7 @@ TextureDataPtr TextureLoader::CopyTextureDataFromLoaded(const int textureID) {
 void TextureLoader::BufferTextureData(const int textureID) {
 #ifdef _DEBUG
     assert(textureID > -1);
-    assert(textureID < loadedTextures.size());
+    assert(textureID < (int)loadedTextures.size());
 #endif
     TextureInfo textureInfo = loadedTextures[textureID];
     glGenTextures(1, &loadedTextures[textureID].textureName);
@@ -168,7 +178,7 @@ void TextureLoader::BufferTextureData(const int textureID) {
 void TextureLoader::UnBufferTextureData(const int textureID) {
 #ifdef _DEBUG
     assert(textureID > -1);
-    assert(textureID < loadedTextures.size());
+    assert(textureID < (int)loadedTextures.size());
 #endif
     glDeleteTextures(1, &loadedTextures[textureID].textureName);
 }
@@ -176,7 +186,7 @@ void TextureLoader::UnBufferTextureData(const int textureID) {
 void TextureLoader::UnloadTexture(const int textureID) {
 #ifdef _DEBUG
     assert(textureID > -1);
-    assert(textureID < loadedTextures.size());
+    assert(textureID < (int)loadedTextures.size());
     assert(loadedTextures[textureID].usingCount == 0);
 #endif
     int index = 0;

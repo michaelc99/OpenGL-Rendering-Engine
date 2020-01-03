@@ -9,19 +9,20 @@ namespace Engine {
 
 class Mesh {
     public:
-        Mesh(const MeshDataPtr meshDataPtr, const TexturedMaterial texturedMaterial, const UnTexturedMaterial unTexturedMaterial);
+        Mesh(const MeshDataPtr meshDataPtr, const TexturedMaterial texturedMaterial, const UnTexturedMaterial unTexturedMaterial, const std::string modelFilePath = "");
         Mesh(const Mesh& mesh);
         ~Mesh();
         
         void render() const;
         
         /*
-         * Returns a MeshDataPtr to a shallow copy of the mesh's data in the list of (shared) loaded meshes.
+         * Returns a MeshDataPtr to a shallow copy of the mesh's  data in the list of (shared) loaded
+         * mesh geometries.
          */
         MeshDataPtr getMeshDataPtr() const;
         
         /*
-         * Returns MeshDataPtr to a deep copy of this mesh's data.
+         * Returns MeshDataPtr to a deep copy of this mesh's  data.
          */
         MeshDataPtr copyMeshData() const;
         

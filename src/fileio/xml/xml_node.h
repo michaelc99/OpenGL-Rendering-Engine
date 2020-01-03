@@ -54,6 +54,11 @@ class XmlNode {
          */
         std::string getKey() const;
         
+        /*
+         * Returns a stringstream of data.
+         */
+        std::stringstream getDataAsStringStream() const;
+        
         std::string getName() const { return name; }
         void setName(const std::string& name) { this->name = name; }
         std::string getAttributes() const { return attributes; }

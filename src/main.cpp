@@ -207,6 +207,7 @@ int main(void) {
         // For texture coords
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)(2 * 4 * 3 * sizeof(float)));
         glEnableVertexAttribArray(2);
+        glBindVertexArray(0);
         /////////////////////////////////////////
         
         // Set minimum of 1 frame time between swapping buffer

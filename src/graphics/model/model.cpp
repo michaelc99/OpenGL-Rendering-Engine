@@ -3,10 +3,10 @@
 namespace Engine {
 
 /*
- * Class Mesh
+ * Class Model
  */
-Model::Model(const std::string filePath) {
-    this->modelID = ModelLoader::LoadModelFromFile(filePath);
+Model::Model(const std::string modelFilePath) {
+    this->modelID = ModelLoader::LoadModelFromFile(modelFilePath);
     ModelLoader::UseLoadedModel(this->modelID);
 }
 

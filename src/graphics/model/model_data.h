@@ -10,10 +10,9 @@ namespace Engine {
 
 class ModelData {
     public:
-        ModelData();
         ModelData(std::vector<Mesh> meshes);
 //        ModelData(std::vector<Mesh> meshes, std::vector<BoneDataPtr> boneDataList);
-        ModelData(const MeshData& meshData);
+        ModelData(const ModelData& modelData);
         
         std::vector<Mesh> getMeshes() const { return meshes; }
         void setMeshes(const std::vector<Mesh> meshes) { this->meshes = meshes; }
@@ -49,13 +48,18 @@ class ModelLoader {
          * If a model with the same filename is already loaded, then the loaded instance will be used. If the model is
          * not currently loaded then it will be loaded from the file system.
          */
-        static int LoadModelFromFile(const std::string filePath);
+        static int LoadModelFromFile(const std::string modelFilePath);
         
         /*
          * Puts model with data given by ModelDataPtr into list of loaded model. Returns the index of the model
          * from list of loaded models.
          */
         static int LoadModelFromModelData(const ModelDataPtr modelDataPtr);
+        
+        /*
+         * Saves modelData to a ".modeldat" file in file system.
+         */
+        static void SaveModelFromModelData(const std::string& modelFilePath, const ModelDataPtr modelDataPtr);
         
         /*
          * Increments using count for loaded model with index modelID from list of loaded models and ensures it is
@@ -79,7 +83,7 @@ class ModelLoader {
         static void UnloadModel(const int modelID);
         
         struct ModelInfo {
-            std::string filePath;
+            std::string modelFilePath;
             ModelDataPtr modelDataPtr;
             unsigned int usingCount = 0;
         };

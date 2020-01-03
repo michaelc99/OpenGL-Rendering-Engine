@@ -9,10 +9,9 @@ namespace Utility {
 
 class ModelConverter {
     public:
-        void createModelsFromCollada(const std::string& filePath);
+        Engine::ModelDataPtr createModelFromCollada(const std::string& savingFilePath, const std::string& colladaFilePath);
     private:
         std::shared_ptr<Engine::ModelData> createModelFromCollada(XmlNodePtr xmlMesh);
-        void addModel(std::shared_ptr<Engine::ModelData> staticModel);
         
         /*
          * Assumes that geometric information is formatted as triangles in Collada file.

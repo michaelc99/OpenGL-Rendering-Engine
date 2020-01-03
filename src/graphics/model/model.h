@@ -11,7 +11,7 @@ namespace Engine {
 
 class Model {
     public:
-        Model(const std::string filePath);
+        Model(const std::string modelFilePath);
         Model(const ModelDataPtr modelDataPtr);
         Model(const Model& model);
         ~Model();

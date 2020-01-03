@@ -19,7 +19,7 @@ void ModelLoader::PreLoadModels(const std::vector<std::string>& modelFilePaths) 
 }
 
 void ModelLoader::UnloadUnusedModels() {
-    for(int i = 0; i < loadedModels.size(); i++) {
+    for(unsigned int i = 0; i < loadedModels.size(); i++) {
         if(loadedModels[i].usingCount == 0) {
             UnloadModel(i);
         }
@@ -29,7 +29,7 @@ void ModelLoader::UnloadUnusedModels() {
 ModelDataPtr ModelLoader::GetModelDataPtr(const int modelID) {
 #ifdef _DEBUG
     assert(modelID > -1);
-    assert(modelID < loadedMeshes.size());
+    assert(modelID < (int)loadedModels.size());
 #endif
     return loadedModels[modelID].modelDataPtr;
 }
@@ -42,10 +42,14 @@ int ModelLoader::LoadModelFromModelData(const ModelDataPtr modelDataPtr) {
     
 }
 
+void ModelLoader::SaveModelFromModelData(const std::string& filePath, const ModelDataPtr modelDataPtr) {
+    
+}
+
 void ModelLoader::UseLoadedModel(const int modelID) {
 #ifdef _DEBUG
     assert(modelID > -1);
-    assert(modelID < loadedModels.size());
+    assert(modelID < (int)loadedModels.size());
 #endif
     loadedModels[modelID].usingCount++;
 }
@@ -53,16 +57,21 @@ void ModelLoader::UseLoadedModel(const int modelID) {
 void ModelLoader::ReleaseLoadedModel(const int modelID) {
 #ifdef _DEBUG
     assert(modelID > -1);
-    assert(modelID < loadedModels.size());
+    assert(modelID < (int)loadedModels.size());
     assert(loadedModels[modelID].usingCount > 0);
 #endif
-    loadedModels[modelID].modelDataPtr--;
+    loadedModels[modelID].usingCount--;
+    if(loadedModels[modelID].usingCount == 0) {
+        if(loadedModels[modelID].modelFilePath == "") {
+            UnloadModel(modelID);
+        }
+    }
 }
 
 ModelDataPtr ModelLoader::CopyModelDataFromLoaded(const int modelID) {
 #ifdef _DEBUG
     assert(modelID > -1);
-    assert(modelID < loadedModels.size());
+    assert(modelID < (int)loadedModels.size());
 #endif
     return std::make_shared<ModelData>(*(loadedModels[modelID].modelDataPtr));
 }
@@ -70,7 +79,7 @@ ModelDataPtr ModelLoader::CopyModelDataFromLoaded(const int modelID) {
 void ModelLoader::UnloadModel(const int modelID) {
 #ifdef _DEBUG
     assert(modelID > -1);
-    assert(modelID < loadedModels.size());
+    assert(modelID < (int)loadedModels.size());
 #endif
     int index = 0;
     for(std::vector<ModelInfo>::iterator iter = loadedModels.begin(); iter != loadedModels.end(); iter++) {

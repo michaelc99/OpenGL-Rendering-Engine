@@ -8,8 +8,8 @@
 namespace Engine {
 
 enum TextureType {
-    DIFFUSE,
-    SPECULAR
+    TEXTURE_DIFFUSE,
+    TEXTURE_SPECULAR
 };
 
 class Texture {
