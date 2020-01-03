@@ -5,7 +5,7 @@ namespace Engine {
 /*
  * Class Mesh
  */
-Mesh::Mesh(const MeshDataPtr meshDataPtr, const TexturedMaterial texturedMaterial, const UnTexturedMaterial unTexturedMaterial)
+Mesh::Mesh(const MeshDataPtr meshDataPtr, const TexturedMaterial texturedMaterial, const UnTexturedMaterial unTexturedMaterial, const std::string modelFilePath)
     : texturedMaterial(texturedMaterial), unTexturedMaterial(unTexturedMaterial) {
     this->meshID = MeshLoader::LoadMeshFromMeshData(meshDataPtr);
     MeshLoader::UseLoadedMesh(this->meshID);

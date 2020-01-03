@@ -17,7 +17,7 @@ namespace Engine {
  */
 class TextureData {
     public:
-        TextureData(const unsigned int width, const unsigned int height, const unsigned int numChannels, const std::shared_ptr<unsigned char> dataPtr);
+        TextureData(const unsigned int width, const unsigned int height, const unsigned int numChannels, const std::shared_ptr<unsigned char[]> dataPtr);
         TextureData(const TextureData& textureData);
         
         unsigned int getWidth() const { return width; }
@@ -26,8 +26,8 @@ class TextureData {
         void setHeight(const unsigned int height) { this->height = height; }
         unsigned int getNumChannels() const { return numChannels; }
         void setNumChannels(const unsigned int numChannels) { this->numChannels = numChannels; }
-        std::shared_ptr<unsigned char> getDataPtr() const { return dataPtr; };
-        void setDataPtr(const std::shared_ptr<unsigned char> dataPtr) { this->dataPtr = dataPtr; };
+        std::shared_ptr<unsigned char[]> getDataPtr() const { return dataPtr; };
+        void setDataPtr(const std::shared_ptr<unsigned char[]> dataPtr) { this->dataPtr = dataPtr; };
         
         /*std::string getFormat() { return format; }
         void setFormat(const std::string& format) { this->format = format; }*/
@@ -37,7 +37,7 @@ class TextureData {
         unsigned int numChannels;
         const unsigned short bytesPerChannel = 1;
         unsigned int size;
-        std::shared_ptr<unsigned char> dataPtr;
+        std::shared_ptr<unsigned char[]> dataPtr;
         /*std::string format;
         std::string type;*/
 };

@@ -5,9 +5,7 @@ namespace Engine {
 /*
  * Class TextureData
  */
-TextureData::TextureData() : width(0), height(0), numChannels(0), size(0) {}
-
-TextureData::TextureData(const unsigned int width, const unsigned int height, const unsigned int numChannels, const std::shared_ptr<unsigned char> dataPtr)
+TextureData::TextureData(const unsigned int width, const unsigned int height, const unsigned int numChannels, const std::shared_ptr<unsigned char[]> dataPtr)
     : width(width), height(height), numChannels(numChannels), dataPtr(dataPtr) {
     size = width * height * numChannels * bytesPerChannel;
 }
@@ -15,7 +13,7 @@ TextureData::TextureData(const unsigned int width, const unsigned int height, co
 TextureData::TextureData(const TextureData& textureData)
     : width(textureData.width), height(textureData.height), numChannels(textureData.numChannels) {
     this->size = textureData.size;
-    this->dataPtr = std::shared_ptr<unsigned char>(new unsigned char[textureData.size]);
+    this->dataPtr = std::shared_ptr<unsigned char[]>(new unsigned char[textureData.size]);
     memcpy(this->dataPtr.get(), textureData.dataPtr.get(), textureData.size);
 }
 
@@ -66,7 +64,7 @@ int TextureLoader::LoadTextureFromFile(const std::string filePath) {
     int height = 0;
     int imgNumChannels = 0;
     stbi_set_flip_vertically_on_load(true);
-    std::shared_ptr<unsigned char> dataPtr = std::shared_ptr<unsigned char>(stbi_load(filePath.c_str(), &width, &height, &imgNumChannels, 0));
+    std::shared_ptr<unsigned char[]> dataPtr = std::shared_ptr<unsigned char[]>(stbi_load(filePath.c_str(), &width, &height, &imgNumChannels, 0));
     if(!dataPtr.get()) {
         throw Engine::FileIOException("ERROR: Failed to load image data from \"" + filePath + "\"");
     }

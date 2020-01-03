@@ -9,7 +9,7 @@ else
 endif
 
 # EXECUTABLES AND MAIN FILES SPECIFICATION
-MAIN_SRC_FILES := main.cpp graphics/model/model_converter_utility.cpp
+MAIN_SRC_FILES := main.cpp model_converter_utility.cpp
 EXECUTABLE_FILES := main model_converter_utility
 OUTPUT_DIR := bin/core
 

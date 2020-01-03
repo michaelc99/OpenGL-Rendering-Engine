@@ -10,6 +10,7 @@ namespace Engine {
 
 class Material {
     public:
+        Material();
         Material(const std::string& shaderProgramName);
         Material(const ShaderProgramPtr shaderProgramPtr);
         
@@ -23,6 +24,7 @@ class Material {
 
 class TexturedMaterial : public Material {
     public:
+        TexturedMaterial();
         TexturedMaterial(const std::string& shaderProgramName, const std::vector<Texture> textures, const std::vector<float> textureMixingWeights);
         TexturedMaterial(const ShaderProgramPtr shaderProgramPtr, const std::vector<Texture> textures, const std::vector<float> textureMixingWeights);
         
@@ -44,6 +46,7 @@ enum ColorType {
 
 class UnTexturedMaterial : public Material {
     public:
+        UnTexturedMaterial();
         UnTexturedMaterial(const std::string& shaderProgramName, const std::vector<Math::Vec4f> colors, const std::vector<ColorType> colorTypes);
         UnTexturedMaterial(const ShaderProgramPtr shaderProgramPtr, const std::vector<Math::Vec4f> colors, const std::vector<ColorType> colorTypes);
         

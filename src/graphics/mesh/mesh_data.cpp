@@ -55,7 +55,7 @@ MeshDataPtr MeshLoader::GetMeshDataPtr(const int meshID) {
 }
 
 void MeshLoader::BindMesh(const int meshID) {
-    
+    glBindVertexArray(loadedMeshes[meshID].meshVAO);
 }
 
 int MeshLoader::LoadMeshFromMeshData(const MeshDataPtr meshDataPtr, const std::string modelFilePath) {
@@ -109,11 +109,46 @@ MeshDataPtr MeshLoader::CopyMeshDataFromLoaded(const int meshID) {
 }
 
 void MeshLoader::BufferMeshData(const int meshID) {
+    MeshGeometryLoader::RequireMeshGeometryBuffered(loadedMeshes[meshID].meshDataPtr->getMeshGeometryID());
     
+    glGenVertexArrays(1, &(loadedMeshes[meshID].meshVAO));
+    glGenBuffers(1, &(loadedMeshes[meshID].meshEBO));
+    
+    glBindVertexArray(loadedMeshes[meshID].meshVAO);
+    MeshGeometryLoader::BindMeshGeometry(loadedMeshes[meshID].meshDataPtr->getMeshGeometryID());
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, loadedMeshes[meshID].meshEBO);
+    std::unique_ptr<unsigned int[]> indexData = std::unique_ptr<unsigned int[]>(new unsigned int[loadedMeshes[meshID].meshDataPtr->getIndices()->size() * 3]);
+    for(unsigned int i = 0; i < loadedMeshes[meshID].meshDataPtr->getIndices()->size(); i++) {
+        for(unsigned int j = 0; j < 3; j++) {
+            indexData.get()[i * 3 + j] = (*(loadedMeshes[meshID].meshDataPtr->getIndices()))[i][j];
+        }
+    }
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, loadedMeshes[meshID].meshDataPtr->getIndices()->size() * sizeof(unsigned int), indexData.get(), GL_STATIC_DRAW);
+    
+    unsigned int vertexStride = 3 * sizeof(float);
+    unsigned int normalStride = 3 * sizeof(float);
+    unsigned int textureCoordStride = 2 * sizeof(float);
+    unsigned int stride = vertexStride + normalStride + textureCoordStride;
+    // Vertices
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)(size_t)0);
+    glEnableVertexAttribArray(0);
+    // Normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(size_t)(vertexStride));
+    glEnableVertexAttribArray(1);
+    // Texture Coords
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(size_t)(vertexStride + normalStride));
+    glEnableVertexAttribArray(2);
+    
+    glBindVertexArray(0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void MeshLoader::UnBufferMeshData(const int meshID) {
-    
+    glDeleteVertexArrays(1, &(loadedMeshes[meshID].meshVAO));
+    glDeleteBuffers(1, &(loadedMeshes[meshID].meshEBO));
+    MeshGeometryLoader::RelaxMeshGeometryBuffered(loadedMeshes[meshID].meshDataPtr->getMeshGeometryID());
 }
 
 void MeshLoader::UnloadMesh(const int meshID) {

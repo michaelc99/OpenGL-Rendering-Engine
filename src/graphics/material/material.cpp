@@ -5,6 +5,8 @@ namespace Engine {
 /*
  * Class Material
  */
+Material::Material() {}
+
 Material::Material(const std::string& shaderProgramName) {
     shaderProgramPtr = ShaderLoader::getShaderProgram(shaderProgramName);
 }
@@ -18,6 +20,8 @@ void Material::apply() {
 /*
  * Class TexturedMaterial
  */
+TexturedMaterial::TexturedMaterial() : Material::Material() {}
+
 TexturedMaterial::TexturedMaterial(const std::string& shaderProgramName, const std::vector<Texture> textures, const std::vector<float> textureMixingWeights)
     : Material::Material(shaderProgramName), textures(textures), textureMixingWeights(textureMixingWeights) {}
 
@@ -31,6 +35,8 @@ void TexturedMaterial::apply() {
 /*
  * Class UnTexturedMaterial
  */
+UnTexturedMaterial::UnTexturedMaterial() : Material::Material() {}
+
 UnTexturedMaterial::UnTexturedMaterial(const std::string& shaderProgramName, const std::vector<Math::Vec4f> colors, const std::vector<ColorType> colorTypes)
     : Material::Material(shaderProgramName), colors(colors), colorTypes(colorTypes) {}
 

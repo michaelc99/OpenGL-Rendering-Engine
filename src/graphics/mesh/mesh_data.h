@@ -6,6 +6,8 @@
 #include <vector>
 #include <memory>
 
+#include <glad/glad.h>
+
 namespace Engine {
 
 template<typename T>
@@ -16,6 +18,9 @@ using VectorPtr = std::shared_ptr<std::vector<T>>;
  */
 class MeshData {
     public:
+        /*
+         * 
+         */
         MeshData(const VectorPtr<Math::Vec3ui> indices, const MeshGeometryDataPtr meshGeometryDataPtr, const std::string modelFilePath = "");
         MeshData(const MeshData& meshData);
         ~MeshData();
@@ -27,7 +32,7 @@ class MeshData {
         MeshGeometryDataPtr getMeshGeometryDataPtr() const;
         
         /*
-         * Equivalent to constructing a new MeshData with the same indices and a new meshGeometryDataPtr.
+         * Adds the new geometry data to list of loaded geometry data and uses the new geometry data.
          */
         void setMeshGeometryDataPtr(const MeshGeometryDataPtr meshGeometryDataPtr);
         
@@ -36,6 +41,7 @@ class MeshData {
          */
         MeshGeometryDataPtr copyMeshGeometryData() const;
         
+        int getMeshGeometryID() const { return meshGeometryID; }
         VectorPtr<Math::Vec3ui> getIndices() const { return indices; }
         void setIndices(const VectorPtr<Math::Vec3ui>& indices) { this->indices = indices; }
     private:

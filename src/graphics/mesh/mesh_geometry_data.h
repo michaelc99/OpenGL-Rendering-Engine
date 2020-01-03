@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 
+#include <glad/glad.h>
+
 namespace Engine {
 
 template<typename T>
@@ -63,8 +65,7 @@ class MeshGeometryLoader {
         static int LoadMeshFromMeshGeometryData(const MeshGeometryDataPtr meshGeometryDataPtr, const std::string modelFilePath = "");
         
         /*
-         * Increments using count for loaded mesh geometry with index meshGeometryID from list of loaded mesh geometries
-         * and ensures it is buffered with OpenGL.
+         * Increments using count for loaded mesh geometry with index meshGeometryID from list of loaded mesh geometries.
          */
         static void UseLoadedMeshGeometry(const int meshGeometryID);
         
@@ -72,6 +73,17 @@ class MeshGeometryLoader {
          * Decrements using count for mesh geometry with index meshGeometryID from list of loaded mesh geometries.
          */
         static void ReleaseLoadedMeshGeometry(const int meshGeometryID);
+        
+        /*
+         * Increments using buffered count for loaded mesh geometry with index meshGeometryID from list of loaded mesh
+         * geometries and ensures it is buffered with OpenGL.
+         */
+        static void RequireMeshGeometryBuffered(const int meshGeometryID);
+        
+        /*
+         * Decrements using buffered count for mesh geometry with index meshGeometryID from list of loaded mesh geometries.
+         */
+        static void RelaxMeshGeometryBuffered(const int meshGeometryID);
         
         /*
          * Returns a deep copy of the loaded mesh geometry data with index meshGeometryID from list of loaded mesh
@@ -100,6 +112,7 @@ class MeshGeometryLoader {
             MeshGeometryDataPtr meshGeometryDataPtr;
             unsigned int meshVBO;
             unsigned int usingCount = 0;
+            unsigned int usingBufferedCount = 0;
         };
         // CHANGE TO SINGLETON PATTERN TO ALLOW RESEARTING OF ENGINE!!!!!!!!!!!!
         static std::vector<MeshGeometryInfo> loadedMeshGeometries;

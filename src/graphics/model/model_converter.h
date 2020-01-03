@@ -9,23 +9,22 @@ namespace Utility {
 
 class ModelConverter {
     public:
-        Engine::ModelDataPtr createModelFromCollada(const std::string& savingFilePath, const std::string& colladaFilePath);
+        /*
+         * 
+         */
+        Engine::ModelDataPtr createModelDataFromCollada(const std::string& savingFilePath, const std::string& colladaFilePath);
     private:
-        std::shared_ptr<Engine::ModelData> createModelFromCollada(XmlNodePtr xmlMesh);
+        /*
+         * Assumes mesh geometry in Collada file has positions, normals, and a mesh map.
+         */
+        Engine::MeshGeometryDataPtr createMeshGeometryDataFromCollada(const XmlNodePtr xmlMesh);
         
         /*
-         * Assumes that geometric information is formatted as triangles in Collada file.
+         * Assumes that mesh indices in Collada file are formatted to form triangles.
          */
-        Engine::MeshData createMeshDataFromTriangles(XmlNodePtr xmlPositions, XmlNodePtr xmlNormals, XmlNodePtr xmlIndices, XmlNodePtr triangles);
+        Engine::MeshDataPtr createMeshDataFromTriangles(const Engine::MeshGeometryDataPtr meshGeometryDataPtr, const XmlNodePtr xmlTriangles);
         
         XmlParser xmlParser;
-        std::vector<Engine::ModelData> modelDataList;
-        /*
-        std::string elementType;
-        std::string elementID;
-        int count;
-        std::string data;
-         */
 };
 
 }

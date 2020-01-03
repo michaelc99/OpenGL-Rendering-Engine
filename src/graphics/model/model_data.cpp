@@ -5,8 +5,6 @@ namespace Engine {
 /*
  * Class ModelData
  */
-ModelData::ModelData() {}
-
 ModelData::ModelData(std::vector<Mesh> meshes) : meshes(meshes) {}
 
 ModelData::ModelData(const ModelData& modelData) : meshes(modelData.meshes) {}
@@ -14,9 +12,9 @@ ModelData::ModelData(const ModelData& modelData) : meshes(modelData.meshes) {}
 /*
  * Class ModelLoader
  */
-void ModelLoader::PreLoadModels(const std::vector<std::string>& modelFilePaths) {
-    
-}
+//void ModelLoader::PreLoadModels(const std::vector<std::string>& modelFilePaths) {
+//    
+//}
 
 void ModelLoader::UnloadUnusedModels() {
     for(unsigned int i = 0; i < loadedModels.size(); i++) {
@@ -34,17 +32,17 @@ ModelDataPtr ModelLoader::GetModelDataPtr(const int modelID) {
     return loadedModels[modelID].modelDataPtr;
 }
 
-int ModelLoader::LoadModelFromFile(const std::string filePath) {
-    
-}
-
-int ModelLoader::LoadModelFromModelData(const ModelDataPtr modelDataPtr) {
-    
-}
-
-void ModelLoader::SaveModelFromModelData(const std::string& filePath, const ModelDataPtr modelDataPtr) {
-    
-}
+//int ModelLoader::LoadModelFromFile(const std::string filePath) {
+//    
+//}
+//
+//int ModelLoader::LoadModelFromModelData(const ModelDataPtr modelDataPtr) {
+//    
+//}
+//
+//void ModelLoader::SaveModelFromModelData(const std::string& filePath, const ModelDataPtr modelDataPtr) {
+//    
+//}
 
 void ModelLoader::UseLoadedModel(const int modelID) {
 #ifdef _DEBUG
