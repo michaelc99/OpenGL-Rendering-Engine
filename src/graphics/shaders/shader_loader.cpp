@@ -152,11 +152,13 @@ void ShaderProgram::use() const {
 /*
  * Class ShaderLoader
  */
+std::vector<ShaderProgramPtr> ShaderLoader::loadedShaderPrograms = std::vector<ShaderProgramPtr>();
+
 void ShaderLoader::LoadShaderPrograms(const std::vector<ShaderFiles>& shaderFiles) {
 #ifdef _DEBUG
     assert(shaderFiles.size() > 0);
 #endif
-    for(int i = 0; i < shaderFiles.size(); i++) {
+    for(unsigned int i = 0; i < shaderFiles.size(); i++) {
         std::vector<GLenum> types;
         std::vector<std::string> filePaths;
 #ifdef _DEBUG
@@ -179,7 +181,7 @@ void ShaderLoader::LoadShaderPrograms(const std::vector<ShaderFiles>& shaderFile
 
 ShaderProgramPtr ShaderLoader::getShaderProgram(const std::string& shaderProgramName) {
     int index = -1;
-    for(int i = 0; i < loadedShaderPrograms.size(); i++) {
+    for(unsigned int i = 0; i < loadedShaderPrograms.size(); i++) {
         if(shaderProgramName == loadedShaderPrograms[i]->getShaderProgramName()) {
             index = i;
             break;

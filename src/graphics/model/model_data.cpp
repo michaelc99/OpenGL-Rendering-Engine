@@ -12,6 +12,8 @@ ModelData::ModelData(const ModelData& modelData) : meshes(modelData.meshes) {}
 /*
  * Class ModelLoader
  */
+std::vector<ModelLoader::ModelInfo> ModelLoader::loadedModels = std::vector<ModelLoader::ModelInfo>();
+
 //void ModelLoader::PreLoadModels(const std::vector<std::string>& modelFilePaths) {
 //    
 //}
@@ -35,11 +37,18 @@ ModelDataPtr ModelLoader::GetModelDataPtr(const int modelID) {
 //int ModelLoader::LoadModelFromFile(const std::string filePath) {
 //    
 //}
-//
-//int ModelLoader::LoadModelFromModelData(const ModelDataPtr modelDataPtr) {
-//    
-//}
-//
+
+int ModelLoader::LoadModelFromModelData(const ModelDataPtr modelDataPtr) {
+    ModelInfo modelInfo;
+    modelInfo.modelFilePath = "";
+    modelInfo.modelDataPtr = modelDataPtr;
+    modelInfo.usingCount = 0;
+    loadedModels.push_back(modelInfo);
+    
+    int modelID = loadedModels.size() - 1;
+    return modelID;
+}
+
 //void ModelLoader::SaveModelFromModelData(const std::string& filePath, const ModelDataPtr modelDataPtr) {
 //    
 //}

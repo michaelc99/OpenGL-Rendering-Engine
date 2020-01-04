@@ -24,7 +24,7 @@ Texture::~Texture() {
     TextureLoader::ReleaseLoadedTexture(this->textureID);
 }
 
-void Texture::apply() const {
+void Texture::bind() const {
     TextureLoader::BindTexture(this->textureID);
 }
 

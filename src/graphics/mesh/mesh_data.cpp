@@ -7,6 +7,7 @@ namespace Engine {
  */
 MeshData::MeshData(const VectorPtr<Math::Vec3ui> indices, const MeshGeometryDataPtr meshGeometryDataPtr, const std::string modelFilePath) {
     this->meshGeometryID = MeshGeometryLoader::LoadMeshFromMeshGeometryData(meshGeometryDataPtr, modelFilePath);
+    MeshGeometryLoader::UseLoadedMeshGeometry(this->meshGeometryID);
     this->indices = indices;
 }
 
@@ -16,6 +17,7 @@ MeshData::MeshData(const MeshData& meshData) {
     for(unsigned int i = 0; i < meshData.indices->size(); i++) {
         (*(this->indices))[i] = (*(meshData.indices))[i];
     }
+    MeshGeometryLoader::UseLoadedMeshGeometry(this->meshGeometryID);
 }
 
 MeshData::~MeshData() {
@@ -38,6 +40,8 @@ MeshGeometryDataPtr MeshData::copyMeshGeometryData() const {
 /*
  * Class MeshLoader
  */
+std::vector<MeshLoader::MeshInfo> MeshLoader::loadedMeshes = std::vector<MeshLoader::MeshInfo>();
+
 void MeshLoader::UnloadUnusedMeshes() {
     for(unsigned int i = 0; i < loadedMeshes.size(); i++) {
         if(loadedMeshes[i].usingCount == 0) {
@@ -112,19 +116,20 @@ void MeshLoader::BufferMeshData(const int meshID) {
     MeshGeometryLoader::RequireMeshGeometryBuffered(loadedMeshes[meshID].meshDataPtr->getMeshGeometryID());
     
     glGenVertexArrays(1, &(loadedMeshes[meshID].meshVAO));
-    glGenBuffers(1, &(loadedMeshes[meshID].meshEBO));
-    
     glBindVertexArray(loadedMeshes[meshID].meshVAO);
     MeshGeometryLoader::BindMeshGeometry(loadedMeshes[meshID].meshDataPtr->getMeshGeometryID());
     
+    glGenBuffers(1, &(loadedMeshes[meshID].meshEBO));
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, loadedMeshes[meshID].meshEBO);
-    std::unique_ptr<unsigned int[]> indexData = std::unique_ptr<unsigned int[]>(new unsigned int[loadedMeshes[meshID].meshDataPtr->getIndices()->size() * 3]);
+    unsigned int indexStride = 3;
+    unsigned int totalNumValues = loadedMeshes[meshID].meshDataPtr->getIndices()->size() * indexStride;
+    std::unique_ptr<unsigned int[]> indexData = std::unique_ptr<unsigned int[]>(new unsigned int[totalNumValues]);
     for(unsigned int i = 0; i < loadedMeshes[meshID].meshDataPtr->getIndices()->size(); i++) {
-        for(unsigned int j = 0; j < 3; j++) {
-            indexData.get()[i * 3 + j] = (*(loadedMeshes[meshID].meshDataPtr->getIndices()))[i][j];
+        for(unsigned int j = 0; j < indexStride; j++) {
+            indexData.get()[i * indexStride + j] = (*(loadedMeshes[meshID].meshDataPtr->getIndices()))[i][j];
         }
     }
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, loadedMeshes[meshID].meshDataPtr->getIndices()->size() * sizeof(unsigned int), indexData.get(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, totalNumValues * sizeof(unsigned int), indexData.get(), GL_STATIC_DRAW);
     
     unsigned int vertexStride = 3 * sizeof(float);
     unsigned int normalStride = 3 * sizeof(float);

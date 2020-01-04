@@ -2,7 +2,9 @@
 
 namespace Utility {
 
-Engine::ModelDataPtr ModelConverter::createModelDataFromCollada(const std::string& savingFilePath, const std::string& colladaFilePath) {
+ModelConverter::ModelConverter() {}
+
+Engine::ModelDataPtr ModelConverter::createModelDataFromCollada(const std::string& colladaFilePath) {
     xmlParser = XmlParser(colladaFilePath);
     XmlNodePtr library_geometries = xmlParser.getTopNode()->getChild("library_geometries");
     XmlNodePtr library_effects = xmlParser.getTopNode()->getChild("library_effects");
@@ -94,7 +96,7 @@ Engine::MeshDataPtr ModelConverter::createMeshDataFromTriangles(const Engine::Me
     // Indices
     Engine::VectorPtr<Engine::Math::Vec3ui> indices = std::make_shared<std::vector<Engine::Math::Vec3ui>>();
     std::stringstream indexValueDataStream = xmlTriangles->getChild("p")->getDataAsStringStream();
-    unsigned int numIndices = std::stoi(xmlTriangles->getAttributeValue("count")) / 3;
+    unsigned int numIndices = std::stoi(xmlTriangles->getAttributeValue("count")) * 3;
     for(unsigned int i = 0; i < numIndices; i++) {
         Engine::Math::Vec3ui index;
         for(int j = 0; j < 3; j++) {

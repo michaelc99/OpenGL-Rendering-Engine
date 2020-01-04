@@ -5,6 +5,7 @@
 #include <math/vector.h>
 #include <graphics/texture/texture.h>
 #include <vector>
+#include <cassert>
 
 namespace Engine {
 
@@ -14,7 +15,7 @@ class Material {
         Material(const std::string& shaderProgramName);
         Material(const ShaderProgramPtr shaderProgramPtr);
         
-        void apply();
+        void apply() const;
         
         ShaderProgramPtr getShaderProgramPtr() const { return shaderProgramPtr; }
         void setShaderProgramPtr(const ShaderProgramPtr shaderProgramPtr) { this->shaderProgramPtr = shaderProgramPtr; }
@@ -28,7 +29,7 @@ class TexturedMaterial : public Material {
         TexturedMaterial(const std::string& shaderProgramName, const std::vector<Texture> textures, const std::vector<float> textureMixingWeights);
         TexturedMaterial(const ShaderProgramPtr shaderProgramPtr, const std::vector<Texture> textures, const std::vector<float> textureMixingWeights);
         
-        void apply();
+        void apply() const;
         
         std::vector<Texture> getTextures() const { return textures; }
         void setTextures(const std::vector<Texture> textures) { this->textures = textures; }
@@ -50,7 +51,7 @@ class UnTexturedMaterial : public Material {
         UnTexturedMaterial(const std::string& shaderProgramName, const std::vector<Math::Vec4f> colors, const std::vector<ColorType> colorTypes);
         UnTexturedMaterial(const ShaderProgramPtr shaderProgramPtr, const std::vector<Math::Vec4f> colors, const std::vector<ColorType> colorTypes);
         
-        void apply();
+        void apply() const;
         
         std::vector<Math::Vec4f> getColors() const { return colors; }
         void setColors(const std::vector<Math::Vec4f> colors) { this->colors = colors; }

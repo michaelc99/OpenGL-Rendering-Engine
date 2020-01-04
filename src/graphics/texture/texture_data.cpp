@@ -20,6 +20,8 @@ TextureData::TextureData(const TextureData& textureData)
 /*
  * Class TextureLoader
  */
+std::vector<TextureLoader::TextureInfo> TextureLoader::loadedTextures = std::vector<TextureLoader::TextureInfo>();
+
 void TextureLoader::PreLoadTextures(const std::vector<std::string>& textureFilePaths) {
     for(unsigned int i = 0; i < textureFilePaths.size(); i++) {
         LoadTextureFromFile(textureFilePaths[i]);
@@ -130,27 +132,27 @@ TextureDataPtr TextureLoader::CopyTextureDataFromLoaded(const int textureID) {
 #endif
     return std::make_shared<TextureData>(*(loadedTextures[textureID].textureDataPtr));
     
-    /*unsigned int pixelBufferID;
-    glGenBuffers(1, &pixelBufferID);
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferID);
-    glBindTexture(GL_TEXTURE_2D, loadedTextures[textureID].textureName);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    
-    int dataSize;
-    int expectedSize = loadedTextures[textureID].width * loadedTextures[textureID].height * 3;
-    glGetBufferParameteri64v(GL_PIXEL_PACK_BUFFER, GL_BUFFER_SIZE, &dataSize);
-    if(dataSize != expectedSize) {
-        throw TextureException("ERROR: Texture buffer data size of " + std::to_string(dataSize)
-            + " bytes, expected " + std::to_string(expectedSize) + " bytes.");
-    }
-    
-    unsigned char* bufferPtr = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-    std::shared_ptr<unsigned char> data = std::shared_ptr<unsigned char>(new unsigned char[dataSize]);
-    memcpy(data.get(), bufferPtr, dataSize);
-    textureDataPtr = std::make_shared<TextureData>(loadedTextures[textureID].width, loadedTextures[textureID].height, data);
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-    return;*/
+//    unsigned int pixelBufferID;
+//    glGenBuffers(1, &pixelBufferID);
+//    glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBufferID);
+//    glBindTexture(GL_TEXTURE_2D, loadedTextures[textureID].textureName);
+//    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+//    glBindTexture(GL_TEXTURE_2D, 0);
+//    
+//    int dataSize;
+//    int expectedSize = loadedTextures[textureID].width * loadedTextures[textureID].height * 3;
+//    glGetBufferParameteri64v(GL_PIXEL_PACK_BUFFER, GL_BUFFER_SIZE, &dataSize);
+//    if(dataSize != expectedSize) {
+//        throw TextureException("ERROR: Texture buffer data size of " + std::to_string(dataSize)
+//            + " bytes, expected " + std::to_string(expectedSize) + " bytes.");
+//    }
+//    
+//    unsigned char* bufferPtr = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+//    std::shared_ptr<unsigned char> data = std::shared_ptr<unsigned char>(new unsigned char[dataSize]);
+//    memcpy(data.get(), bufferPtr, dataSize);
+//    textureDataPtr = std::make_shared<TextureData>(loadedTextures[textureID].width, loadedTextures[textureID].height, data);
+//    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+//    return;
 }
 
 void TextureLoader::BufferTextureData(const int textureID) {

@@ -3,9 +3,8 @@
 #include <chrono>
 
 #include <exceptions/render_exception.h>
-#include <graphics/shaders/shaders.h>
-#include <math/linear_math.h>
 #include <fileio/image_reader.h>
+#include <graphics/model/model_converter.h>
 
 #include <glad/glad.h> // Must include before GLFW
 #include <GLFW/glfw3.h>
@@ -101,114 +100,24 @@ int main(void) {
         std::cout << "Context OpenGL version " << majorVer << "." << minorVer << std::endl;*/
         ////////////////////
         
-        // Shader loading
-        std::shared_ptr<Engine::ShaderProgram> shaderProgram;
-        ADD_ERROR_INFO(
-                shaderProgram = std::shared_ptr<Engine::ShaderProgram>(new Engine::ShaderProgram({GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, {"basic_vertex_shader.vs.glsl", "basic_fragment_shader.fs.glsl"}, "shader_test"))
-        );
+        // Setup
+        Utility::ModelConverter modelConverter;
+        Engine::Model model = Engine::Model(modelConverter.createModelDataFromCollada("test.dae"));
+//        for(unsigned int i = 0; i < model.getModelDataPtr()->getMeshes()[0].getMeshDataPtr()->getIndices()->size(); i++) {
+//            unsigned int vertexIndex = (*(model.getModelDataPtr()->getMeshes()[0].getMeshDataPtr()->getIndices()))[i][0];
+//            std::cout << "index:" << (*(model.getModelDataPtr()->getMeshes()[0].getMeshDataPtr()->getIndices()))[i] << "vertex:"
+//                    << (*(model.getModelDataPtr()->getMeshes()[0].getMeshDataPtr()->getMeshGeometryDataPtr()->getVertices()))[vertexIndex] << std::endl;
+//        }
         
-        unsigned int VAO;
-        glGenVertexArrays(1, &VAO);
-        
-        unsigned int VBO;
-        glGenBuffers(1, &VBO);
-        
-        unsigned int EBO;
-        glGenBuffers(1, &EBO);
-        
-        int imgWidth = 0;
-        int imgHeight = 0;
-        int imgNumChannels = 0;
-        unsigned char* data;
-        
-        stbi_set_flip_vertically_on_load(true);
-        data = stbi_load("container.jpg", &imgWidth, &imgHeight, &imgNumChannels, 0);
-        if(!data) {
-            stbi_image_free(data);
-            throw Engine::RenderException("bad image");
-        }
-        unsigned int texture0;
-        glGenTextures(1, &texture0);
-        // Texture0
-        glBindTexture(GL_TEXTURE_2D, texture0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        stbi_image_free(data);
-        
-        data = stbi_load("awesomeface.png", &imgWidth, &imgHeight, &imgNumChannels, 0);
-        if(!data) {
-            stbi_image_free(data);
-            throw Engine::RenderException("bad image");
-        }
-        unsigned int texture1;
-        glGenTextures(1, &texture1);
-        // Texture0
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        stbi_image_free(data);
-        
-        //////////////////////// Create VAOs /////
-        // Vertices of triangle
-        float vertices[] = {
-            -0.5, -0.5, -9.0f,
-            -0.5f, 0.5f, -10.0f,
-            0.5f, 0.5f, -10.0f,
-            0.5f, -0.5f, -9.0f
-        };
-        float colors[] = {
-            1.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f
-        };
-        float textureCoords[] = {
-            0.0f, 0.0f,
-            0.0f, 1.0f,
-            1.0f, 1.0f,
-            1.0f, 0.0f
-        };
-        float modelData[12 + 12 + 8];
-        for(int i = 0; i < 12; i++) {
-            modelData[i] = vertices[i];
-        }
-        for(int i = 0; i < 12; i++) {
-            modelData[12 + i] = colors[i];
-        }
-        for(int i = 0; i < 8; i++) {
-            modelData[12 + 12 + i] = textureCoords[i];
-        }
-        unsigned int indices[] = {
-            0, 1, 2, 0, 2, 3
-        };
-        
-        // FIRST VAO
-        glBindVertexArray(VAO);
-        // VBO Load vertices of shape into GPU memory
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(modelData), modelData, GL_STATIC_DRAW);
-        // EBO Load indices of shape into GPU memory
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-        // VertexAttribPointers Setup shader plumbing for vertices
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        // For colors
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(4 * 3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        // For texture coords
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)(2 * 4 * 3 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glBindVertexArray(0);
-        /////////////////////////////////////////
+        Engine::ShaderFiles files = {"myShader", "basic_vertex_shader.vs.glsl", "", "basic_fragment_shader.fs.glsl"};
+        Engine::ShaderLoader::LoadShaderPrograms({files});
+        std::vector<Engine::Mesh> meshes = model.getModelDataPtr()->getMeshes();
+        Engine::TexturedMaterial texturedMaterial  = meshes[0].getTexturedMaterial();
+        texturedMaterial.setShaderProgramPtr(Engine::ShaderLoader::getShaderProgram("myShader"));
+        texturedMaterial.setTextures({Engine::Texture("awesomeface.png", Engine::TextureType::TEXTURE_DIFFUSE)});
+        texturedMaterial.setTextureMixingWeights({1.0f});
+        meshes[0].setTexturedMaterial(texturedMaterial);
+        model.getModelDataPtr()->setMeshes(meshes);
         
         // Set minimum of 1 frame time between swapping buffer
         glfwSwapInterval(1);
@@ -217,76 +126,15 @@ int main(void) {
             glfwPollEvents();
             
             // Render to back buffer
-            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             
             // DRAWING
-            ADD_ERROR_INFO(shaderProgram->use());
-            float time = ((int)(100.0f * glfwGetTime()) % 100) / 100.0f;
+            //float time = ((int)(100.0f * glfwGetTime()) % 100) / 100.0f;
+            model.render();
             
-            ///////////////////////////
-            ADD_ERROR_INFO(shaderProgram->setUniformFloat("mixVal", mixVal));
-            ADD_ERROR_INFO(shaderProgram->setUniformInt("texture0", 0));
-            ADD_ERROR_INFO(shaderProgram->setUniformInt("texture1", 1));
-            
-            Engine::Math::Mat4f myMatrix0(Engine::Math::createTranslationMat(
-                    Engine::Math::createVec3<float>(0.0f, 0.0f, 9.5f)
-            ));
-            Engine::Math::Mat4f myMatrix1(Engine::Math::createRotationMat(
-                    Engine::Math::createVec3<float>(0.0f, 1.0f, 1.0f), Engine::Math::toRadians(360.0f * time)
-            ));
-            Engine::Math::Mat4f myMatrix2(Engine::Math::createTranslationMat(
-                    Engine::Math::createVec3<float>(0.0f, 0.0f, -9.5f)
-            ));
-            Engine::Math::Mat4f myMatrix3(Engine::Math::createTranslationMat(
-                    Engine::Math::createVec3<float>(-0.5f, 0.0f, 0.0f)
-            ));
-            ADD_ERROR_INFO(shaderProgram->setUniformFloatMat("transform", myMatrix3 * myMatrix2 * myMatrix1 * myMatrix0));
-            Engine::Math::Mat4f perspectiveMat = Engine::Math::createPerspectiveProjectionMat(Engine::Math::toRadians(45.0f), (float)myFrameWidth / (float)myFrameHeight, 1.0f, 100.0f);
-            ADD_ERROR_INFO(shaderProgram->setUniformFloatMat("projectionMatrix", perspectiveMat));
-            
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture0);
-            glActiveTexture(GL_TEXTURE0 + 1);
-            glBindTexture(GL_TEXTURE_2D, texture1);
-            
-            glBindVertexArray(VAO);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            ////////////////////////////
-            /*ADD_ERROR_INFO(shaderProgram->setUniformFloat("mixVal", mixVal));
-            ADD_ERROR_INFO(shaderProgram->setUniformInt("texture0", 0));
-            ADD_ERROR_INFO(shaderProgram->setUniformInt("texture1", 1));
-            
-            myMatrix0 = (Engine::Math::createTranslationMat(
-                    Engine::Math::createVec3<float>(0.0f, 0.0f, 9.5f)
-            ));
-            myMatrix1 = (Engine::Math::createRotationMat(
-                    Engine::Math::createVec3<float>(1.0f, 1.0f, 0.0f), Engine::Math::toRadians(-360.0f * time)
-            ));
-            myMatrix2 = (Engine::Math::createTranslationMat(
-                    Engine::Math::createVec3<float>(0.0f, 0.0f, -9.5f)
-            ));
-            myMatrix3 = (Engine::Math::createTranslationMat(
-                    Engine::Math::createVec3<float>(0.5f, 0.0f, 0.0f)
-            ));
-            ADD_ERROR_INFO(shaderProgram->setUniformFloatMat("transform", myMatrix3 * myMatrix2 * myMatrix1 * myMatrix0));
-            
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture0);
-            glActiveTexture(GL_TEXTURE0 + 1);
-            glBindTexture(GL_TEXTURE_2D, texture1);
-            
-            glBindVertexArray(VAO);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            */
             glfwSwapBuffers(window);
         }
-        
-        glDeleteBuffers(1, &VBO);
-        glDeleteBuffers(1, &EBO);
-        glDeleteBuffers(1, &VAO);
         
         glfwDestroyWindow(window);
         

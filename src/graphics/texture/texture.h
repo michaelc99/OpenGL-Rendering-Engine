@@ -22,7 +22,7 @@ class Texture {
         /*
          * Binds the texture for use.
          */
-        void apply() const;
+        void bind() const;
         
         /*
          * Returns a TextureDataPtr to a shallow copy of the texture's data in the list of (shared) loaded textures.

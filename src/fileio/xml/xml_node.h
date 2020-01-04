@@ -34,10 +34,16 @@ class XmlNode {
         XmlNodePtr getChild(const std::string& name, unsigned int& index, const unsigned int startIndex) const;
         
         /*
+         * Returns pointer to the first child with a name that matches name.
+         * Throws XmlFormatException if child is not found.
+         */
+        XmlNodePtr getChild(const std::string& name) const;
+        
+        /*
          * Returns pointer to the first child with name and attribute signature that matches key.
          * Throws XmlFormatException if child is not found.
          */
-        XmlNodePtr getChild(const std::string& key) const;
+        XmlNodePtr getChildByKey(const std::string& key) const;
         
         /*
          * Returns pointer to the child at index in vector of children.

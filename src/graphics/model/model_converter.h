@@ -9,10 +9,12 @@ namespace Utility {
 
 class ModelConverter {
     public:
+        ModelConverter();
+        
         /*
          * 
          */
-        Engine::ModelDataPtr createModelDataFromCollada(const std::string& savingFilePath, const std::string& colladaFilePath);
+        Engine::ModelDataPtr createModelDataFromCollada(const std::string& colladaFilePath);
     private:
         /*
          * Assumes mesh geometry in Collada file has positions, normals, and a mesh map.

@@ -23,7 +23,12 @@ XmlNodePtr XmlNode::getChild(const std::string& name, unsigned int& index, const
     throw XmlFormatException("ERROR: Failed to find desired child node \"" + name + "\" of parent node \"" + this->name + "\" starting at index " + std::to_string(startIndex) + ".");
 }
 
-XmlNodePtr XmlNode::getChild(const std::string& key) const {
+XmlNodePtr XmlNode::getChild(const std::string& name) const {
+    unsigned int index;
+    return getChild(name, index, 0);
+}
+
+XmlNodePtr XmlNode::getChildByKey(const std::string& key) const {
     for(unsigned int i = 0; i < childNodes.size(); i++) {
         if(childNodes[i]->getKey() == key) {
             return childNodes[i];
