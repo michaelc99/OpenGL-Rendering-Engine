@@ -1,3 +1,11 @@
+# DETERMINE IF ON WINDOWS
+ifeq ($(OS),Windows_NT)
+	OS_WINDOWS := 1
+else
+# ASSUME USING LINUX WITH GCC IF NOT WINDOWS
+	OS_WINDOWS := 0
+endif
+
 # RELEASE MAKEFILE -D _DEBUG -U _DEBUG
 CXXFLAGS := -std=c++17 -Wall -D _DEBUG
 ifdef GDB
@@ -18,10 +26,10 @@ TEST_EXECUTABLE_FILES := math_tests
 TEST_OUTPUT_DIR := bin/test
 
 ifneq ($(words $(MAIN_SRC_FILES)),$(words $(EXECUTABLE_FILES)))
-$(error ERROR: Core require matching number of executables as files with main() function)
+	$(error ERROR: Core require matching number of executables as files with main() function)
 endif
 ifneq ($(words $(TEST_MAIN_SRC_FILES)),$(words $(TEST_EXECUTABLE_FILES)))
-$(error ERROR: Tests require matching number of executables as files with main() function)
+	$(error ERROR: Tests require matching number of executables as files with main() function)
 endif
 
 # SRC CODE SECTION
@@ -88,52 +96,133 @@ core : $(EXECUTABLE_FILES) $(SHADER_DEPS)
 .PHONY : test
 test : $(TEST_EXECUTABLE_FILES)
 
+ifeq ($(OS_WINDOWS),1) # WINDOWS
 $(SHADER_DEPS) :
 	$(eval SHADER_FILE_WITHOUT_DIR := $(lastword $(subst /, ,$@)).glsl)
+	
 	@if NOT exist $(subst /,\,$(OUTPUT_DIR)) mkdir $(subst /,\,$(OUTPUT_DIR))
 	@copy $(subst /,\,$@.glsl) $(subst /,\,$(OUTPUT_DIR)/$(SHADER_FILE_WITHOUT_DIR))
+else # LINUX
+$(SHADER_DEPS) :
+	$(eval SHADER_FILE_WITHOUT_DIR := $(lastword $(subst /, ,$@)).glsl)
+	
+	@mkdir -p $(subst \,/,$(OUTPUT_DIR))
+	@cp $(subst \,/,$@.glsl) $(subst \,/,$(OUTPUT_DIR)/$(SHADER_FILE_WITHOUT_DIR))
+endif
 
+ifeq ($(OS_WINDOWS),1) # WINDOWS
 $(EXECUTABLE_FILES) : $(OBJ_FILES) $(LIB_OBJ_FILES)
 	$(eval MAIN_OBJ_FILES := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(MAIN_SRC_FILES)))
 	$(eval TARGET_MAIN_OBJ_FILE := $(filter %/$(lastword $(subst /, ,$@)).o,$(MAIN_OBJ_FILES)))
 	$(eval OBJ_FILES_WITHOUT_OTHER_MAINS := $(filter-out $(filter-out $(TARGET_MAIN_OBJ_FILE),$(MAIN_OBJ_FILES)),$^))
 #	$(info recipe for $(OUTPUT_DIR)/$@ with prerequisite $(OBJ_FILES_WITHOUT_OTHER_MAINS))
 	$(eval EXECUTABLE_DIR_WITHOUT_FILENAME := $(subst /,\,$(patsubst %/$(lastword $(subst /, ,$(OUTPUT_DIR)/$@)),%,$(OUTPUT_DIR)/$@)))
+	
 	@if NOT exist $(EXECUTABLE_DIR_WITHOUT_FILENAME) mkdir $(EXECUTABLE_DIR_WITHOUT_FILENAME)
+	
 	g++ $(CXXFLAGS) $(IFLAGS) $(OBJ_FILES_WITHOUT_OTHER_MAINS) -o $(OUTPUT_DIR)/$@ $(LFLAGS)
+else # LINUX
+$(EXECUTABLE_FILES) : $(OBJ_FILES) $(LIB_OBJ_FILES)
+	$(eval MAIN_OBJ_FILES := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(MAIN_SRC_FILES)))
+	$(eval TARGET_MAIN_OBJ_FILE := $(filter %/$(lastword $(subst /, ,$@)).o,$(MAIN_OBJ_FILES)))
+	$(eval OBJ_FILES_WITHOUT_OTHER_MAINS := $(filter-out $(filter-out $(TARGET_MAIN_OBJ_FILE),$(MAIN_OBJ_FILES)),$^))
+#	$(info recipe for $(OUTPUT_DIR)/$@ with prerequisite $(OBJ_FILES_WITHOUT_OTHER_MAINS))
+	$(eval EXECUTABLE_DIR_WITHOUT_FILENAME := $(subst /,\,$(patsubst %/$(lastword $(subst /, ,$(OUTPUT_DIR)/$@)),%,$(OUTPUT_DIR)/$@)))
+	
+	@mkdir -p $(subst \,/,$(EXECUTABLE_DIR_WITHOUT_FILENAME))
+	
+	g++ $(CXXFLAGS) $(IFLAGS) $(OBJ_FILES_WITHOUT_OTHER_MAINS) -o $(OUTPUT_DIR)/$@ $(LFLAGS)
+endif
 
+ifeq ($(OS_WINDOWS),1) # WINDOWS
 $(TEST_EXECUTABLE_FILES) : $(OBJ_FILES) $(LIB_OBJ_FILES) $(TEST_OBJ_FILES)
 	$(eval MAIN_OBJ_FILES := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(MAIN_SRC_FILES)) $(patsubst %.cpp,$(TEST_OBJ_DIR)/%.o,$(TEST_MAIN_SRC_FILES)))
 	$(eval TARGET_MAIN_OBJ_FILE := $(filter %/$(lastword $(subst /, ,$@)).o,$(MAIN_OBJ_FILES)))
 	$(eval OBJ_FILES_WITHOUT_OTHER_MAINS := $(filter-out $(filter-out $(TARGET_MAIN_OBJ_FILE),$(MAIN_OBJ_FILES)),$^))
 #	$(info recipe for $(TEST_OUTPUT_DIR)/$@ with prerequisite $(OBJ_FILES_WITHOUT_OTHER_MAINS))
 	$(eval EXECUTABLE_DIR_WITHOUT_FILENAME := $(subst /,\,$(patsubst %/$(lastword $(subst /, ,$(TEST_OUTPUT_DIR)/$@)),%,$(TEST_OUTPUT_DIR)/$@)))
+	
 	@if NOT exist $(EXECUTABLE_DIR_WITHOUT_FILENAME) mkdir $(EXECUTABLE_DIR_WITHOUT_FILENAME)
+	
 	g++ $(CXXFLAGS) $(IFLAGS) $(OBJ_FILES_WITHOUT_OTHER_MAINS) -o $(TEST_OUTPUT_DIR)/$@ $(LFLAGS)
+else # LINUX
+$(TEST_EXECUTABLE_FILES) : $(OBJ_FILES) $(LIB_OBJ_FILES) $(TEST_OBJ_FILES)
+	$(eval MAIN_OBJ_FILES := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(MAIN_SRC_FILES)) $(patsubst %.cpp,$(TEST_OBJ_DIR)/%.o,$(TEST_MAIN_SRC_FILES)))
+	$(eval TARGET_MAIN_OBJ_FILE := $(filter %/$(lastword $(subst /, ,$@)).o,$(MAIN_OBJ_FILES)))
+	$(eval OBJ_FILES_WITHOUT_OTHER_MAINS := $(filter-out $(filter-out $(TARGET_MAIN_OBJ_FILE),$(MAIN_OBJ_FILES)),$^))
+#	$(info recipe for $(TEST_OUTPUT_DIR)/$@ with prerequisite $(OBJ_FILES_WITHOUT_OTHER_MAINS))
+	$(eval EXECUTABLE_DIR_WITHOUT_FILENAME := $(subst /,\,$(patsubst %/$(lastword $(subst /, ,$(TEST_OUTPUT_DIR)/$@)),%,$(TEST_OUTPUT_DIR)/$@)))
+	
+	@mkdir -p $(subst \,/,$(EXECUTABLE_DIR_WITHOUT_FILENAME))
+	
+	g++ $(CXXFLAGS) $(IFLAGS) $(OBJ_FILES_WITHOUT_OTHER_MAINS) -o $(TEST_OUTPUT_DIR)/$@ $(LFLAGS)
+endif
 
+ifeq ($(OS_WINDOWS),1) # WINDOWS
 $(OBJ_FILES) : $(BUILD_DIR)/%.o : %.cpp $(HEADER_FILES)
 #	$(info recipe for $@ with prerequisite $(filter $(patsubst $(OBJ_DIR)/%.o,$(SRC_DIR)/%,$@).%,$^))
 #	$(info directory without filename: $(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@)))
 	$(eval PRE_REQ_SRC := $(filter-out %.h,$(filter $(patsubst $(OBJ_DIR)/%.o,$(SRC_DIR)/%,$@).%,$^)))
 	$(eval OBJ_DIR_WITHOUT_FILENAME := $(subst /,\,$(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@))))
+	
 	@if NOT exist $(OBJ_DIR_WITHOUT_FILENAME) mkdir $(OBJ_DIR_WITHOUT_FILENAME)
+	
 	g++ -c $(CXXFLAGS) $(IFLAGS) $(PRE_REQ_SRC) -o $@ $(LFLAGS)
+else # LINUX
+$(OBJ_FILES) : $(BUILD_DIR)/%.o : %.cpp $(HEADER_FILES)
+#	$(info recipe for $@ with prerequisite $(filter $(patsubst $(OBJ_DIR)/%.o,$(SRC_DIR)/%,$@).%,$^))
+#	$(info directory without filename: $(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@)))
+	$(eval PRE_REQ_SRC := $(filter-out %.h,$(filter $(patsubst $(OBJ_DIR)/%.o,$(SRC_DIR)/%,$@).%,$^)))
+	$(eval OBJ_DIR_WITHOUT_FILENAME := $(subst /,\,$(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@))))
+	
+	@mkdir -p $(subst \,/,$(OBJ_DIR_WITHOUT_FILENAME))
+	
+	g++ -c $(CXXFLAGS) $(IFLAGS) $(PRE_REQ_SRC) -o $@ $(LFLAGS)
+endif
 
+ifeq ($(OS_WINDOWS),1) # WINDOWS
 $(LIB_OBJ_FILES) : $(LIB_SRC_FILES)
 #	$(info recipe for $@ with prerequisite $(filter $(patsubst $(LIB_OBJ_DIR)/%.o,$(LIB_SRC_DIR)/%,$@).%,$^))
 #	$(info directory without filename: $(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@)))
 	$(eval PRE_REQ_SRC := $(filter-out %.h,$(filter $(patsubst $(LIB_OBJ_DIR)/%.o,$(LIB_SRC_DIR)/%,$@).%,$^)))
 	$(eval OBJ_DIR_WITHOUT_FILENAME := $(subst /,\,$(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@))))
+	
 	@if NOT exist $(OBJ_DIR_WITHOUT_FILENAME) mkdir $(OBJ_DIR_WITHOUT_FILENAME)
+	
 	g++ -c $(CXXFLAGS) $(IFLAGS) $(PRE_REQ_SRC) -o $@ $(LFLAGS)
+else # LINUX
+$(LIB_OBJ_FILES) : $(LIB_SRC_FILES)
+#	$(info recipe for $@ with prerequisite $(filter $(patsubst $(LIB_OBJ_DIR)/%.o,$(LIB_SRC_DIR)/%,$@).%,$^))
+#	$(info directory without filename: $(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@)))
+	$(eval PRE_REQ_SRC := $(filter-out %.h,$(filter $(patsubst $(LIB_OBJ_DIR)/%.o,$(LIB_SRC_DIR)/%,$@).%,$^)))
+	$(eval OBJ_DIR_WITHOUT_FILENAME := $(subst /,\,$(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@))))
+	
+	@mkdir -p $(subst \,/,$(OBJ_DIR_WITHOUT_FILENAME))
+	
+	g++ -c $(CXXFLAGS) $(IFLAGS) $(PRE_REQ_SRC) -o $@ $(LFLAGS)
+endif
 
+ifeq ($(OS_WINDOWS),1) # WINDOWS
 $(TEST_OBJ_FILES) : $(BUILD_DIR)/%.o : %.cpp $(TEST_HEADER_FILES) $(HEADER_FILES)
 #	$(info recipe for $@ with prerequisite $(filter $(patsubst $(TEST_OBJ_DIR)/%.o,$(TEST_SRC_DIR)/%,$@).%,$^))
 #	$(info directory without filename: $(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@)))
 	$(eval PRE_REQ_SRC := $(filter-out %.h,$(filter $(patsubst $(TEST_OBJ_DIR)/%.o,$(TEST_SRC_DIR)/%,$@).%,$^)))
 	$(eval OBJ_DIR_WITHOUT_FILENAME := $(subst /,\,$(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@))))
+	
 	@if NOT exist $(OBJ_DIR_WITHOUT_FILENAME) mkdir $(OBJ_DIR_WITHOUT_FILENAME)
+	
 	g++ -c $(CXXFLAGS) $(IFLAGS) $(PRE_REQ_SRC) -o $@ $(LFLAGS)
+else # LINUX
+$(TEST_OBJ_FILES) : $(BUILD_DIR)/%.o : %.cpp $(TEST_HEADER_FILES) $(HEADER_FILES)
+#	$(info recipe for $@ with prerequisite $(filter $(patsubst $(TEST_OBJ_DIR)/%.o,$(TEST_SRC_DIR)/%,$@).%,$^))
+#	$(info directory without filename: $(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@)))
+	$(eval PRE_REQ_SRC := $(filter-out %.h,$(filter $(patsubst $(TEST_OBJ_DIR)/%.o,$(TEST_SRC_DIR)/%,$@).%,$^)))
+	$(eval OBJ_DIR_WITHOUT_FILENAME := $(subst /,\,$(patsubst %/$(lastword $(subst /, ,$(patsubst %.o,%,$@))),%,$(patsubst %.o,%,$@))))
+	
+	@mkdir -p $(subst \,/,$(OBJ_DIR_WITHOUT_FILENAME))
+	
+	g++ -c $(CXXFLAGS) $(IFLAGS) $(PRE_REQ_SRC) -o $@ $(LFLAGS)
+endif
 
 # Regular clean only removes compiled source obj files and excecutables and not compiled library obj files
 EXCECUTABLE_FILES_TO_REMOVE := $(patsubst %,"$(OUTPUT_DIR)/%.exe",$(EXECUTABLE_FILES))
@@ -142,21 +231,34 @@ SHADER_FILES_TO_REMOVE := $(patsubst %,"$(OUTPUT_DIR)/%",$(SHADER_FILES_WITHOUT_
 OBJ_FILES_TO_REMOVE := $(patsubst %,"%",$(OBJ_FILES))
 TEST_OBJ_FILES_TO_REMOVE := $(patsubst %,"%",$(TEST_OBJ_FILES))
 FILES_TO_REMOVE := $(subst /,\,$(EXCECUTABLE_FILES_TO_REMOVE) $(TEST_EXCECUTABLE_FILES_TO_REMOVE) $(SHADER_FILES_TO_REMOVE) $(OBJ_FILES_TO_REMOVE) $(TEST_OBJ_FILES_TO_REMOVE))
+ifeq ($(OS_WINDOWS),1) # WINDOWS
 .PHONY : clean
 clean :
 #	@for %%f in ($(FILES_TO_REMOVE)) do (if exist %%~f (echo found file to be deleted: "%%~f"))
 	@for %%f in ($(FILES_TO_REMOVE)) do (if exist %%~f (del /F %%f))
+else # LINUX
+.PHONY : clean
+clean :
+	@rm -f $(FILES_TO_REMOVE)
+endif
 
 # Super clean removes everything in build and all executables
+ifeq ($(OS_WINDOWS),1) # WINDOWS
 .PHONY : super_clean
 super_clean : clean
 	$(eval EXECUTABLES_IN_BIN := $(wildcard $(OUTPUT_DIR)/*.exe) $(wildcard $(OUTPUT_DIR)/*/*.exe) $(wildcard $(OUTPUT_DIR)/*/*/*.exe) $(wildcard $(OUTPUT_DIR)/*/*/*/*.exe))
 	$(eval TEST_EXECUTABLES_IN_BIN := $(wildcard $(TEST_OUTPUT_DIR)/*.exe) $(wildcard $(TEST_OUTPUT_DIR)/*/*.exe) $(wildcard $(TEST_OUTPUT_DIR)/*/*/*.exe) $(wildcard $(TEST_OUTPUT_DIR)/*/*/*/*.exe))
 	$(eval EXECUTABLES_TO_REMOVE := $(subst /,\,$(EXECUTABLES_IN_BIN) $(TEST_EXECUTABLES_IN_BIN)))
+	
 	@for %%f in ($(EXECUTABLES_TO_REMOVE)) do (del /F %%f)
 	@if exist $(BUILD_DIR) rmdir /S /Q $(BUILD_DIR)
-
-# LINUX (NEEDS WORK)
-#clean :
-#   -rm -f $(OUTPUT_DIR)/$(EXECUTABLE_FILE)
-#   -rm -f $(OBJ_FILES)
+else # LINUX
+.PHONY : super_clean
+super_clean : clean
+	$(eval EXECUTABLES_IN_BIN := $(wildcard $(OUTPUT_DIR)/*.exe) $(wildcard $(OUTPUT_DIR)/*/*.exe) $(wildcard $(OUTPUT_DIR)/*/*/*.exe) $(wildcard $(OUTPUT_DIR)/*/*/*/*.exe))
+	$(eval TEST_EXECUTABLES_IN_BIN := $(wildcard $(TEST_OUTPUT_DIR)/*.exe) $(wildcard $(TEST_OUTPUT_DIR)/*/*.exe) $(wildcard $(TEST_OUTPUT_DIR)/*/*/*.exe) $(wildcard $(TEST_OUTPUT_DIR)/*/*/*/*.exe))
+	$(eval EXECUTABLES_TO_REMOVE := $(subst /,\,$(EXECUTABLES_IN_BIN) $(TEST_EXECUTABLES_IN_BIN)))
+	
+	@for FILE in $(EXECUTABLES_TO_REMOVE); do rm -f $FILE; done
+	@if test -d $(BUILD_DIR); then rm -r -f $(BUILD_DIR); fi
+endif
