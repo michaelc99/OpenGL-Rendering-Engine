@@ -33,7 +33,6 @@ void myMousePosCallback(GLFWwindow* window, double x, double y) {
 }
 
 float mixVal = 0;
-float zVal = 1.0f;
 void myKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     std::cout << key << " key was " << ((action == GLFW_PRESS) ? "pressed" : ((action == GLFW_RELEASE) ? "released" : "repeated")) << std::endl;
     if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
@@ -47,10 +46,16 @@ void myKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mo
     }
     
     if(key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        zVal *= 1.1f;
+        Engine::Mesh::myPos[2] += 2.0f;
     }
     if(key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        zVal /= 1.1f;
+        Engine::Mesh::myPos[2] -= 2.0f;
+    }
+    if(key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        Engine::Mesh::myPos[0] += 2.0f;
+    }
+    if(key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        Engine::Mesh::myPos[0] -= 2.0f;
     }
 }
 
@@ -104,25 +109,25 @@ int main(void) {
         
         // Setup
         Utility::ColladaModelConverter colladaModelConverter;
-        ADD_ERROR_INFO(colladaModelConverter = Utility::ColladaModelConverter("wolf_test.dae"));
+        ADD_ERROR_INFO(colladaModelConverter = Utility::ColladaModelConverter("wolf_no_fur_test.dae"));
         Engine::Model model = Engine::Model(colladaModelConverter.getModelDataPtr());
-        model.getModelDataPtr()->setMeshes({model.getModelDataPtr()->getMeshes()[0], model.getModelDataPtr()->getMeshes()[1]});
-        
-//        Engine::Model tempModel = Engine::Model(colladaModelConverter.getModelDataPtr());
-//        Engine::ModelDataPtr tempModelDataPtr = std::make_shared<Engine::ModelData>(*(tempModel.getModelDataPtr().get()));
-//        std::vector<Engine::Mesh> tempMeshes = {tempModelDataPtr->getMeshes()[0]};
-//        tempModelDataPtr->setMeshes(tempMeshes);
-//        Engine::Model model = Engine::Model(tempModelDataPtr);
         
         Engine::ShaderFiles files = {"myShader", "basic_vertex_shader.vs.glsl", "", "basic_fragment_shader.fs.glsl"};
         Engine::ShaderLoader::LoadShaderPrograms({files});
         std::vector<Engine::Mesh> meshes = model.getModelDataPtr()->getMeshes();
         Engine::TexturedMaterial texturedMaterial;
         texturedMaterial.setShaderProgramPtr(Engine::ShaderLoader::getShaderProgram("myShader"));
-        texturedMaterial.setTextures({Engine::Texture("awesomeface.png", Engine::TextureType::TEXTURE_DIFFUSE)});
-        texturedMaterial.setTextureMixingWeights({1.0f});
-        meshes[0].setTexturedMaterial(texturedMaterial);
-        meshes[1].setTexturedMaterial(texturedMaterial);
+        texturedMaterial.setTextures(
+                {Engine::Texture("Wolf_Body.jpg", Engine::TextureType::TEXTURE_DIFFUSE),
+                Engine::Texture("Wolf_Body.jpg", Engine::TextureType::TEXTURE_DIFFUSE)}
+        );
+        texturedMaterial.setTextureMixingWeights(
+                {1.0f,
+                1.0f}
+        );
+        for(unsigned int i = 0; i < meshes.size(); i++) {
+            meshes[i].setTexturedMaterial(texturedMaterial);
+        }
         model.getModelDataPtr()->setMeshes(meshes);
         
         // Set minimum of 1 frame time between swapping buffer
@@ -131,12 +136,15 @@ int main(void) {
             //std::this_thread::sleep_for(std::chrono::milliseconds(17));
             glfwPollEvents();
             
+            // MOVE THIS
+            glEnable(GL_DEPTH_TEST);
+            
             // Render to back buffer
             glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             // DRAWING
-            Engine::Mesh::myTime = ((int)(100.0f * glfwGetTime()) % 100) / 100.0f;
+            Engine::Mesh::myTime = ((int)(100.0f * glfwGetTime()) % 1000) / 1000.0f;
             model.render();
             
             glfwSwapBuffers(window);

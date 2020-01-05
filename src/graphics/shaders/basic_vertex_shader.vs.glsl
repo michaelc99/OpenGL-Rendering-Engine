@@ -1,18 +1,19 @@
 #version 430 core
 
-layout (location = 0) in vec3 inPos;
-layout (location = 1) in vec3 inColor;
+layout (location = 0) in vec3 inVertex;
+layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inTexCoord;
 
 uniform mat4 transform;
 uniform mat4 projectionMatrix;
 
 out vec3 myColor;
+out vec2 myTexCoord;
 
 void main()
 {
-	vec3 a = inColor;
-	vec2 b = inTexCoord;
-    gl_Position = projectionMatrix * transform * vec4(inPos.x, inPos.y, inPos.z, 1.0f);
+	vec3 a = inNormal;
+	myTexCoord = inTexCoord;
+    gl_Position = projectionMatrix * transform * vec4(inVertex.x, inVertex.y, inVertex.z, 1.0f);
 	myColor = vec3(1.0f, 0.0f, 0.0f);
 }

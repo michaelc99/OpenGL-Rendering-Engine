@@ -14,6 +14,7 @@ class Mesh {
         ~Mesh();
         static float myTime;
         static Math::Vec2f myMousePos;
+        static Math::Vec3f myPos;
         void render() const;
         
         /*

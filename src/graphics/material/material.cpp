@@ -35,12 +35,12 @@ void TexturedMaterial::apply() const {
     assert(textureMixingWeights.size() == textures.size());
 #endif
     getShaderProgramPtr()->use();
-//    getShaderProgramPtr()->setUniformInt("texture0", 0);
-//    getShaderProgramPtr()->setUniformInt("texture1", 1);
-//    for(unsigned int i = 0; i < textures.size(); i++) {
-//        glActiveTexture(GL_TEXTURE0 + i);
-//        textures[i].bind();
-//    }
+    getShaderProgramPtr()->setUniformInt("texture0", 0);
+    getShaderProgramPtr()->setUniformInt("texture1", 1);
+    for(unsigned int i = 0; i < textures.size(); i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        textures[i].bind();
+    }
 }
 
 /*
