@@ -16,18 +16,18 @@ class XmlParser {
     public:
         XmlParser() {}
         XmlParser(std::string filePath);
-        ~XmlParser() { topNode.reset(); }
-        
-        void parseFile(std::string filePath);
         
         XmlNodePtr getTopNode() { return topNode; }
+        std::string getFilePath() const { return filePath; }
+    private:
+        void parseFile(std::string filePath);
         
         /*
          * Constructs a node from the XML file with data or recursively constructs any children nodes.
          * Moves index to just after the closing bracket of the node trailer.
          */
         XmlNodePtr constructNode(std::string& fileString, int& index, XmlNodePtr parentNode = std::make_shared<XmlNode>());
-    private:
+        
         /*
          * Fills in node name and attributes. Returns true if node's parent has no children (ie this node doesn't exist) or node
          * is simple (i.e. opens and closes in the same set of braces) and false otherwise.
@@ -59,6 +59,7 @@ class XmlParser {
          */
         int findCloseBracket(std::string& fileString, const int& index = 0);
         
+        std::string filePath;
         XmlNodePtr topNode;
 };
 

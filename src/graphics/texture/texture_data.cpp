@@ -7,20 +7,23 @@ namespace Engine {
  */
 TextureData::TextureData(const unsigned int width, const unsigned int height, const unsigned int numChannels, const std::shared_ptr<unsigned char[]> dataPtr)
     : width(width), height(height), numChannels(numChannels), dataPtr(dataPtr) {
-    size = width * height * numChannels * bytesPerChannel;
+    this->size = width * height * numChannels * bytesPerChannel;
+    this->dataPtr = dataPtr;
 }
 
 TextureData::TextureData(const TextureData& textureData)
     : width(textureData.width), height(textureData.height), numChannels(textureData.numChannels) {
     this->size = textureData.size;
-    this->dataPtr = std::shared_ptr<unsigned char[]>(new unsigned char[textureData.size]);
-    memcpy(this->dataPtr.get(), textureData.dataPtr.get(), textureData.size);
+    this->dataPtr = std::shared_ptr<unsigned char[]>(new unsigned char[this->size]);
+    memcpy(this->dataPtr.get(), textureData.dataPtr.get(), this->size);
 }
 
 /*
  * Class TextureLoader
  */
-std::vector<TextureLoader::TextureInfo> TextureLoader::loadedTextures = std::vector<TextureLoader::TextureInfo>();
+unsigned int TextureLoader::spareID = 1;
+std::stack<unsigned int> TextureLoader::availableIDStack = std::stack<unsigned int>();
+std::unordered_map<unsigned int, TextureLoader::TextureInfo> TextureLoader::loadedTextures = std::unordered_map<unsigned int, TextureLoader::TextureInfo>();
 
 void TextureLoader::PreLoadTextures(const std::vector<std::string>& textureFilePaths) {
     for(unsigned int i = 0; i < textureFilePaths.size(); i++) {
@@ -29,34 +32,32 @@ void TextureLoader::PreLoadTextures(const std::vector<std::string>& textureFileP
 }
 
 void TextureLoader::UnloadUnusedTextures() {
-    for(unsigned int i = 0; i < loadedTextures.size(); i++) {
-        if(loadedTextures[i].usingCount == 0) {
-            UnloadTexture(i);
+    for(std::unordered_map<unsigned int, TextureInfo>::iterator iter = loadedTextures.begin(); iter != loadedTextures.end(); iter++) {
+        if(iter->second.usingCount == 0) {
+            UnloadTexture(iter->first);
         }
     }
 }
 
-void TextureLoader::BindTexture(const int textureID) {
+void TextureLoader::BindTexture(const unsigned int textureID) {
 #ifdef _DEBUG
-    assert(textureID > -1);
-    assert(textureID < (int)loadedTextures.size());
+    assert(textureID != 0);
 #endif
     glBindTexture(GL_TEXTURE_2D, loadedTextures[textureID].textureName);
 }
 
-TextureDataPtr TextureLoader::GetTextureDataPtr(const int textureID) {
+TextureDataPtr TextureLoader::GetTextureDataPtr(const unsigned int textureID) {
 #ifdef _DEBUG
-    assert(textureID > -1);
-    assert(textureID < (int)loadedTextures.size());
+    assert(textureID != 0);
 #endif
     return loadedTextures[textureID].textureDataPtr;
 }
 
-int TextureLoader::LoadTextureFromFile(const std::string filePath) {
+unsigned int TextureLoader::LoadTextureFromFile(const std::string filePath) {
     // Check if the texture is already buffered
-    for(unsigned int index = 0; index < loadedTextures.size(); index++) {
-        if(loadedTextures[index].filePath == filePath) {
-            return index;
+    for(std::unordered_map<unsigned int, TextureInfo>::iterator iter = loadedTextures.begin(); iter != loadedTextures.end(); iter++) {
+        if(iter->second.filePath == filePath) {
+            return iter->first;
         }
     }
     
@@ -77,32 +78,37 @@ int TextureLoader::LoadTextureFromFile(const std::string filePath) {
     textureInfo.textureDataPtr = textureDataPtr;
     textureInfo.textureName = 0;
     textureInfo.usingCount = 0;
-    loadedTextures.push_back(textureInfo);
-    
-    int textureID = loadedTextures.size() - 1;
+    if(availableIDStack.empty()) {
+        availableIDStack.push(spareID++);
+    }
+    unsigned int textureID = availableIDStack.top();
+    availableIDStack.pop();
+    loadedTextures[textureID] = textureInfo;
     return textureID;
 }
 
-int TextureLoader::LoadTextureFromTextureData(const TextureDataPtr textureDataPtr) {
+unsigned int TextureLoader::LoadTextureFromTextureData(const TextureDataPtr textureDataPtr) {
     TextureInfo textureInfo;
     textureInfo.filePath = "";
-    textureInfo.textureDataPtr = textureDataPtr;
+    textureInfo.textureDataPtr = std::make_shared<TextureData>(*(textureDataPtr.get()));
     textureInfo.textureName = 0;
     textureInfo.usingCount = 0;
-    loadedTextures.push_back(textureInfo);
-    
-    int textureID = loadedTextures.size() - 1;
+    if(availableIDStack.empty()) {
+        availableIDStack.push(spareID++);
+    }
+    unsigned int textureID = availableIDStack.top();
+    availableIDStack.pop();
+    loadedTextures[textureID] = textureInfo;
     return textureID;
 }
 
-void TextureLoader::SaveTextureFromTextureData(const std::string& filePath, const TextureDataPtr textureDataPtr) {
-    
-}
+//void TextureLoader::SaveTextureFromTextureData(const std::string& filePath, const TextureDataPtr textureDataPtr) {
+//    
+//}
 
-void TextureLoader::UseLoadedTexture(const int textureID) {
+void TextureLoader::UseLoadedTexture(const unsigned int textureID) {
 #ifdef _DEBUG
-    assert(textureID > -1);
-    assert(textureID < (int)loadedTextures.size());
+    assert(textureID != 0);
 #endif
     if(loadedTextures[textureID].usingCount == 0) {
         BufferTextureData(textureID);
@@ -110,10 +116,9 @@ void TextureLoader::UseLoadedTexture(const int textureID) {
     loadedTextures[textureID].usingCount++;
 }
 
-void TextureLoader::ReleaseLoadedTexture(const int textureID) {
+void TextureLoader::ReleaseLoadedTexture(const unsigned int textureID) {
 #ifdef _DEBUG
-    assert(textureID > -1);
-    assert(textureID < (int)loadedTextures.size());
+    assert(textureID != 0);
     assert(loadedTextures[textureID].usingCount > 0);
 #endif
     loadedTextures[textureID].usingCount--;
@@ -125,10 +130,9 @@ void TextureLoader::ReleaseLoadedTexture(const int textureID) {
     }
 }
 
-TextureDataPtr TextureLoader::CopyTextureDataFromLoaded(const int textureID) {
+TextureDataPtr TextureLoader::CopyTextureDataFromLoaded(const unsigned int textureID) {
 #ifdef _DEBUG
-    assert(textureID > -1);
-    assert(textureID < (int)loadedTextures.size());
+    assert(textureID != 0);
 #endif
     return std::make_shared<TextureData>(*(loadedTextures[textureID].textureDataPtr));
     
@@ -155,10 +159,9 @@ TextureDataPtr TextureLoader::CopyTextureDataFromLoaded(const int textureID) {
 //    return;
 }
 
-void TextureLoader::BufferTextureData(const int textureID) {
+void TextureLoader::BufferTextureData(const unsigned int textureID) {
 #ifdef _DEBUG
-    assert(textureID > -1);
-    assert(textureID < (int)loadedTextures.size());
+    assert(textureID != 0);
 #endif
     TextureInfo textureInfo = loadedTextures[textureID];
     glGenTextures(1, &loadedTextures[textureID].textureName);
@@ -175,27 +178,24 @@ void TextureLoader::BufferTextureData(const int textureID) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void TextureLoader::UnBufferTextureData(const int textureID) {
+void TextureLoader::UnBufferTextureData(const unsigned int textureID) {
 #ifdef _DEBUG
-    assert(textureID > -1);
-    assert(textureID < (int)loadedTextures.size());
+    assert(textureID != 0);
 #endif
     glDeleteTextures(1, &loadedTextures[textureID].textureName);
 }
 
-void TextureLoader::UnloadTexture(const int textureID) {
+void TextureLoader::UnloadTexture(const unsigned int textureID) {
 #ifdef _DEBUG
-    assert(textureID > -1);
-    assert(textureID < (int)loadedTextures.size());
+    assert(textureID != 0);
     assert(loadedTextures[textureID].usingCount == 0);
 #endif
-    int index = 0;
-    for(std::vector<TextureInfo>::iterator iter = loadedTextures.begin(); iter != loadedTextures.end(); iter++) {
-        if(index == textureID) {
+    for(std::unordered_map<unsigned int, TextureInfo>::iterator iter = loadedTextures.begin(); iter != loadedTextures.end(); iter++) {
+        if(iter->first == textureID) {
+            availableIDStack.push(iter->first);
             loadedTextures.erase(iter);
             break;
         }
-        index++;
     }
 }
 

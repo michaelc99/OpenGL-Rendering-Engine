@@ -5,7 +5,7 @@ namespace Engine {
 /*
  * Class MeshData
  */
-MeshData::MeshData(const VectorPtr<Math::Vec3ui> indices, const MeshGeometryDataPtr meshGeometryDataPtr, const std::string modelFilePath) {
+MeshData::MeshData(const VectorPtr<unsigned int> indices, const MeshGeometryDataPtr meshGeometryDataPtr, const std::string modelFilePath) {
     this->meshGeometryID = MeshGeometryLoader::LoadMeshFromMeshGeometryData(meshGeometryDataPtr, modelFilePath);
     MeshGeometryLoader::UseLoadedMeshGeometry(this->meshGeometryID);
     this->indices = indices;
@@ -13,11 +13,11 @@ MeshData::MeshData(const VectorPtr<Math::Vec3ui> indices, const MeshGeometryData
 
 MeshData::MeshData(const MeshData& meshData) {
     this->meshGeometryID = meshData.meshGeometryID;
-    this->indices = std::make_shared<std::vector<Math::Vec3ui>>();
-    for(unsigned int i = 0; i < meshData.indices->size(); i++) {
-        (*(this->indices))[i] = (*(meshData.indices))[i];
-    }
     MeshGeometryLoader::UseLoadedMeshGeometry(this->meshGeometryID);
+    this->indices = std::make_shared<std::vector<unsigned int>>();
+    for(unsigned int i = 0; i < meshData.indices->size(); i++) {
+        this->indices->push_back((*(meshData.indices))[i]);
+    }
 }
 
 MeshData::~MeshData() {
@@ -40,7 +40,9 @@ MeshGeometryDataPtr MeshData::copyMeshGeometryData() const {
 /*
  * Class MeshLoader
  */
-std::vector<MeshLoader::MeshInfo> MeshLoader::loadedMeshes = std::vector<MeshLoader::MeshInfo>();
+unsigned int MeshLoader::spareID = 1;
+std::stack<unsigned int> MeshLoader::availableIDStack = std::stack<unsigned int>();
+std::unordered_map<unsigned int, MeshLoader::MeshInfo> MeshLoader::loadedMeshes = std::unordered_map<unsigned int, MeshLoader::MeshInfo>();
 
 void MeshLoader::UnloadUnusedMeshes() {
     for(unsigned int i = 0; i < loadedMeshes.size(); i++) {
@@ -50,49 +52,51 @@ void MeshLoader::UnloadUnusedMeshes() {
     }
 }
 
-MeshDataPtr MeshLoader::GetMeshDataPtr(const int meshID) {
+MeshDataPtr MeshLoader::GetMeshDataPtr(const unsigned int meshID) {
 #ifdef _DEBUG
-    assert(meshID > -1);
-    assert(meshID < (int)loadedMeshes.size());
+    assert(meshID != 0 && meshID < spareID);
 #endif
     return loadedMeshes[meshID].meshDataPtr;
 }
 
-void MeshLoader::BindMesh(const int meshID) {
+void MeshLoader::BindMesh(const unsigned int meshID) {
     glBindVertexArray(loadedMeshes[meshID].meshVAO);
 }
 
-int MeshLoader::LoadMeshFromMeshData(const MeshDataPtr meshDataPtr, const std::string modelFilePath) {
+unsigned int MeshLoader::LoadMeshFromMeshData(const MeshDataPtr meshDataPtr, const std::string modelFilePath) {
     MeshInfo meshInfo;
     meshInfo.modelFilePath = modelFilePath;
-    meshInfo.meshDataPtr = meshDataPtr;
+    meshInfo.meshDataPtr = std::make_shared<MeshData>(*(meshDataPtr.get()));
     meshInfo.meshEBO = 0;
     meshInfo.meshVAO = 0;
     meshInfo.usingCount = 0;
-    loadedMeshes.push_back(meshInfo);
-    
-    int meshID = loadedMeshes.size() - 1;
+    if(availableIDStack.empty()) {
+        availableIDStack.push(spareID++);
+    }
+    unsigned int meshID = availableIDStack.top();
+    availableIDStack.pop();
+    loadedMeshes[meshID] = meshInfo;
     return meshID;
 }
 
-void MeshLoader::UseLoadedMesh(const int meshID) {
+void MeshLoader::UseLoadedMesh(const unsigned int meshID) {
 #ifdef _DEBUG
-    assert(meshID > -1);
-    assert(meshID < (int)loadedMeshes.size());
+    assert(meshID != 0 && meshID < spareID);
 #endif
     if(loadedMeshes[meshID].usingCount == 0) {
         BufferMeshData(meshID);
     }
     loadedMeshes[meshID].usingCount++;
+    std::cout << "UseLoadedMesh ID = " << meshID << ", new count = " << loadedMeshes[meshID].usingCount << "\n";
 }
 
-void MeshLoader::ReleaseLoadedMesh(const int meshID) {
+void MeshLoader::ReleaseLoadedMesh(const unsigned int meshID) {
 #ifdef _DEBUG
-    assert(meshID > -1);
-    assert(meshID < (int)loadedMeshes.size());
+    assert(meshID != 0 && meshID < spareID);
     assert(loadedMeshes[meshID].usingCount > 0);
 #endif
     loadedMeshes[meshID].usingCount--;
+    std::cout << "ReleaseLoadedMesh ID = " << meshID << ", new count = " << loadedMeshes[meshID].usingCount << "\n";
     if(loadedMeshes[meshID].usingCount == 0) {
         UnBufferMeshData(meshID);
         if(loadedMeshes[meshID].modelFilePath == "") {
@@ -101,10 +105,9 @@ void MeshLoader::ReleaseLoadedMesh(const int meshID) {
     }
 }
 
-MeshDataPtr MeshLoader::CopyMeshDataFromLoaded(const int meshID) {
+MeshDataPtr MeshLoader::CopyMeshDataFromLoaded(const unsigned int meshID) {
 #ifdef _DEBUG
-    assert(meshID > -1);
-    assert(meshID < (int)loadedMeshes.size());
+    assert(meshID != 0 && meshID < spareID);
 #endif
     MeshGeometryDataPtr meshGeometryDataPtr = loadedMeshes[meshID].meshDataPtr->copyMeshGeometryData();
     MeshDataPtr meshDataPtr = std::make_shared<MeshData>(*(loadedMeshes[meshID].meshDataPtr));
@@ -112,7 +115,7 @@ MeshDataPtr MeshLoader::CopyMeshDataFromLoaded(const int meshID) {
     return meshDataPtr;
 }
 
-void MeshLoader::BufferMeshData(const int meshID) {
+void MeshLoader::BufferMeshData(const unsigned int meshID) {
     MeshGeometryLoader::RequireMeshGeometryBuffered(loadedMeshes[meshID].meshDataPtr->getMeshGeometryID());
     
     glGenVertexArrays(1, &(loadedMeshes[meshID].meshVAO));
@@ -121,13 +124,11 @@ void MeshLoader::BufferMeshData(const int meshID) {
     
     glGenBuffers(1, &(loadedMeshes[meshID].meshEBO));
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, loadedMeshes[meshID].meshEBO);
-    unsigned int indexStride = 3;
+    unsigned int indexStride = 1;
     unsigned int totalNumValues = loadedMeshes[meshID].meshDataPtr->getIndices()->size() * indexStride;
     std::unique_ptr<unsigned int[]> indexData = std::unique_ptr<unsigned int[]>(new unsigned int[totalNumValues]);
     for(unsigned int i = 0; i < loadedMeshes[meshID].meshDataPtr->getIndices()->size(); i++) {
-        for(unsigned int j = 0; j < indexStride; j++) {
-            indexData.get()[i * indexStride + j] = (*(loadedMeshes[meshID].meshDataPtr->getIndices()))[i][j];
-        }
+        indexData.get()[i] = (*(loadedMeshes[meshID].meshDataPtr->getIndices()))[i];
     }
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, totalNumValues * sizeof(unsigned int), indexData.get(), GL_STATIC_DRAW);
     
@@ -150,25 +151,24 @@ void MeshLoader::BufferMeshData(const int meshID) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void MeshLoader::UnBufferMeshData(const int meshID) {
+void MeshLoader::UnBufferMeshData(const unsigned int meshID) {
     glDeleteVertexArrays(1, &(loadedMeshes[meshID].meshVAO));
     glDeleteBuffers(1, &(loadedMeshes[meshID].meshEBO));
+    std::cout << "unbuffering\n";
     MeshGeometryLoader::RelaxMeshGeometryBuffered(loadedMeshes[meshID].meshDataPtr->getMeshGeometryID());
 }
 
-void MeshLoader::UnloadMesh(const int meshID) {
+void MeshLoader::UnloadMesh(const unsigned int meshID) {
 #ifdef _DEBUG
-    assert(meshID > -1);
-    assert(meshID < (int)loadedMeshes.size());
+    assert(meshID != 0 && meshID < spareID);
     assert(loadedMeshes[meshID].usingCount == 0);
 #endif
-    int index = 0;
-    for(std::vector<MeshInfo>::iterator iter = loadedMeshes.begin(); iter != loadedMeshes.end(); iter++) {
-        if(index == meshID) {
+    for(std::unordered_map<unsigned int, MeshInfo>::iterator iter = loadedMeshes.begin(); iter != loadedMeshes.end(); iter++) {
+        if(iter->first == meshID) {
+            availableIDStack.push(iter->first);
             loadedMeshes.erase(iter);
             break;
         }
-        index++;
     }
 }
 

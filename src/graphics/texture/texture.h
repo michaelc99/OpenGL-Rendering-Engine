@@ -39,7 +39,7 @@ class Texture {
         unsigned int getWidth() const { return getTextureDataPtr()->getWidth(); }
         unsigned int getHeight() const { return getTextureDataPtr()->getHeight(); }
     private:
-        int textureID = -1;
+        unsigned int textureID = 0;
         TextureType type;
 };
 

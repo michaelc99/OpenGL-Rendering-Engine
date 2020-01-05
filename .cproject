@@ -37,7 +37,7 @@
                             							
                             <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.mingw.base.1841998997" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
                             							
-                            <builder arguments="-j4 GDB=1" autoBuildTarget="core" command="make" enableAutoBuild="false" id="cdt.managedbuild.builder.gnu.cross.1132894121" incrementalBuildTarget="core" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
+                            <builder arguments="-j8 GDB=1" autoBuildTarget="core" command="make" enableAutoBuild="false" id="cdt.managedbuild.builder.gnu.cross.1132894121" incrementalBuildTarget="core" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
                             							
                             <tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.1025947418" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
                                 								
@@ -119,7 +119,7 @@
                             							
                             <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.mingw.base.1495686783" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
                             							
-                            <builder arguments="-j4 GDB=1" command="make" id="cdt.managedbuild.builder.gnu.cross.951892588" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
+                            <builder arguments="-j8 GDB=1" command="make" id="cdt.managedbuild.builder.gnu.cross.951892588" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
                             							
                             <tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.609602778" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
                                 								
@@ -201,7 +201,7 @@
                             							
                             <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.mingw.base.1842019529" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
                             							
-                            <builder arguments="-j4 GDB=1" autoBuildTarget="test" command="make" enableAutoBuild="false" id="cdt.managedbuild.builder.gnu.cross.1350779466" incrementalBuildTarget="test" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
+                            <builder arguments="-j8 GDB=1" autoBuildTarget="test" command="make" enableAutoBuild="false" id="cdt.managedbuild.builder.gnu.cross.1350779466" incrementalBuildTarget="test" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
                             							
                             <tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.692738116" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
                                 								
@@ -283,7 +283,7 @@
                             							
                             <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.mingw.base.1540601711" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
                             							
-                            <builder arguments="-j4 RELEASE=1" autoBuildTarget="core" command="make" enableAutoBuild="false" id="cdt.managedbuild.builder.gnu.cross.945939480" incrementalBuildTarget="core" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
+                            <builder arguments="-j8 RELEASE=1" autoBuildTarget="core" command="make" enableAutoBuild="false" id="cdt.managedbuild.builder.gnu.cross.945939480" incrementalBuildTarget="core" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
                             							
                             <tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.1887427533" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
                                 								

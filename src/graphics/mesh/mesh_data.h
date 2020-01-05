@@ -5,6 +5,8 @@
 #include <math/vector.h>
 #include <vector>
 #include <memory>
+#include <stack>
+#include <unordered_map>
 
 #include <glad/glad.h>
 
@@ -19,10 +21,18 @@ using VectorPtr = std::shared_ptr<std::vector<T>>;
 class MeshData {
     public:
         /*
-         * 
+         * Shallow copies indices and loads meshGeometryDataPtr using the mesh geometry loader.
          */
-        MeshData(const VectorPtr<Math::Vec3ui> indices, const MeshGeometryDataPtr meshGeometryDataPtr, const std::string modelFilePath = "");
+        MeshData(const VectorPtr<unsigned int> indices, const MeshGeometryDataPtr meshGeometryDataPtr, const std::string modelFilePath = "");
+        
+        /*
+         * Deep copies mesh data into new mesh data.
+         */
         MeshData(const MeshData& meshData);
+        
+        /*
+         * Tells mesh geometry loader that this mesh is not longer using a geometry.
+         */
         ~MeshData();
         
         /*
@@ -41,12 +51,12 @@ class MeshData {
          */
         MeshGeometryDataPtr copyMeshGeometryData() const;
         
-        int getMeshGeometryID() const { return meshGeometryID; }
-        VectorPtr<Math::Vec3ui> getIndices() const { return indices; }
-        void setIndices(const VectorPtr<Math::Vec3ui>& indices) { this->indices = indices; }
+        unsigned int getMeshGeometryID() const { return meshGeometryID; }
+        VectorPtr<unsigned int> getIndices() const { return indices; }
+        void setIndices(const VectorPtr<unsigned int> indices) { this->indices = indices; }
     private:
-        int meshGeometryID;
-        VectorPtr<Math::Vec3ui> indices;
+        unsigned int meshGeometryID = 0;
+        VectorPtr<unsigned int> indices;
 };
 typedef std::shared_ptr<MeshData> MeshDataPtr;
 
@@ -63,49 +73,49 @@ class MeshLoader {
         /*
          * Returns a MeshData pointer to mesh data with index meshID from list of loaded meshes.
          */
-        static MeshDataPtr GetMeshDataPtr(const int meshID);
+        static MeshDataPtr GetMeshDataPtr(const unsigned int meshID);
         
         /*
          * Binds mesh about of be rendered.
          */
-        static void BindMesh(const int meshID);
+        static void BindMesh(const unsigned int meshID);
         
         /*
          * Puts mesh with data given by MeshDataPtr into list of loaded meshes. Returns the index of the mesh from list
          * of loaded meshes.
          */
-        static int LoadMeshFromMeshData(const MeshDataPtr meshDataPtr, const std::string filePath = "");
+        static unsigned int LoadMeshFromMeshData(const MeshDataPtr meshDataPtr, const std::string filePath = "");
         
         /*
          * Increments using count for loaded mesh with index meshID from list of loaded meshes and ensures it is
          * buffered with OpenGL.
          */
-        static void UseLoadedMesh(const int meshID);
+        static void UseLoadedMesh(const unsigned int meshID);
         
         /*
          * Decrements using count for mesh with index meshID from list of loaded meshes.
          */
-        static void ReleaseLoadedMesh(const int meshID);
+        static void ReleaseLoadedMesh(const unsigned int meshID);
         
         /*
          * Returns a deep copy of the loaded mesh data with index meshID from list of loaded meshes.
          */
-        static MeshDataPtr CopyMeshDataFromLoaded(const int meshID);
+        static MeshDataPtr CopyMeshDataFromLoaded(const unsigned int meshID);
     private:
         /*
          * Buffers mesh data to GPU from loaded mesh list with index meshID.
          */
-        static void BufferMeshData(const int meshID);
+        static void BufferMeshData(const unsigned int meshID);
         
         /*
          * Deletes OpenGL buffer of mesh with index meshID from loaded mesh list.
          */
-        static void UnBufferMeshData(const int meshID);
+        static void UnBufferMeshData(const unsigned int meshID);
         
         /*
          * Unloads loaded mesh from system memory. Removes the mesh from list of loaded meshes.
          */
-        static void UnloadMesh(const int meshID);
+        static void UnloadMesh(const unsigned int meshID);
         
         struct MeshInfo {
             std::string modelFilePath;
@@ -115,7 +125,9 @@ class MeshLoader {
             unsigned int usingCount = 0;
         };
         // CHANGE TO SINGLETON PATTERN TO ALLOW RESEARTING OF ENGINE!!!!!!!!!!!!
-        static std::vector<MeshInfo> loadedMeshes;
+        static unsigned int spareID;
+        static std::stack<unsigned int> availableIDStack;
+        static std::unordered_map<unsigned int, MeshInfo> loadedMeshes;
 };
 
 }

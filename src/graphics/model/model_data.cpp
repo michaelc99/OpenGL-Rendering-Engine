@@ -12,40 +12,44 @@ ModelData::ModelData(const ModelData& modelData) : meshes(modelData.meshes) {}
 /*
  * Class ModelLoader
  */
-std::vector<ModelLoader::ModelInfo> ModelLoader::loadedModels = std::vector<ModelLoader::ModelInfo>();
+unsigned int ModelLoader::spareID = 1;
+std::stack<unsigned int> ModelLoader::availableIDStack = std::stack<unsigned int>();
+std::unordered_map<unsigned int, ModelLoader::ModelInfo> ModelLoader::loadedModels = std::unordered_map<unsigned int, ModelLoader::ModelInfo>();
 
 //void ModelLoader::PreLoadModels(const std::vector<std::string>& modelFilePaths) {
 //    
 //}
 
 void ModelLoader::UnloadUnusedModels() {
-    for(unsigned int i = 0; i < loadedModels.size(); i++) {
-        if(loadedModels[i].usingCount == 0) {
-            UnloadModel(i);
+    for(std::unordered_map<unsigned int, ModelInfo>::iterator iter = loadedModels.begin(); iter != loadedModels.end(); iter++) {
+        if(iter->second.usingCount == 0) {
+            UnloadModel(iter->first);
         }
     }
 }
 
-ModelDataPtr ModelLoader::GetModelDataPtr(const int modelID) {
+ModelDataPtr ModelLoader::GetModelDataPtr(const unsigned int modelID) {
 #ifdef _DEBUG
-    assert(modelID > -1);
-    assert(modelID < (int)loadedModels.size());
+    assert(modelID != 0 && modelID < spareID);
 #endif
     return loadedModels[modelID].modelDataPtr;
 }
 
-//int ModelLoader::LoadModelFromFile(const std::string filePath) {
+//unsigned int ModelLoader::LoadModelFromFile(const std::string filePath) {
 //    
 //}
 
-int ModelLoader::LoadModelFromModelData(const ModelDataPtr modelDataPtr) {
+unsigned int ModelLoader::LoadModelFromModelData(const ModelDataPtr modelDataPtr) {
     ModelInfo modelInfo;
     modelInfo.modelFilePath = "";
-    modelInfo.modelDataPtr = modelDataPtr;
+    modelInfo.modelDataPtr = std::make_shared<ModelData>(*(modelDataPtr.get()));
     modelInfo.usingCount = 0;
-    loadedModels.push_back(modelInfo);
-    
-    int modelID = loadedModels.size() - 1;
+    if(availableIDStack.empty()) {
+        availableIDStack.push(spareID++);
+    }
+    unsigned int modelID = availableIDStack.top();
+    availableIDStack.pop();
+    loadedModels[modelID] = modelInfo;
     return modelID;
 }
 
@@ -53,18 +57,16 @@ int ModelLoader::LoadModelFromModelData(const ModelDataPtr modelDataPtr) {
 //    
 //}
 
-void ModelLoader::UseLoadedModel(const int modelID) {
+void ModelLoader::UseLoadedModel(const unsigned int modelID) {
 #ifdef _DEBUG
-    assert(modelID > -1);
-    assert(modelID < (int)loadedModels.size());
+    assert(modelID != 0 && modelID < spareID);
 #endif
     loadedModels[modelID].usingCount++;
 }
 
-void ModelLoader::ReleaseLoadedModel(const int modelID) {
+void ModelLoader::ReleaseLoadedModel(const unsigned int modelID) {
 #ifdef _DEBUG
-    assert(modelID > -1);
-    assert(modelID < (int)loadedModels.size());
+    assert(modelID != 0 && modelID < spareID);
     assert(loadedModels[modelID].usingCount > 0);
 #endif
     loadedModels[modelID].usingCount--;
@@ -75,26 +77,23 @@ void ModelLoader::ReleaseLoadedModel(const int modelID) {
     }
 }
 
-ModelDataPtr ModelLoader::CopyModelDataFromLoaded(const int modelID) {
+ModelDataPtr ModelLoader::CopyModelDataFromLoaded(const unsigned int modelID) {
 #ifdef _DEBUG
-    assert(modelID > -1);
-    assert(modelID < (int)loadedModels.size());
+    assert(modelID != 0 && modelID < spareID);
 #endif
     return std::make_shared<ModelData>(*(loadedModels[modelID].modelDataPtr));
 }
 
-void ModelLoader::UnloadModel(const int modelID) {
+void ModelLoader::UnloadModel(const unsigned int modelID) {
 #ifdef _DEBUG
-    assert(modelID > -1);
-    assert(modelID < (int)loadedModels.size());
+    assert(modelID != 0 && modelID < spareID);
 #endif
-    int index = 0;
-    for(std::vector<ModelInfo>::iterator iter = loadedModels.begin(); iter != loadedModels.end(); iter++) {
-        if(index == modelID) {
+    for(std::unordered_map<unsigned int, ModelInfo>::iterator iter = loadedModels.begin(); iter != loadedModels.end(); iter++) {
+        if(iter->first == modelID) {
+            availableIDStack.push(iter->first);
             loadedModels.erase(iter);
             break;
         }
-        index++;
     }
 }
 

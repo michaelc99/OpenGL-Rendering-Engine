@@ -28,7 +28,7 @@ class Model {
          */
         ModelDataPtr copyModelData() const;
     private:
-        int modelID = -1;
+        unsigned int modelID = 0;
 };
 
 }

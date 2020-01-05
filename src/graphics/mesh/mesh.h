@@ -12,7 +12,8 @@ class Mesh {
         Mesh(const MeshDataPtr meshDataPtr, const TexturedMaterial texturedMaterial, const UnTexturedMaterial unTexturedMaterial, const std::string modelFilePath = "");
         Mesh(const Mesh& mesh);
         ~Mesh();
-        
+        static float myTime;
+        static Math::Vec2f myMousePos;
         void render() const;
         
         /*
@@ -31,7 +32,7 @@ class Mesh {
         UnTexturedMaterial getUnTexturedMaterial() const { return unTexturedMaterial; }
         void setUnTexturedMaterial(const UnTexturedMaterial unTexturedMaterial) { this->unTexturedMaterial = unTexturedMaterial; }
     private:
-        int meshID = -1;
+        unsigned int meshID = 0;
         TexturedMaterial texturedMaterial;
         UnTexturedMaterial unTexturedMaterial;
 };

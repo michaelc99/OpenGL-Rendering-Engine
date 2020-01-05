@@ -7,6 +7,8 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <stack>
+#include <unordered_map>
 
 #include <glad/glad.h>
 
@@ -17,7 +19,14 @@ namespace Engine {
  */
 class TextureData {
     public:
+        /*
+         * Shallow copies dataPtr to TextureData.
+         */
         TextureData(const unsigned int width, const unsigned int height, const unsigned int numChannels, const std::shared_ptr<unsigned char[]> dataPtr);
+        
+        /*
+         * Deep copies data from other textureData
+         */
         TextureData(const TextureData& textureData);
         
         unsigned int getWidth() const { return width; }
@@ -26,6 +35,8 @@ class TextureData {
         void setHeight(const unsigned int height) { this->height = height; }
         unsigned int getNumChannels() const { return numChannels; }
         void setNumChannels(const unsigned int numChannels) { this->numChannels = numChannels; }
+        unsigned int getSize() const { return size; }
+        void setSize(const unsigned int size) { this->size = size; }
         std::shared_ptr<unsigned char[]> getDataPtr() const { return dataPtr; };
         void setDataPtr(const std::shared_ptr<unsigned char[]> dataPtr) { this->dataPtr = dataPtr; };
         
@@ -62,25 +73,25 @@ class TextureLoader {
         /*
          * Returns a TextureData pointer to texture data with index textureID from list of loaded textures.
          */
-        static TextureDataPtr GetTextureDataPtr(const int textureID);
+        static TextureDataPtr GetTextureDataPtr(const unsigned int textureID);
         
         /*
          * Binds texture about to be rendered.
          */
-        static void BindTexture(const int textureID);
+        static void BindTexture(const unsigned int textureID);
         
         /*
          * Loads texture from file system into system memory. Returns the index of texture from list of loaded textures.
          * If a texture with the same filename is already loaded, then the loaded instance will be used. If the texture is
          * not currently loaded then it will be loaded from the file system.
          */
-        static int LoadTextureFromFile(const std::string filePath);
+        static unsigned int LoadTextureFromFile(const std::string filePath);
         
         /*
-         * Puts texture with data given by TextureDataPtr into list of loaded textures. Returns the index of the texture
+         * Deep copies texture data given by TextureDataPtr into list of loaded textures. Returns the index of the texture
          * from list of loaded textures.
          */
-        static int LoadTextureFromTextureData(const TextureDataPtr textureDataPtr);
+        static unsigned int LoadTextureFromTextureData(const TextureDataPtr textureDataPtr);
         
         /*
          * Saves textureDataPtr to image file in file system.
@@ -91,32 +102,32 @@ class TextureLoader {
          * Increments using count for loaded texture with index textureID from list of loaded textures and ensures it is
          * buffered with OpenGL.
          */
-        static void UseLoadedTexture(const int textureID);
+        static void UseLoadedTexture(const unsigned int textureID);
         
         /*
          * Decrements using count for texture with index textureID from list of loaded textures.
          */
-        static void ReleaseLoadedTexture(const int textureID);
+        static void ReleaseLoadedTexture(const unsigned int textureID);
         
         /*
          * Returns a deep copy of the loaded texture data with index textureID from list of loaded textures.
          */
-        static TextureDataPtr CopyTextureDataFromLoaded(const int textureID);
+        static TextureDataPtr CopyTextureDataFromLoaded(const unsigned int textureID);
     private:
         /*
          * Buffers texture data to GPU from loaded texture list with index textureID.
          */
-        static void BufferTextureData(const int textureID);
+        static void BufferTextureData(const unsigned int textureID);
         
         /*
          * Deletes OpenGL buffer of texture with index textureID from loaded texture list.
          */
-        static void UnBufferTextureData(const int textureID);
+        static void UnBufferTextureData(const unsigned int textureID);
         
         /*
          * Unloads loaded texture from system memory. Removes the texture from list of loaded textures.
          */
-        static void UnloadTexture(const int textureID);
+        static void UnloadTexture(const unsigned int textureID);
         
         struct TextureInfo {
             std::string filePath;
@@ -125,7 +136,9 @@ class TextureLoader {
             unsigned int usingCount = 0;
         };
         // CHANGE TO SINGLETON PATTERN TO ALLOW RESEARTING OF ENGINE!!!!!!!!!!!!
-        static std::vector<TextureInfo> loadedTextures;
+        static unsigned int spareID;
+        static std::stack<unsigned int> availableIDStack;
+        static std::unordered_map<unsigned int, TextureInfo> loadedTextures;
 };
 
 }

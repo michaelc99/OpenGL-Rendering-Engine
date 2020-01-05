@@ -24,79 +24,83 @@ MeshGeometryData::MeshGeometryData(const MeshGeometryData& meshGeometryData) {
 #endif
     this->vertices = std::make_shared<std::vector<Math::Vec3f>>();
     for(unsigned int i = 0; i < meshGeometryData.vertices->size(); i++) {
-        (*(this->vertices))[i] = (*(meshGeometryData.vertices))[i];
+        this->vertices->push_back((*(meshGeometryData.vertices.get()))[i]);
     }
     this->normals = std::make_shared<std::vector<Math::Vec3f>>();
     for(unsigned int i = 0; i < meshGeometryData.normals->size(); i++) {
-        (*(this->normals))[i] = (*(meshGeometryData.normals))[i];
+        this->normals->push_back((*(meshGeometryData.normals.get()))[i]);
     }
     this->textureCoords = std::make_shared<std::vector<Math::Vec2f>>();
     for(unsigned int i = 0; i < meshGeometryData.textureCoords->size(); i++) {
-        (*(this->textureCoords))[i] = (*(meshGeometryData.textureCoords))[i];
+        this->textureCoords->push_back((*(meshGeometryData.textureCoords.get()))[i]);
     }
 }
 
 /*
  * Class MeshGeometryLoader
  */
-std::vector<MeshGeometryLoader::MeshGeometryInfo> MeshGeometryLoader::loadedMeshGeometries = std::vector<MeshGeometryLoader::MeshGeometryInfo>();
+unsigned int MeshGeometryLoader::spareID = 1;
+std::stack<unsigned int> MeshGeometryLoader::availableIDStack = std::stack<unsigned int>();
+std::unordered_map<unsigned int, MeshGeometryLoader::MeshGeometryInfo> MeshGeometryLoader::loadedMeshGeometries = std::unordered_map<unsigned int, MeshGeometryLoader::MeshGeometryInfo>();
 
 void MeshGeometryLoader::UnloadUnusedMeshGeometries() {
-    for(unsigned int i = 0; i < loadedMeshGeometries.size(); i++) {
-        if(loadedMeshGeometries[i].usingCount == 0) {
-            UnloadMeshGeometry(i);
+    for(std::unordered_map<unsigned int, MeshGeometryInfo>::iterator iter = loadedMeshGeometries.begin(); iter != loadedMeshGeometries.end(); iter++) {
+        if(iter->second.usingCount == 0) {
+            UnloadMeshGeometry(iter->first);
         }
     }
 }
 
-MeshGeometryDataPtr MeshGeometryLoader::GetMeshGeometryDataPtr(const int meshGeometryID) {
+MeshGeometryDataPtr MeshGeometryLoader::GetMeshGeometryDataPtr(const unsigned int meshGeometryID) {
 #ifdef _DEBUG
-    assert(meshGeometryID > -1);
-    assert(meshGeometryID < (int)loadedMeshGeometries.size());
+    assert(meshGeometryID != 0 && meshGeometryID < spareID);
 #endif
     return loadedMeshGeometries[meshGeometryID].meshGeometryDataPtr;
 }
 
-void MeshGeometryLoader::BindMeshGeometry(const int meshGeometryID) {
+void MeshGeometryLoader::BindMeshGeometry(const unsigned int meshGeometryID) {
     glBindBuffer(GL_ARRAY_BUFFER, loadedMeshGeometries[meshGeometryID].meshVBO);
 }
 
-int MeshGeometryLoader::LoadMeshFromMeshGeometryData(const MeshGeometryDataPtr meshGeometryDataPtr, const std::string modelFilePath) {
-    // Check if the texture is already buffered
+unsigned int MeshGeometryLoader::LoadMeshFromMeshGeometryData(const MeshGeometryDataPtr meshGeometryDataPtr, const std::string modelFilePath) {
+    // Check if the mesh geometry is already buffered
     if(modelFilePath != "") {
-        for(unsigned int index = 0; index < loadedMeshGeometries.size(); index++) {
-            if(loadedMeshGeometries[index].modelFilePath == modelFilePath) {
-                return index;
+        for(std::unordered_map<unsigned int, MeshGeometryInfo>::iterator iter = loadedMeshGeometries.begin(); iter != loadedMeshGeometries.end(); iter++) {
+            if(iter->second.modelFilePath == modelFilePath) {
+                iter->first;
             }
         }
     }
     
     MeshGeometryInfo meshGeometryInfo;
     meshGeometryInfo.modelFilePath = modelFilePath;
-    meshGeometryInfo.meshGeometryDataPtr = meshGeometryDataPtr;
+    meshGeometryInfo.meshGeometryDataPtr = std::make_shared<MeshGeometryData>(*(meshGeometryDataPtr.get()));
     meshGeometryInfo.meshVBO = 0;
     meshGeometryInfo.usingCount = 0;
-    loadedMeshGeometries.push_back(meshGeometryInfo);
-    
-    int meshGeometryID = loadedMeshGeometries.size() - 1;
+    if(availableIDStack.empty()) {
+        availableIDStack.push(spareID++);
+    }
+    unsigned int meshGeometryID = availableIDStack.top();
+    availableIDStack.pop();
+    loadedMeshGeometries[meshGeometryID] = meshGeometryInfo;
     return meshGeometryID;
 }
 
-void MeshGeometryLoader::UseLoadedMeshGeometry(const int meshGeometryID) {
+void MeshGeometryLoader::UseLoadedMeshGeometry(const unsigned int meshGeometryID) {
 #ifdef _DEBUG
-    assert(meshGeometryID > -1);
-    assert(meshGeometryID < (int)loadedMeshGeometries.size());
+    assert(meshGeometryID != 0 && meshGeometryID < spareID);
 #endif
     loadedMeshGeometries[meshGeometryID].usingCount++;
+    std::cout << "UseLoadedMeshGeometry ID = " << meshGeometryID << ", new count = " << loadedMeshGeometries[meshGeometryID].usingCount << "\n";
 }
 
-void MeshGeometryLoader::ReleaseLoadedMeshGeometry(const int meshGeometryID) {
+void MeshGeometryLoader::ReleaseLoadedMeshGeometry(const unsigned int meshGeometryID) {
 #ifdef _DEBUG
-    assert(meshGeometryID > -1);
-    assert(meshGeometryID < (int)loadedMeshGeometries.size());
+    assert(meshGeometryID != 0 && meshGeometryID < spareID);
     assert(loadedMeshGeometries[meshGeometryID].usingCount > 0);
 #endif
     loadedMeshGeometries[meshGeometryID].usingCount--;
+    std::cout << "ReleaseLoadedMeshGeometry ID = " << meshGeometryID << ", new count = " << loadedMeshGeometries[meshGeometryID].usingCount << "\n";
     if(loadedMeshGeometries[meshGeometryID].usingCount == 0) {
         UnBufferMeshGeometryData(meshGeometryID);
         if(loadedMeshGeometries[meshGeometryID].modelFilePath == "") {
@@ -105,38 +109,37 @@ void MeshGeometryLoader::ReleaseLoadedMeshGeometry(const int meshGeometryID) {
     }
 }
 
-void MeshGeometryLoader::RequireMeshGeometryBuffered(const int meshGeometryID) {
+void MeshGeometryLoader::RequireMeshGeometryBuffered(const unsigned int meshGeometryID) {
 #ifdef _DEBUG
-    assert(meshGeometryID > -1);
-    assert(meshGeometryID < (int)loadedMeshGeometries.size());
+    assert(meshGeometryID != 0 && meshGeometryID < spareID);
 #endif
     if(loadedMeshGeometries[meshGeometryID].usingBufferedCount == 0) {
         BufferMeshGeometryData(meshGeometryID);
     }
     loadedMeshGeometries[meshGeometryID].usingBufferedCount++;
+    std::cout << "RequireMeshGeometryBuffered ID = " << meshGeometryID << ", new count = " << loadedMeshGeometries[meshGeometryID].usingBufferedCount << "\n";
 }
 
-void MeshGeometryLoader::RelaxMeshGeometryBuffered(const int meshGeometryID) {
+void MeshGeometryLoader::RelaxMeshGeometryBuffered(const unsigned int meshGeometryID) {
 #ifdef _DEBUG
-    assert(meshGeometryID > -1);
-    assert(meshGeometryID < (int)loadedMeshGeometries.size());
+    assert(meshGeometryID != 0 && meshGeometryID < spareID);
     assert(loadedMeshGeometries[meshGeometryID].usingBufferedCount > 0);
 #endif
     loadedMeshGeometries[meshGeometryID].usingBufferedCount--;
+    std::cout << "RelaxMeshGeometryBuffered ID = " << meshGeometryID << ", new count = " << loadedMeshGeometries[meshGeometryID].usingBufferedCount << "\n";
     if(loadedMeshGeometries[meshGeometryID].usingBufferedCount == 0) {
         UnBufferMeshGeometryData(meshGeometryID);
     }
 }
 
-MeshGeometryDataPtr MeshGeometryLoader::CopyMeshGeometryDataFromLoaded(const int meshGeometryID) {
+MeshGeometryDataPtr MeshGeometryLoader::CopyMeshGeometryDataFromLoaded(const unsigned int meshGeometryID) {
 #ifdef _DEBUG
-    assert(meshGeometryID > -1);
-    assert(meshGeometryID < (int)loadedMeshGeometries.size());
+    assert(meshGeometryID != 0 && meshGeometryID < spareID);
 #endif
     return std::make_shared<MeshGeometryData>(*(loadedMeshGeometries[meshGeometryID].meshGeometryDataPtr));
 }
 
-void MeshGeometryLoader::BufferMeshGeometryData(const int meshGeometryID) {
+void MeshGeometryLoader::BufferMeshGeometryData(const unsigned int meshGeometryID) {
 #ifdef _DEBUG
     unsigned int size = loadedMeshGeometries[meshGeometryID].meshGeometryDataPtr->getVertices()->size();
     assert(loadedMeshGeometries[meshGeometryID].meshGeometryDataPtr->getNormals()->size() == size);
@@ -168,23 +171,21 @@ void MeshGeometryLoader::BufferMeshGeometryData(const int meshGeometryID) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void MeshGeometryLoader::UnBufferMeshGeometryData(const int meshGeometryID) {
+void MeshGeometryLoader::UnBufferMeshGeometryData(const unsigned int meshGeometryID) {
     glDeleteBuffers(1, &(loadedMeshGeometries[meshGeometryID].meshVBO));
 }
 
-void MeshGeometryLoader::UnloadMeshGeometry(const int meshGeometryID) {
+void MeshGeometryLoader::UnloadMeshGeometry(const unsigned int meshGeometryID) {
 #ifdef _DEBUG
-    assert(meshGeometryID > -1);
-    assert(meshGeometryID < (int)loadedMeshGeometries.size());
+    assert(meshGeometryID != 0 && meshGeometryID < spareID);
     assert(loadedMeshGeometries[meshGeometryID].usingCount == 0);
 #endif
-    int index = 0;
-    for(std::vector<MeshGeometryInfo>::iterator iter = loadedMeshGeometries.begin(); iter != loadedMeshGeometries.end(); iter++) {
-        if(index == meshGeometryID) {
+    for(std::unordered_map<unsigned int, MeshGeometryInfo>::iterator iter = loadedMeshGeometries.begin(); iter != loadedMeshGeometries.end(); iter++) {
+        if(iter->first == meshGeometryID) {
+            availableIDStack.push(iter->first);
             loadedMeshGeometries.erase(iter);
             break;
         }
-        index++;
     }
 }
 

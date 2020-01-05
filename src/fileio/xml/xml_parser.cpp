@@ -2,12 +2,11 @@
 
 namespace Utility {
 
-XmlParser::XmlParser(std::string filePath) {
-    parseFile(filePath);
+XmlParser::XmlParser(std::string filePath) : filePath(filePath) {
+    parseFile(this->filePath);
 }
 
 void XmlParser::parseFile(std::string filePath) {
-    topNode.reset();
     std::string fileString;
     Engine::readFile(filePath, fileString, "\n");
     // Clip XML info header node

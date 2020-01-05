@@ -27,7 +27,9 @@ void myFrameBufferResizeCallback(GLFWwindow* window, int frameWidth, int frameHe
 }
 
 void myMousePosCallback(GLFWwindow* window, double x, double y) {
-    std::cout << "Mouse pos = (" << x << ", " << y << ")" << std::endl;
+    //std::cout << "Mouse pos = (" << x << ", " << y << ")" << std::endl;
+    if(myFrameWidth > 0 && myFrameHeight > 0)
+        Engine::Mesh::myMousePos = Engine::Math::createVec2<float>((float)x/(float)myFrameWidth, (float)y/(float)myFrameHeight);
 }
 
 float mixVal = 0;
@@ -101,22 +103,26 @@ int main(void) {
         ////////////////////
         
         // Setup
-        Utility::ModelConverter modelConverter;
-        Engine::Model model = Engine::Model(modelConverter.createModelDataFromCollada("test.dae"));
-//        for(unsigned int i = 0; i < model.getModelDataPtr()->getMeshes()[0].getMeshDataPtr()->getIndices()->size(); i++) {
-//            unsigned int vertexIndex = (*(model.getModelDataPtr()->getMeshes()[0].getMeshDataPtr()->getIndices()))[i][0];
-//            std::cout << "index:" << (*(model.getModelDataPtr()->getMeshes()[0].getMeshDataPtr()->getIndices()))[i] << "vertex:"
-//                    << (*(model.getModelDataPtr()->getMeshes()[0].getMeshDataPtr()->getMeshGeometryDataPtr()->getVertices()))[vertexIndex] << std::endl;
-//        }
+        Utility::ColladaModelConverter colladaModelConverter;
+        ADD_ERROR_INFO(colladaModelConverter = Utility::ColladaModelConverter("wolf_test.dae"));
+        Engine::Model model = Engine::Model(colladaModelConverter.getModelDataPtr());
+        model.getModelDataPtr()->setMeshes({model.getModelDataPtr()->getMeshes()[0], model.getModelDataPtr()->getMeshes()[1]});
+        
+//        Engine::Model tempModel = Engine::Model(colladaModelConverter.getModelDataPtr());
+//        Engine::ModelDataPtr tempModelDataPtr = std::make_shared<Engine::ModelData>(*(tempModel.getModelDataPtr().get()));
+//        std::vector<Engine::Mesh> tempMeshes = {tempModelDataPtr->getMeshes()[0]};
+//        tempModelDataPtr->setMeshes(tempMeshes);
+//        Engine::Model model = Engine::Model(tempModelDataPtr);
         
         Engine::ShaderFiles files = {"myShader", "basic_vertex_shader.vs.glsl", "", "basic_fragment_shader.fs.glsl"};
         Engine::ShaderLoader::LoadShaderPrograms({files});
         std::vector<Engine::Mesh> meshes = model.getModelDataPtr()->getMeshes();
-        Engine::TexturedMaterial texturedMaterial  = meshes[0].getTexturedMaterial();
+        Engine::TexturedMaterial texturedMaterial;
         texturedMaterial.setShaderProgramPtr(Engine::ShaderLoader::getShaderProgram("myShader"));
         texturedMaterial.setTextures({Engine::Texture("awesomeface.png", Engine::TextureType::TEXTURE_DIFFUSE)});
         texturedMaterial.setTextureMixingWeights({1.0f});
         meshes[0].setTexturedMaterial(texturedMaterial);
+        meshes[1].setTexturedMaterial(texturedMaterial);
         model.getModelDataPtr()->setMeshes(meshes);
         
         // Set minimum of 1 frame time between swapping buffer
@@ -130,7 +136,7 @@ int main(void) {
             glClear(GL_COLOR_BUFFER_BIT);
             
             // DRAWING
-            //float time = ((int)(100.0f * glfwGetTime()) % 100) / 100.0f;
+            Engine::Mesh::myTime = ((int)(100.0f * glfwGetTime()) % 100) / 100.0f;
             model.render();
             
             glfwSwapBuffers(window);
