@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <cstring>
 #include <stack>
 #include <unordered_map>
 

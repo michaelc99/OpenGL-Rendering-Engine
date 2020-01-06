@@ -5,6 +5,7 @@
 #include <graphics/texture/texture.h>
 #include <string>
 #include <vector>
+#include <cstring>
 #include <stack>
 #include <unordered_map>
 
