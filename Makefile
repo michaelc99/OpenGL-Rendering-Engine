@@ -8,12 +8,11 @@ endif
 
 # RELEASE MAKEFILE -D _DEBUG -U _DEBUG
 CXXFLAGS := -std=c++17 -Wall -D _DEBUG
-ifdef GDB
-	CXXFLAGS += -g
-else ifdef RELEASE
+ifdef RELEASE
 	CXXFLAGS += -O3 -U _DEBUG
 else
-	CXXFLAGS += -Og
+# FOR GDB
+	CXXFLAGS += -g
 endif
 
 # EXECUTABLES AND MAIN FILES SPECIFICATION
