@@ -5,6 +5,7 @@
 #include <math/vector.h>
 #include <vector>
 #include <memory>
+#include <cstring>
 #include <stack>
 #include <unordered_map>
 
