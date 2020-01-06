@@ -46,19 +46,36 @@ SHADER_FILES_WITHOUT_DIR := $(filter %.glsl,$(subst /, ,$(SHADER_FILES)))
 SHADER_DEPS := $(patsubst %.glsl,%,$(SHADER_FILES))
 
 # INCLUDE SECTION
-GLFW_INCLUDE_DIR :=
-GLAD_INCLUDE_DIR :=
-INCLUDE_DIR := $(SRC_DIR) $(TEST_SRC_DIR) include $(GLFW_INCLUDE_DIR) $(GLAD_INCLUDE_DIR)
-IFLAGS := $(patsubst %,-I%,$(INCLUDE_DIR))
+ifeq ($(OS_WINDOWS),1) # WINDOWS
+	GLFW_INCLUDE_DIR :=
+	GLAD_INCLUDE_DIR :=
+	INCLUDE_DIR := $(SRC_DIR) $(TEST_SRC_DIR) include $(GLFW_INCLUDE_DIR) $(GLAD_INCLUDE_DIR)
+	IFLAGS := $(patsubst %,-I%,$(INCLUDE_DIR))
+else # LINUX
+	GLFW_INCLUDE_DIR := /usr/local/include 
+	GLAD_INCLUDE_DIR :=
+	INCLUDE_DIR := $(SRC_DIR) $(TEST_SRC_DIR) include $(GLFW_INCLUDE_DIR) $(GLAD_INCLUDE_DIR)
+	IFLAGS := $(patsubst %,-I%,$(INCLUDE_DIR))
+endif
 
 # STATICALLY LINKED LIBRARIES SECTION
-GLFW_LIB_DIR :=
-GLFW_LIBS := glfw3 gdi32
-GLAD_LIB_DIR :=
-GLAD_LIBS :=
+ifeq ($(OS_WINDOWS),1) # WINDOWS
+    GLFW_LIB_DIR := lib/windows
+    GLFW_LIBS := glfw3 gdi32
+    GLAD_LIB_DIR :=
+    GLAD_LIBS :=
+    OPENGL_LIBS := opengl32
+else # LINUX
+    GLFW_LIB_DIR := lib/unix usr/local/lib
+    GLFW_LIBS := glfw3 pthread rt m dl X11
+    GLAD_LIB_DIR :=
+    GLAD_LIBS := dl
+    OPENGL_LIBS := GL
+endif
+
 
 LIBS_DIR := lib $(GLFW_LIB_DIR) $(GLAD_LIB_DIR)
-LIBS := $(GLFW_LIBS) $(GLAD_LIBS) opengl32
+LIBS := $(GLFW_LIBS) $(GLAD_LIBS)
 
 LFLAGS := $(patsubst %,-L%,$(LIBS_DIR)) $(patsubst %,-l%,$(LIBS))
 
