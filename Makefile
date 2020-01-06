@@ -241,18 +241,25 @@ $(TEST_OBJ_FILES) : $(BUILD_DIR)/%.o : %.cpp $(TEST_HEADER_FILES) $(HEADER_FILES
 endif
 
 # Regular clean only removes compiled source obj files and excecutables and not compiled library obj files
-EXCECUTABLE_FILES_TO_REMOVE := $(patsubst %,"$(OUTPUT_DIR)/%.exe",$(EXECUTABLE_FILES))
-TEST_EXCECUTABLE_FILES_TO_REMOVE := $(patsubst %,"$(TEST_OUTPUT_DIR)/%.exe",$(TEST_EXECUTABLE_FILES))
-SHADER_FILES_TO_REMOVE := $(patsubst %,"$(OUTPUT_DIR)/%",$(SHADER_FILES_WITHOUT_DIR))
-OBJ_FILES_TO_REMOVE := $(patsubst %,"%",$(OBJ_FILES))
-TEST_OBJ_FILES_TO_REMOVE := $(patsubst %,"%",$(TEST_OBJ_FILES))
-FILES_TO_REMOVE := $(subst /,\,$(EXCECUTABLE_FILES_TO_REMOVE) $(TEST_EXCECUTABLE_FILES_TO_REMOVE) $(SHADER_FILES_TO_REMOVE) $(OBJ_FILES_TO_REMOVE) $(TEST_OBJ_FILES_TO_REMOVE))
+
 ifeq ($(OS_WINDOWS),1) # WINDOWS
+    EXCECUTABLE_FILES_TO_REMOVE := $(patsubst %,"$(OUTPUT_DIR)/%.exe",$(EXECUTABLE_FILES))
+    TEST_EXCECUTABLE_FILES_TO_REMOVE := $(patsubst %,"$(TEST_OUTPUT_DIR)/%.exe",$(TEST_EXECUTABLE_FILES))
+    SHADER_FILES_TO_REMOVE := $(patsubst %,"$(OUTPUT_DIR)/%",$(SHADER_FILES_WITHOUT_DIR))
+    OBJ_FILES_TO_REMOVE := $(patsubst %,"%",$(OBJ_FILES))
+    TEST_OBJ_FILES_TO_REMOVE := $(patsubst %,"%",$(TEST_OBJ_FILES))
+    FILES_TO_REMOVE := $(subst /,\,$(EXCECUTABLE_FILES_TO_REMOVE) $(TEST_EXCECUTABLE_FILES_TO_REMOVE) $(SHADER_FILES_TO_REMOVE) $(OBJ_FILES_TO_REMOVE) $(TEST_OBJ_FILES_TO_REMOVE))
 .PHONY : clean
 clean :
 #	@for %%f in ($(FILES_TO_REMOVE)) do (if exist %%~f (echo found file to be deleted: "%%~f"))
 	@for %%f in ($(FILES_TO_REMOVE)) do (if exist %%~f (del /F %%f))
 else # LINUX
+    EXCECUTABLE_FILES_TO_REMOVE := $(patsubst %,"$(OUTPUT_DIR)/%",$(EXECUTABLE_FILES))
+    TEST_EXCECUTABLE_FILES_TO_REMOVE := $(patsubst %,"$(TEST_OUTPUT_DIR)/%",$(TEST_EXECUTABLE_FILES))
+    SHADER_FILES_TO_REMOVE := $(patsubst %,"$(OUTPUT_DIR)/%",$(SHADER_FILES_WITHOUT_DIR))
+    OBJ_FILES_TO_REMOVE := $(patsubst %,"%",$(OBJ_FILES))
+    TEST_OBJ_FILES_TO_REMOVE := $(patsubst %,"%",$(TEST_OBJ_FILES))
+    FILES_TO_REMOVE := $(subst \,/,$(EXCECUTABLE_FILES_TO_REMOVE) $(TEST_EXCECUTABLE_FILES_TO_REMOVE) $(SHADER_FILES_TO_REMOVE) $(OBJ_FILES_TO_REMOVE) $(TEST_OBJ_FILES_TO_REMOVE))
 .PHONY : clean
 clean :
 	@rm -f $(FILES_TO_REMOVE)
@@ -271,10 +278,6 @@ super_clean : clean
 else # LINUX
 .PHONY : super_clean
 super_clean : clean
-	$(eval EXECUTABLES_IN_BIN := $(wildcard $(OUTPUT_DIR)/*.exe) $(wildcard $(OUTPUT_DIR)/*/*.exe) $(wildcard $(OUTPUT_DIR)/*/*/*.exe) $(wildcard $(OUTPUT_DIR)/*/*/*/*.exe))
-	$(eval TEST_EXECUTABLES_IN_BIN := $(wildcard $(TEST_OUTPUT_DIR)/*.exe) $(wildcard $(TEST_OUTPUT_DIR)/*/*.exe) $(wildcard $(TEST_OUTPUT_DIR)/*/*/*.exe) $(wildcard $(TEST_OUTPUT_DIR)/*/*/*/*.exe))
-	$(eval EXECUTABLES_TO_REMOVE := $(subst /,\,$(EXECUTABLES_IN_BIN) $(TEST_EXECUTABLES_IN_BIN)))
-	
-	@for FILE in $(EXECUTABLES_TO_REMOVE); do rm -f $FILE; done
+# Can't use wildcard to get all executables on Linux system. Possible Solution?
 	@if test -d $(BUILD_DIR); then rm -r -f $(BUILD_DIR); fi
 endif
