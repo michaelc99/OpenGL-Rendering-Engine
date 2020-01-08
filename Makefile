@@ -262,7 +262,7 @@ else # LINUX
     FILES_TO_REMOVE := $(subst \,/,$(EXCECUTABLE_FILES_TO_REMOVE) $(TEST_EXCECUTABLE_FILES_TO_REMOVE) $(SHADER_FILES_TO_REMOVE) $(OBJ_FILES_TO_REMOVE) $(TEST_OBJ_FILES_TO_REMOVE))
 .PHONY : clean
 clean :
-	for FILE in $(FILES_TO_REMOVE); do rm -f $$FILE; done
+	@for FILE in $(FILES_TO_REMOVE); do rm -f $$FILE; done
 endif
 
 # Super clean removes everything in build and all executables
