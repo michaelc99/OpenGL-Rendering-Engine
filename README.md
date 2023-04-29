@@ -9,4 +9,4 @@ Currently a functioning version of the basic engine with no animation or physica
 
 
 Update 2023: Real-time path tracing coming soon!
-![Image](Path Tracing.png)
+![Image]("Path Tracing.png")
